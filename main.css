@@ -1,0 +1,60 @@
+body {
+    background-color: #eee;
+}	
+.jumbotron {
+	display: block;
+	max-width: 600px;
+	margin-left: auto;
+	margin-right: auto;
+    padding-top: 5px;
+    background-color: #ffffff;
+}
+.form-user-management .form-control {
+    position: relative;
+    height: auto;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 10px;
+    font-size: 16px;
+}
+.alert {
+	margin-bottom: 0;
+	margin-top: 0;
+}
+.button-spaced {
+	margin-top: 10px;
+}
+#course_id {
+    margin-bottom: 10px;
+}
+#login_input_username {
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
+#login_input_password {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	margin-bottom: 10px;
+}
+#register_input_username {
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
+#register_input_email {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
+#register_input_password_new {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
+#register_input_password_repeat {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	margin-bottom: 10px;
+}
