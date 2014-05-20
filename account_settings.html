@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>CourseEater - Account Settings</title>
+    
+    <!-- Services -->
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.18.min.js"></script>
+	
+	<!-- Stylesheets -->
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/main.css">
+    
+    <script>
+		
+		Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");	
+	    if (Parse.User.current() == null) {window.location.replace("index.html");}
+	    
+	    $(document).ready(function() {
+			$("#userNameDisplay").text(Parse.User.current().get("username"));
+	    	$("#logout").click(function() {			
+				Parse.User.logOut();
+				sessionStorage.clear();
+				window.location.replace("index.html");
+			});
+
+	    	$("#updateEmail").submit(function() {
+	    		event.preventDefault();
+				var newEmail = $("#new_email").val();
+				Parse.User.current().set("email", newEmail);
+				Parse.User.current().save();
+				$("#account_alert span").text("Email changed to " + newEmail);
+				$("#account_alert").show();
+			});
+			
+			$("#updatePassword").submit(function() {
+				event.preventDefault();
+				console.log("password");
+			});
+			
+			$("#deleteAccount").submit(function() {
+				event.preventDefault();
+				console.log("delete");
+			});
+		});
+    </script>
+</head>
+<body>
+
+	<div id="account_alert" class='alert alert-success alert-dismissable' style="display:none">
+		<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
+		<span></span>
+	</div>
+
+	<header class="navbar navbar-static-top" role="banner">
+    	<nav class="navbar navbar-default navbar-static-top" role="navigation">
+        	<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="index.html">CourseEater</a>
+				</div>
+				<div class="collapse navbar-collapse">
+					<ul class="nav navbar-nav">
+						<li><a href="enroll.html"><span class="glyphicon glyphicon-book"></span> Track</a></li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li class="dropdown active">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> <span id="userNameDisplay"></span></a>
+							<ul class="dropdown-menu">
+								<li><a id="clear-data" href="#"><span class="glyphicon glyphicon-refresh"></span> Refresh</a></li>
+								<li><a href="#"><span class="glyphicon glyphicon-cog"></span> Account Settings</a></li>
+								<li><a id="logout" href="#"><span class="glyphicon glyphicon-log-out"></span> Sign out</a></li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+  
+	<div class="container form-user-management">
+  		<div class="jumbotron">
+  			<h3>Account<br><small>Change your basic account settings</small></h3>
+  			<div class="panel panel-default">
+  				<div class="panel-heading">
+	  				<h3 class="panel-title">Change email preferences</h3>
+	  			</div>  			
+	  			<div class="panel-body">
+  					<form id="updateEmail" role="form">
+	  					<label for="new_email">Email</label>
+	  					<input type="email" class="form-control" id="new_email" placeholder="Email" />
+	  					<input type="submit" class="btn btn-lg btn-primary btn-block button-spaced" value="Update Email" />
+	  				</form>
+	  			</div>
+	  		</div>
+  		
+	  		<div class="panel panel-default">
+  				<div class="panel-heading">
+	  				<h3 class="panel-title">Change password preferences</h3>
+	  			</div>
+	  			<div class="panel-body">
+  					<form id="updatePassword" role="form">
+	  					<label for="inputCurrentPassword">Current password</label>
+	  					<input type="password" class="form-control" name="inputCurrentPassword" placeholder="Current password" />
+	  					<label for="inputNewPassword">New password</label>
+	  					<input type="password" class="form-control" name="inputNewPassword" placeholder="New password" />
+	  					<label for="inputVerifyPassword">Verify password</label>
+	  					<input type="password" class="form-control" name="inputVerifyPassword" placeholder="Verify password" />
+	  					<input type="submit" class="btn btn-lg btn-primary btn-block button-spaced" value="Update Password" />
+	  				</form>
+	  			</div>
+	  		</div>
+  		
+	  		<div class="panel panel-default">
+  				<div class="panel-heading">
+		  			<h3 class="panel-title">Delete account permanently</h3>
+		  		</div>
+		  		<div class="panel-body"> 
+	  				<form id="deleteAccount" role="form">
+	  					<label for="password_delete_account">Current password</label>
+	  					<input type="password" class="form-control" id="password_delete_account" name="password_delete_account" placeholder="Current password" />
+	  					<input type="submit" class="btn btn-lg btn-primary btn-block button-spaced" value="Delete account" />
+	  				</form>
+	  			</div>
+	  		</div>
+  		</div>
+	</div>
+  
+	<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+</body>
+</html>
