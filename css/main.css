@@ -1,0 +1,82 @@
+body {
+    background-color: #eee;
+}
+.jumbotron {
+	display: block;
+	max-width: 800px;
+	padding-top: 10px;
+	margin-left: auto;
+	margin-right: auto;
+    background-color: #ffffff;
+}
+.form-user-management .form-control {
+    position: relative;
+    height: auto;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 10px;
+    font-size: 16px;
+}
+.button-add {
+	margin-top: 10px;
+}
+.alert-invalid-courseid {
+	margin-top: 10px;
+}
+.loading {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+.course-list-item {
+	margin-top: 50px;
+	border-top-left-radius: 0px;
+	border-top-right-radius: 0px;
+	border-bottom-left-radius: 0px;
+	border-bottom-right-radius: 0px;
+}
+.panel-heading {
+	border-radius: 0px;
+}
+.label-day {
+	border-radius: 0px;
+}
+.list-detail-glyphicon {
+	padding-right: 20px;
+}
+.progress {
+	margin-bottom: 4px;
+}
+.btn-remove {
+	border-radius: 0px;
+}
+#alert-login {
+	margin-top: 10px;
+}
+.form-control-username {
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
+.form-control-password {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	margin-bottom: 10px;
+}
+.form-control-username {
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
+.form-control-email {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
+.form-control-password {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
+.form-control-reset-email {
+	margin-bottom: 10px;
+}
