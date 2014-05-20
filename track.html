@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>CourseEater - Track</title>
+    
+    <!-- Services -->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.18.min.js"></script>
+    
+    <!-- Javascript Scripts -->
+    <script type="text/javascript" src="js/main.js"></script>
+    <script type="text/javascript" src="js/prism.js"></script>
+    <script type="text/javascript" src="js/spin.min.js"></script>
+    <script type="text/javascript" src="js/ladda.min.js"></script>
+    <script type="text/javascript" src="js/jqBootstrapValidation.js"></script>
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/ladda-themeless.min.css">
+    <link rel="stylesheet" href="css/prism.css">
+    <link rel="stylesheet" href="css/main.css">
+    
+    <script>
+		Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");
+		if (!Parse.User.current()) {window.location.replace("index.html");}
+		
+		$(document).ready(function() {
+			$(".alert-invalid-courseid").hide();
+			$("#courseDisplay").hide();
+			$("#userNameDisplay").text(Parse.User.current().get("username"));
+			$("#logout").click(function() {			
+				Parse.User.logOut();
+				sessionStorage.clear();
+				window.location.replace("index.html");
+			});
+			getCourses();
+		});
+    </script>
+</head>
+<body>
+
+	<header class="navbar navbar-static-top" role="banner">
+	 	<nav class="navbar navbar-default navbar-static-top" role="navigation">
+		 	<div class="container">
+          		<div class="navbar-header">
+            		<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+		            <a class="navbar-brand" href="index.html">CourseEater</a>
+				</div>
+				<div class="collapse navbar-collapse">
+					<ul class="nav navbar-nav">
+						<li class="active"><a href="track.html"><span class="glyphicon glyphicon-book"></span> Track</a></li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li><a id="clear-data" class="ladda-button" data-style="slide-up" data-spinner-color="#000000" href="#"><span class="glyphicon glyphicon-refresh"></span> Refresh</a></li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> <span id="userNameDisplay"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="account_settings.html"><span class="glyphicon glyphicon-cog"></span> Account Settings</a></li>
+								<li><a id="logout" href="#"><span class="glyphicon glyphicon-log-out"></span> Sign out</a></li>
+							</ul>
+						</li>		
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+	
+	<div class="container form-user-management">
+		
+    	<div class="jumbotron">
+			<div id="insertForm">
+				<h3>Track course</h3>
+				<input id="courseID" type="tel" maxlength="5" class="form-control" placeholder="Enter CourseID" autocomplete="off" required autofocus />
+				<button id="addCourse" type="button" data-loading-text="Adding..." class="btn btn-lg btn-primary btn-block button-add ladda-button"><span class="ladda-label">Add</span></button>
+				
+			</div>
+			
+			<div class="alert alert-danger alert-invalid-courseid"></div>
+      
+		</div>
+	</div>
+  
+	<div class="container">
+  		<div class="jumbotron" id="courseDisplay"></div>
+	</div>
+
+	<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+</body>
+</html>
