@@ -1,5 +1,13 @@
+@media (min-width: 1200px) {
+  .container {
+    width: 970px;
+  }
+}
 body {
     background-color: #eee;
+}
+.navbar {
+	margin-bottom: 15px;
 }
 .jumbotron {
 	display: block;
@@ -7,7 +15,19 @@ body {
 	padding-top: 10px;
 	margin-left: auto;
 	margin-right: auto;
-    background-color: #ffffff;
+	border-radius: 0 !important;
+}
+.form-control {
+	border-radius: 0;
+}
+.progress {
+	margin-bottom: 4px;
+}
+.alert {
+	border-radius: 0px;
+}
+.btn {
+	border-radius: 0px;
 }
 .form-user-management .form-control {
     position: relative;
@@ -19,22 +39,15 @@ body {
     font-size: 16px;
 }
 .button-add {
-	margin-top: 10px;
+	margin-top: -1px;
 }
 .alert-invalid-courseid {
 	margin-top: 10px;
-}
-.loading {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+	margin-bottom: 10px;
 }
 .course-list-item {
-	margin-top: 50px;
-	border-top-left-radius: 0px;
-	border-top-right-radius: 0px;
-	border-bottom-left-radius: 0px;
-	border-bottom-right-radius: 0px;
+	margin-top: 20px;
+	border-radius: 0;
 }
 .panel-heading {
 	border-radius: 0px;
@@ -45,38 +58,13 @@ body {
 .list-detail-glyphicon {
 	padding-right: 20px;
 }
-.progress {
-	margin-bottom: 4px;
-}
-.btn-remove {
-	border-radius: 0px;
-}
-#alert-login {
+.alert-login {
 	margin-top: 10px;
 }
-.form-control-username {
-	border-bottom-left-radius: 0;
-	border-bottom-right-radius: 0;
+.alert-account-info {
+	margin-top: 10px;
+	margin-bottom: 5px;
 }
-.form-control-password {
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
-	margin-bottom: 10px;
-}
-.form-control-username {
-	border-bottom-left-radius: 0;
-	border-bottom-right-radius: 0;
-}
-.form-control-email {
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
-	border-bottom-left-radius: 0;
-	border-bottom-right-radius: 0;
-}
-.form-control-password {
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
-}
-.form-control-reset-email {
+.form-control.update-info {
 	margin-bottom: 10px;
 }

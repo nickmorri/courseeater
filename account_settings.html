@@ -20,6 +20,7 @@
 	    
 	    $(document).ready(function() {
 			$("#userNameDisplay").text(Parse.User.current().get("username"));
+	    	$("#new_email").attr("placeholder", Parse.User.current().get("email"));
 	    	$("#logout").click(function() {			
 				Parse.User.logOut();
 				sessionStorage.clear();
@@ -31,28 +32,61 @@
 				var newEmail = $("#new_email").val();
 				Parse.User.current().set("email", newEmail);
 				Parse.User.current().save();
-				$("#account_alert span").text("Email changed to " + newEmail);
-				$("#account_alert").show();
+				$(".alert-account-email span").text("Email changed to " + newEmail);
+				$(".alert-account-email").show();
+				$("#new_email").attr("placeholder", newEmail);
+				$("#new_email").val("");
 			});
 			
 			$("#updatePassword").submit(function() {
+				if ($("#inputNewPassword").val() != $("#inputVerifyPassword").val()) {
+					$(".alert-account-password span").text("Passwords do not match.");
+					$(".alert-account-password").show();
+					$("#inputNewPassword").val("");
+					$("#inputVerifyPassword").val("");
+				}
 				event.preventDefault();
-				console.log("password");
+				Parse.User.logIn(Parse.User.current().get("username"), $("#inputCurrentPassword").val(), {
+					success: function(user) {
+						Parse.User.current().set("password", $("#inputNewPassword").val());
+						Parse.User.current().save();
+						$(".alert-account-password span").text("Password updated");
+						$(".alert-account-password").show();
+						$("#inputNewPassword").val("");
+						$("#inputVerifyPassword").val("");
+						$("#inputCurrentPassword").val("");
+					},
+					error: function(user, error) {
+						window.location.replace("index.html");
+					}	
+				});
 			});
 			
 			$("#deleteAccount").submit(function() {
 				event.preventDefault();
-				console.log("delete");
+				Parse.User.logIn(Parse.User.current().get("username"), $("#password_delete_account").val(), {
+					success: function(user) {
+						Parse.User.current().destroy({
+							success: function(user) {
+								Parse.User.logOut();
+								sessionStorage.clear();
+								window.location.replace("index.html");
+							},
+							error: function(user, error) {
+								console.log(error);
+							}
+						});
+					},
+					error: function(user, error) {
+						console.log(error);
+					}	
+				});
 			});
+			
 		});
     </script>
 </head>
 <body>
-
-	<div id="account_alert" class='alert alert-success alert-dismissable' style="display:none">
-		<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
-		<span></span>
-	</div>
 
 	<header class="navbar navbar-static-top" role="banner">
     	<nav class="navbar navbar-default navbar-static-top" role="navigation">
@@ -68,13 +102,12 @@
 				</div>
 				<div class="collapse navbar-collapse">
 					<ul class="nav navbar-nav">
-						<li><a href="enroll.html"><span class="glyphicon glyphicon-book"></span> Track</a></li>
+						<li><a href="track.html"><span class="glyphicon glyphicon-book"></span> Track</a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						<li class="dropdown active">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> <span id="userNameDisplay"></span></a>
 							<ul class="dropdown-menu">
-								<li><a id="clear-data" href="#"><span class="glyphicon glyphicon-refresh"></span> Refresh</a></li>
 								<li><a href="#"><span class="glyphicon glyphicon-cog"></span> Account Settings</a></li>
 								<li><a id="logout" href="#"><span class="glyphicon glyphicon-log-out"></span> Sign out</a></li>
 							</ul>
@@ -88,16 +121,28 @@
 	<div class="container form-user-management">
   		<div class="jumbotron">
   			<h3>Account<br><small>Change your basic account settings</small></h3>
+  			
   			<div class="panel panel-default">
   				<div class="panel-heading">
 	  				<h3 class="panel-title">Change email preferences</h3>
 	  			</div>  			
 	  			<div class="panel-body">
-  					<form id="updateEmail" role="form">
-	  					<label for="new_email">Email</label>
-	  					<input type="email" class="form-control" id="new_email" placeholder="Email" />
+	  			
+  					<form id="updateEmail" class="form-horizontal" role="form">
+	  					<div class="form-group">
+		  					<label for="new_email" class="col-sm-2 control-label">Email</label>
+		  					<div class="col-sm-10">
+			  					<input type="email" class="form-control update-info" id="new_email" placeholder="Email" />
+			  				</div>
+	  					</div>
 	  					<input type="submit" class="btn btn-lg btn-primary btn-block button-spaced" value="Update Email" />
 	  				</form>
+	  				
+	  				<div class='alert alert-success alert-dismissable alert-account-info alert-account-email' style="display:none">
+						<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
+						<span></span>
+					</div>
+					
 	  			</div>
 	  		</div>
   		
@@ -106,15 +151,27 @@
 	  				<h3 class="panel-title">Change password preferences</h3>
 	  			</div>
 	  			<div class="panel-body">
-  					<form id="updatePassword" role="form">
-	  					<label for="inputCurrentPassword">Current password</label>
-	  					<input type="password" class="form-control" name="inputCurrentPassword" placeholder="Current password" />
-	  					<label for="inputNewPassword">New password</label>
-	  					<input type="password" class="form-control" name="inputNewPassword" placeholder="New password" />
-	  					<label for="inputVerifyPassword">Verify password</label>
-	  					<input type="password" class="form-control" name="inputVerifyPassword" placeholder="Verify password" />
+  					<form id="updatePassword" class="form-horizontal" role="form">
+  						<div class="form-group">
+		  					<label for="inputCurrentPassword" class="col-sm-2 control-label">Current password</label>
+		  					<div class="col-sm-10">
+			  					<input type="password" class="form-control update-info" id="inputCurrentPassword" placeholder="Current password" />
+		  					</div>
+		  					<label for="inputNewPassword" class="col-sm-2 control-label">New password</label>
+		  					<div class="col-sm-10">
+			  					<input type="password" class="form-control update-info" id="inputNewPassword" placeholder="New password" />
+		  					</div>
+		  					<label for="inputVerifyPassword" class="col-sm-2 control-label">Verify password</label>
+		  					<div class="col-sm-10">
+			  					<input type="password" class="form-control update-info" id="inputVerifyPassword" placeholder="Verify password" />
+		  					</div>
+  						</div>
 	  					<input type="submit" class="btn btn-lg btn-primary btn-block button-spaced" value="Update Password" />
 	  				</form>
+	  				<div class='alert alert-success alert-dismissable alert-account-info alert-account-password' style="display:none">
+						<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
+						<span></span>
+					</div>
 	  			</div>
 	  		</div>
   		
@@ -123,9 +180,13 @@
 		  			<h3 class="panel-title">Delete account permanently</h3>
 		  		</div>
 		  		<div class="panel-body"> 
-	  				<form id="deleteAccount" role="form">
-	  					<label for="password_delete_account">Current password</label>
-	  					<input type="password" class="form-control" id="password_delete_account" name="password_delete_account" placeholder="Current password" />
+	  				<form id="deleteAccount" class="form-horizontal" role="form">
+	  					<div class="form-group">
+		  					<label for="password_delete_account" class="col-sm-2 control-label">Current password</label>
+		  					<div class="col-sm-10">
+			  					<input type="password" class="form-control update-info" id="password_delete_account" placeholder="Current password" />
+		  					</div>
+	  					</div>
 	  					<input type="submit" class="btn btn-lg btn-primary btn-block button-spaced" value="Delete account" />
 	  				</form>
 	  			</div>

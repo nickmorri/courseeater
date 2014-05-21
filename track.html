@@ -73,22 +73,12 @@
 	</header>
 	
 	<div class="container form-user-management">
-		
-    	<div class="jumbotron">
-			<div id="insertForm">
-				<h3>Track course</h3>
-				<input id="courseID" type="tel" maxlength="5" class="form-control" placeholder="Enter CourseID" autocomplete="off" required autofocus />
-				<button id="addCourse" type="button" data-loading-text="Adding..." class="btn btn-lg btn-primary btn-block button-add ladda-button"><span class="ladda-label">Add</span></button>
-				
-			</div>
-			
+    	<div class="container">
+			<input id="courseID" type="tel" maxlength="5" class="form-control" placeholder="Enter CourseID" autocomplete="off" required autofocus />
+			<button type="button" data-loading-text="Adding..." class="btn btn-lg btn-primary btn-block button-add ladda-button"><span class="ladda-label">Add</span></button>
 			<div class="alert alert-danger alert-invalid-courseid"></div>
-      
 		</div>
-	</div>
-  
-	<div class="container">
-  		<div class="jumbotron" id="courseDisplay"></div>
+		<div class="container" id="courseDisplay"></div>
 	</div>
 
 	<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>

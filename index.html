@@ -32,7 +32,7 @@
 	    
     	$(document).ready(function() {
 	    	
-		  	$("#alert-login").hide();
+		  	$(".alert-login").hide();
 		  	
 		  	// Login processing
 		  	$("#loginForm").submit(function() {
@@ -44,7 +44,7 @@
 					error: function(user, error) {
 						if (error.code == 101) {
 							console.log(error);
-							$("#alert-login").show();
+							$(".alert-login").show();
 							$("#loginForm").trigger("reset");
 							$("#loginForm .form-control-username").focus();
 						}
@@ -55,7 +55,7 @@
 			$("#password-reset").click(function() {
 				Parse.User.requestPasswordReset(Parse.User.get("email"), {
 					success: function() {
-						$("#alert-login-message").text("Please check your email for password reset instructions");
+						$(".alert-login-message").text("Please check your email for password reset instructions");
 					},
 					error: function(error) {
 						// Show the error message somewhere
@@ -88,8 +88,8 @@
         <button type="submit" class="btn btn-lg btn-primary btn-block">Login</button>
       </form>
       
-      <div id="alert-login" class="alert alert-danger">
-		  <span id="alert-login-message"><strong>Whoops!</strong> Either your username or password were incorrect. Please try again or <a href="passwordreset.html">try resetting your password.</a></span>
+      <div class="alert alert-danger alert-login">
+		  <span class="alert-login-message"><strong>Whoops!</strong> Either your username or password were incorrect. Please try again or <a href="passwordreset.html">try resetting your password.</a></span>
 	  </div>
 
     </div>

@@ -105,7 +105,7 @@ function courseTime(time) {
 }
 
 function courseInstructor(instructor) {
-	var instructorString = '<li class="list-group-item"><span class="glyphicon glyphicon-user list-detail-glyphicon"></span> ' + instructor + '</li>';
+	var instructorString = '<li class="list-group-item"><span class="glyphicon glyphicon-user list-detail-glyphicon"></span> <a href="http://www.ratemyprofessors.com/SelectTeacher.jsp?searchName=' + instructor.split(',')[0] + '&search_submit1=Search&sid=1074" target="_blank">' + instructor + '</a></li>';
 	return instructorString;
 }
 // Displays course object
@@ -155,12 +155,12 @@ function displayCourses() {
 // Allows enter to submit course by calling #addCourse button click
 $(document).on("keypress", "#courseID", function(event) {
 	if (event.which == 13) {
-		$("#addCourse").click();
+		$(".button-add").click();
 	}
 });
 
 // Adds to user profile
-$(document).on("click", "#addCourse", function() {
+$(document).on("click", ".button-add", function() {
 	$(".alert-invalid-courseid").hide();
 	event.preventDefault();
 	var courseCode = parseInt($("#courseID").val());
