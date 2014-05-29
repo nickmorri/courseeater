@@ -6,8 +6,8 @@
     <title>CourseEater - Account Settings</title>
     
     <!-- Services -->
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-	<script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.18.min.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="https://www.parsecdn.com/js/parse-1.2.18.min.js"></script>
 	
 	<!-- Stylesheets -->
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
@@ -21,11 +21,6 @@
 	    $(document).ready(function() {
 			$("#userNameDisplay").text(Parse.User.current().get("username"));
 	    	$("#new_email").attr("placeholder", Parse.User.current().get("email"));
-	    	$("#logout").click(function() {			
-				Parse.User.logOut();
-				sessionStorage.clear();
-				window.location.replace("index.html");
-			});
 
 	    	$("#updateEmail").submit(function() {
 	    		event.preventDefault();
@@ -194,6 +189,6 @@
   		</div>
 	</div>
   
-	<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 </body>
 </html>

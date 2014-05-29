@@ -6,8 +6,8 @@
     <title>CourseEater - Login</title>
     
     <!-- Services -->
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-	<script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.18.min.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="https://www.parsecdn.com/js/parse-1.2.18.min.js"></script>
     
     <!-- Stylesheets -->
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
@@ -23,6 +23,9 @@
 		.jumbotron {
 			background-color: rgba(255, 255, 255, 0.9);	
 		}
+		.alert {
+			margin-bottom: -35px;
+		}
     </style>
     
     <script>
@@ -31,8 +34,6 @@
 	    if (Parse.User.current()) {window.location.replace("track.html");}
 	    
     	$(document).ready(function() {
-	    	
-		  	$(".alert-login").hide();
 		  	
 		  	// Login processing
 		  	$("#loginForm").submit(function() {
@@ -51,18 +52,6 @@
 					}	
 				});
 			});
-			
-			$("#password-reset").click(function() {
-				Parse.User.requestPasswordReset(Parse.User.get("email"), {
-					success: function() {
-						$(".alert-login-message").text("Please check your email for password reset instructions");
-					},
-					error: function(error) {
-						// Show the error message somewhere
-						alert("Error: " + error.code + " " + error.message);
-					}
-				});
-			});
 		});
     </script>
 </head>
@@ -72,7 +61,7 @@
       <nav class="navbar navbar-default navbar-static-top" role="navigation">
         <div class="container">
           <div class="navbar-header">
-            <a class="navbar-brand" href="#">CourseEater</a>
+            <a class="navbar-brand" href="/">CourseEater</a>
           </div>
         </div>
       </nav>
@@ -88,7 +77,7 @@
         <button type="submit" class="btn btn-lg btn-primary btn-block">Login</button>
       </form>
       
-      <div class="alert alert-danger alert-login">
+      <div class="alert alert-danger alert-login" style="display: none;">
 		  <span class="alert-login-message"><strong>Whoops!</strong> Either your username or password were incorrect. Please try again or <a href="passwordreset.html">try resetting your password.</a></span>
 	  </div>
 
@@ -102,6 +91,6 @@
   	</div>
   </div>
 
-  <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+  <script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 </body>
 </html>

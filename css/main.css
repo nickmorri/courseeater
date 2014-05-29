@@ -1,14 +1,23 @@
-@media (min-width: 1200px) {
-  .container {
-    width: 970px;
-  }
-}
-body {
-    background-color: #eee;
-}
-.navbar {
-	margin-bottom: 15px;
-}
+@media (min-width: 1200px) { .container { width: 970px; } }
+body { background-color: #eee; }
+/* Setting margin values for a clear interface */
+.navbar { margin-bottom: 15px; }
+.progress { margin-bottom: 4px; }
+.add-course-entry { margin-top: -10px; }
+.button-add { margin-top: -1px; }
+.course-view-courseID { margin-top: 1px; }
+.list-detail-glyphicon { padding-right: 20px; }
+.alert-login { margin-top: 10px; }
+.form-control.update-info { margin-bottom: 10px; }
+
+/* Removing border-radius for a square look */
+.form-control { border-radius: 0; }
+.alert { border-radius: 0px; }
+.btn { border-radius: 0px; }
+.panel { border-radius: 0px; }
+.panel-heading { border-radius: 0px; }
+.label-day { border-radius: 0px; }
+
 .jumbotron {
 	display: block;
 	max-width: 800px;
@@ -16,18 +25,6 @@ body {
 	margin-left: auto;
 	margin-right: auto;
 	border-radius: 0 !important;
-}
-.form-control {
-	border-radius: 0;
-}
-.progress {
-	margin-bottom: 4px;
-}
-.alert {
-	border-radius: 0px;
-}
-.btn {
-	border-radius: 0px;
 }
 .form-user-management .form-control {
     position: relative;
@@ -38,33 +35,15 @@ body {
     padding: 10px;
     font-size: 16px;
 }
-.button-add {
-	margin-top: -1px;
-}
 .alert-invalid-courseid {
-	margin-top: 10px;
-	margin-bottom: 10px;
+	margin-top: 20px;
+	margin-bottom: 0px;
 }
 .course-list-item {
 	margin-top: 20px;
 	border-radius: 0;
 }
-.panel-heading {
-	border-radius: 0px;
-}
-.label-day {
-	border-radius: 0px;
-}
-.list-detail-glyphicon {
-	padding-right: 20px;
-}
-.alert-login {
-	margin-top: 10px;
-}
-.alert-account-info {
+.alert-account-info { 
 	margin-top: 10px;
 	margin-bottom: 5px;
-}
-.form-control.update-info {
-	margin-bottom: 10px;
 }
