@@ -1,5 +1,5 @@
 Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");
-if (!Parse.User.current()) {window.location.replace("index.html");}
+if (!Parse.User.current()) {window.location.replace("/");}
 
 // Google Analytics Information
 function googleAnalytics() {
@@ -74,7 +74,7 @@ $(document).on("click", "#logout", function() {
 	event.preventDefault();
 	Parse.User.logOut();
 	sessionStorage.clear();
-	window.location.replace("index.html");
+	window.location.replace("/");
 });
 
 // Allows enter to submit course by calling #addCourse button click
