@@ -4,18 +4,14 @@
 	<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <title>CourseEater</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     
     <!-- Services -->
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    <script type="text/javascript" src="https://www.parsecdn.com/js/parse-1.2.18.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="https://www.parsecdn.com/js/parse-1.2.18.min.js"></script>
     
-    <!-- Javascript Scripts -->
-    <script type="text/javascript" src="js/CourseView.class.js"></script>
-    <script type="text/javascript" src="js/prism.js"></script>
-    <script type="text/javascript" src="js/spin.min.js"></script>
-    <script type="text/javascript" src="js/ladda.min.js"></script>
-    <script type="text/javascript" src="js/jqBootstrapValidation.js"></script>
-    <script type="text/javascript" src="js/main.js"></script>
+    <!-- Initial Javascript -->
+    <script src="js/main.js"></script>
     
     <!-- Stylesheets -->
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
@@ -24,12 +20,10 @@
     <link rel="stylesheet" href="css/main.css">
     
     <script>
-		Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");
-		if (!Parse.User.current()) {window.location.replace("index.html");}
-		
 		$(document).ready(function() {	
 			$(".user-name-display").text(Parse.User.current().get("username"));
 			getCourses();
+			googleAnalytics();
 		});
     </script>
 </head>
@@ -75,6 +69,11 @@
 		<div class="container" id="courseDisplay"></div>
 	</div>
 	
+	<!-- Additional Javascript -->
+	<script src="js/CourseView.class.js"></script>
+    <script src="js/prism.js"></script>
+    <script src="js/spin.min.js"></script>
+    <script src="js/ladda.min.js"></script>
 	<script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 </body>
 </html>

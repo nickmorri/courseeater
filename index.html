@@ -4,10 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <title>CourseEater - Login</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     
     <!-- Services -->
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-	<script type="text/javascript" src="https://www.parsecdn.com/js/parse-1.2.18.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script src="https://www.parsecdn.com/js/parse-1.2.18.min.js"></script>
+	
+	<!-- Initial Javascript -->
+	<script src="js/login.js"></script>
     
     <!-- Stylesheets -->
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
@@ -27,33 +31,6 @@
 			margin-bottom: -35px;
 		}
     </style>
-    
-    <script>
-    
-    	Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");
-	    if (Parse.User.current()) {window.location.replace("track.html");}
-	    
-    	$(document).ready(function() {
-		  	
-		  	// Login processing
-		  	$("#loginForm").submit(function() {
-			  	event.preventDefault();
-			  	Parse.User.logIn($(".form-control-username").val(), $(".form-control-password").val(), {
-					success: function(user) {
-						window.location.replace("track.html");
-					},
-					error: function(user, error) {
-						if (error.code == 101) {
-							console.log(error);
-							$(".alert-login").show();
-							$("#loginForm").trigger("reset");
-							$("#loginForm .form-control-username").focus();
-						}
-					}	
-				});
-			});
-		});
-    </script>
 </head>
 <body>
 
@@ -69,28 +46,24 @@
   
   <div class="container form-user-management">
     <div class="jumbotron">
-      
-      <form role="form" id="loginForm">
-        <h3>Login</h3>
-        <input class="form-control form-control-username" type="text" placeholder="Enter username" required autofocus />
-        <input class="form-control form-control-password" type="password" placeholder="Enter password" autocomplete="off" required/>
-        <button type="submit" class="btn btn-lg btn-primary btn-block">Login</button>
-      </form>
-      
-      <div class="alert alert-danger alert-login" style="display: none;">
+      <h3>Login</h3>
+		<input class="form-control form-control-username" type="text" placeholder="Enter username" required autofocus/>
+		<input class="form-control form-control-password" type="password" placeholder="Enter password" required/>
+		<button type="button" data-loading-text="Logging in..." class="btn btn-lg btn-primary btn-block btn-login">Login</button>
+		<div class="alert alert-danger alert-login" style="display: none;">
 		  <span class="alert-login-message"><strong>Whoops!</strong> Either your username or password were incorrect. Please try again or <a href="passwordreset.html">try resetting your password.</a></span>
-	  </div>
-
+		</div>
     </div>
   </div>
   
   <div class="container form-user-management">
-  	<div class="jumbotron">
-  		<h3>Create new account</h3>
-  		<a href="registration.html"><button class="btn btn-lg btn-primary btn-block">Register</button></a>
-  	</div>
+	<div class="jumbotron">
+		<h3>Create new account</h3>
+		<a href="registration.html"><button class="btn btn-lg btn-primary btn-block">Register</button></a>
+	</div>
   </div>
 
+  <!-- Additional JavaScript -->
   <script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 </body>
 </html>

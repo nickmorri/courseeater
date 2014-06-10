@@ -1,22 +1,29 @@
+Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");
+if (!Parse.User.current()) {window.location.replace("index.html");}
+
+// Google Analytics Information
+function googleAnalytics() {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+				
+	ga('create', 'UA-9939990-3', 'courseeater.com');
+	ga('send', 'pageview');
+};
+
 // Detects if cache is expired
 function cacheFresh() {
 	var expiration = 1;
 	var currentTime = new Date();
   	if (typeof(sessionStorage['cacheAge']) == 'undefined') {
-  		/* console.log("Initializing cache"); */
   		sessionStorage.clear();
 	  	sessionStorage['cacheAge'] = currentTime;
   	}
   	else {
   		var cacheTime = new Date(sessionStorage['cacheAge']);
   		
-	  	if(currentTime.getMinutes() - cacheTime.getMinutes() > expiration) {
-	  		/* console.log("Stale caching. Clearing session data."); */
-	  		sessionStorage.clear();
-	  		sessionStorage['cacheAge'] = currentTime;
-	  	}
-	  	else if (Parse.User.current().updatedAt > cacheTime) {
-		  	/* console.log("Updated data found. Clearing session data."); */
+	  	if(currentTime.getMinutes() - cacheTime.getMinutes() > expiration || Parse.User.current().updatedAt > cacheTime) {
 	  		sessionStorage.clear();
 	  		sessionStorage['cacheAge'] = currentTime;
 	  	}
@@ -72,12 +79,11 @@ $(document).on("click", "#logout", function() {
 
 // Allows enter to submit course by calling #addCourse button click
 $(document).on("keypress", "#courseID", function(event) {
-	if (event.which == 13) {
-		$(".button-add").click();
-	}
+	if (event.which == 13) { $(".button-add").click(); }
 });
 
-$(document).on("click", ".badge", function() {
+// Selects courseCode on click of courseCode div
+$(document).on("click", ".course-view-courseID", function() {
 	var range, selection;
 
     if (window.getSelection && document.createRange) {
