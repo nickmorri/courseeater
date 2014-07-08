@@ -210,9 +210,7 @@ $(document).on("click", ".refresh-data", function() {
 	btn.start();
 	$("#courseDisplay").empty();
 	cacheFresh("refresh");
-	Parse.Cloud.run("refreshCourses").then(function() {
-		getCourses();
-		$(".alert").hide();
-		btn.stop();
-	});
+	getCourses();
+	$(".alert").hide();
+	btn.stop();
 });
