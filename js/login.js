@@ -13,16 +13,15 @@ function googleAnalytics() {
 };
 
 // Allows enter to login by calling #.btn-login button click
-$(document).on("keypress", ".form-control-password", function(event) {
+$(document).on("keypress", ".form-control-password.login-password", function(event) {
 	if (event.which == 13) { $(".btn-login").click(); }
 });
 	
 // Login processing
 $(document).on('click', '.btn-login', function() {
-  	event.preventDefault();
 	var bBtn = $(this);
 	bBtn.button("loading");
-  	Parse.User.logIn($(".form-control-username").val(), $(".form-control-password").val(), {
+  	Parse.User.logIn($(".form-control-username").val(), $(".form-control-password.login-password").val(), {
 		success: function(user) {
 			window.location.replace("track");
 		},
@@ -31,8 +30,38 @@ $(document).on('click', '.btn-login', function() {
 				bBtn.button("reset");
 				$(".alert-login").show();
 				$("#loginForm").trigger("reset");
-				$("#loginForm .form-control-username").focus();
+				$("#loginForm .form-control-username.login-username").focus();
 			}
+			console.log(error);
 		}	
+	});
+});
+
+$(document).on("keypress", ".form-control-password.registration-password", function(event) {
+	if (event.which == 13) { $(".btn-register").click(); }
+});
+
+$(document).on("click", ".btn-register", function() {
+	var username = $(".form-control-username.registration-username").val();
+	var email = $(".form-control-email.registration-email").val();
+	var user = new Parse.User();
+	user.set("username", username);
+	user.set("email", email);
+	user.set("password", $(".form-control-password.registration-password").val());
+	user.signUp(null, {
+		success: function(user) {
+	    	window.location.replace("index");
+		},
+		error: function(user, error) {
+	    	// Show the error message somewhere and let the user try again.
+	    	if (error.code == 125) {
+		    	$(".alert-register").html("<strong>Whoops!</strong> " + email + " is not a valid email address. Please follow the format: name@email.com");	
+	    	}
+	    	else if (error.code == 202) {
+		    	$(".alert-register").html("<strong>Whoops!</strong> " + username + " has already been registered. Please try another username.");	
+	    	}
+	    	$(".alert-register").show();
+			console.log(error);
+		}
 	});
 });

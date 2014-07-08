@@ -6,31 +6,16 @@
     <title>CourseEater - Login</title>
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- Services -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-	<script src="https://www.parsecdn.com/js/parse-1.2.18.min.js"></script>
-	
 	<!-- Initial Javascript -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script src="https://www.parsecdn.com/js/parse-1.2.18.min.js"></script>
 	<script src="js/login.js"></script>
     
     <!-- Stylesheets -->
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/main.css">
-    <style>
-    	body {
-			background: url('background.jpg');
-			-webkit-background-size: cover;
-			-moz-background-size: cover;
-			-o-background-size: cover;
-			background-size: cover;  
-		}
-		.jumbotron {
-			background-color: rgba(255, 255, 255, 0.9);	
-		}
-		.alert {
-			margin-bottom: -35px;
-		}
-    </style>
+    <link rel="stylesheet" href="css/login.css">
+   
 </head>
 <body>
 
@@ -47,8 +32,8 @@
   <div class="container form-user-management">
     <div class="jumbotron">
       <h3>Login</h3>
-		<input class="form-control form-control-username" type="text" placeholder="Enter username" required autofocus/>
-		<input class="form-control form-control-password" type="password" placeholder="Enter password" required/>
+		<input class="form-control form-control-username login-username" type="text" placeholder="Enter username" required autofocus/>
+		<input class="form-control form-control-password login-password" type="password" placeholder="Enter password" required/>
 		<button type="button" data-loading-text="Logging in..." class="btn btn-lg btn-primary btn-block btn-login">Login</button>
 		<div class="alert alert-danger alert-login" style="display: none;">
 		  <span class="alert-login-message"><strong>Whoops!</strong> Either your username or password were incorrect. Please try again or <a href="passwordreset">try resetting your password.</a></span>
@@ -58,8 +43,18 @@
   
   <div class="container form-user-management">
 	<div class="jumbotron">
-		<h3>Create new account</h3>
-		<a href="registration"><button class="btn btn-lg btn-primary btn-block">Register</button></a>
+
+		<div id="registrationForm">
+			<h3>Signup</h3>
+			<input class="form-control form-control-username registration-username" type="text" placeholder="Username" required />
+			<input class="form-control form-control-email registration-email" type="email" placeholder="Email" required />
+			<input class="form-control form-control-password registration-password" type="password" placeholder="Password" required autocomplete="off" />
+			<button type="button" class="btn btn-lg btn-primary btn-block btn-register" >Register</button>
+			<div class="alert alert-danger alert-register" style="display: none;">
+			  <span class="alert-register-message"><strong>Whoops!</strong> Something went wrong. Please try registering again.</span>
+			</div>
+		</div>
+		
 	</div>
   </div>
 

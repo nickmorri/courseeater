@@ -7,8 +7,9 @@ body { background-color: #eee; }
 .button-add { margin-top: -1px; }
 .course-view-courseID { margin-top: 1px; }
 .list-detail-glyphicon { padding-right: 20px; }
-.alert-login { margin-top: 10px; }
 .form-control.update-info { margin-bottom: 10px; }
+.form-control-username { margin-bottom: -1px; }
+.form-control-email { margin-bottom: -1px; }
 
 /* Removing border-radius for a square look */
 .form-control { border-radius: 0; }
