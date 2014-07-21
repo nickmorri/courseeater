@@ -2,14 +2,15 @@
 function CourseView(course) {
 	this.ParseObjectID = course.objectId;
 	this.instructor = course.instructor;
+	this.courseName = course.courseName;
 	this.courseIdentifier = course.courseIdentifier;
 	this.courseCode = course.courseCode;
 	this.max = course.max;
-	this.enrolled = course.enrolled;
-	this.waitlist = course.waitlist;
-	this.courseName = course.courseName;
+	this.enrolled = course.totalEnr;
+	this.waitlist = course.wl;
 	this.final = course.final;
-	this.location = course.place;
+	this.placeURL = course.placeURL;
+	this.placeBuilding = course.placeBuilding;
 	this.time = course.time;
 	this.days = course.days;
 	this.type = course.type;
@@ -60,16 +61,34 @@ CourseView.prototype.getCourseReqsHTML = function() {
 };
 
 CourseView.prototype.getCourseDaysHTML = function() {
+	if (this.days == "TBA") {
+		return "TBA";
+	}
 	var dayString = "";
-	var days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-	var heldDays = this.days.split(",");
+	var heldDays = "";
+	var predefinedDays = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+	if (this.days.indexOf("M") > -1) {
+        heldDays += "Mon";
+    }
+    if (this.days.indexOf("Tu") > -1) {
+        heldDays += "Tue";
+    }
+    if (this.days.indexOf("W") > -1) {
+        heldDays += "Wed";
+    }
+    if (this.days.indexOf("Th") > -1) {
+        heldDays += "Thu";
+    }
+    if (this.days.indexOf("F") > -1) {
+        heldDays += "Fri";
+    }
 	dayString += '<li class="list-group-item"><span class="glyphicon glyphicon-calendar list-detail-glyphicon"></span>';
-	for (var i = 0; i < days.length; i++) {
-		if (heldDays.indexOf(days[i]) > -1) {
-			dayString += '<span class="label label-primary label-day">' + days[i] + '</span>';
+	for (var i = 0; i < predefinedDays.length; i++) {
+		if (heldDays.indexOf(predefinedDays[i]) > -1) {
+			dayString += '<span class="label label-primary label-day">' + predefinedDays[i] + '</span>';
 		}
 		else {
-			dayString += '<span class="label label-default label-day">' + days[i] + '</span>';
+			dayString += '<span class="label label-default label-day">' + predefinedDays[i] + '</span>';
 		}
 	}
 	dayString += "</li>";
@@ -77,9 +96,8 @@ CourseView.prototype.getCourseDaysHTML = function() {
 };
 
 CourseView.prototype.getCourseLocationHTML = function() {
-	var building = this.location.substr(0, this.location.indexOf((" ")));
-	var locationString = '<li class="list-group-item"><span class="glyphicon glyphicon-flag list-detail-glyphicon"></span> <a href="https://eee.uci.edu/toolbox/roomfinder/room.php?building_abbr=';
-	locationString += building + '" target="_blank">' + this.location + '</a></li>';
+	var building = this.placeBuilding;
+	var locationString = '<li class="list-group-item"><span class="glyphicon glyphicon-flag list-detail-glyphicon"></span> <a href="' + this.placeURL + '" target="_blank">' + this.placeBuilding + '</a></li>';
 	return locationString;
 };
 
