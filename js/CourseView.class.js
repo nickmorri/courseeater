@@ -150,7 +150,7 @@ CourseView.prototype.getCourseInstructorHTML = function () {
 CourseView.prototype.getCourseActionsHTML = function () {
     "use strict";
     var buttonString;
-    buttonString = '<button type="button" class="btn btn-danger btn-block btn-remove ladda-button" data-loading-text="Removing...">Remove</button>';
+    buttonString = '<button type="button" class="btn btn-danger btn-block btn-remove">Remove</button>';
     return buttonString;
 };
 
