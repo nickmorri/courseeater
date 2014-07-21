@@ -28,12 +28,12 @@ CourseView.prototype.getCourseInfoHTML = function () {
     if (navigator.appVersion.indexOf("Mac") != -1) {
         copyString = "⌘-C to copy.";
     }
-    infoString = '<div class="panel-heading">';
+    infoString = '<div class="panel-heading clearfix">';
     infoString += '<h3 class="panel-title">';
-    infoString += '<span class="label label-info">';
+    infoString += '<span class="label label-info panel-label label-type">';
     infoString += this.type.toUpperCase();
     infoString += '</span> ';
-    infoString += '<span class="label label-success">';
+    infoString += '<span class="label label-success panel-label label-identifier">';
     infoString += this.courseIdentifier.toUpperCase().replace(/ /g, '');
     infoString += '</span>';
     infoString += this.getCourseReqsHTML();
@@ -61,10 +61,10 @@ CourseView.prototype.getCourseReqsHTML = function () {
     var additionalClasses;
     additionalClasses = '';
     if (this.prerequisites) {
-        additionalClasses += ' <span class="label label-warning top course-details" title="Prerequisites needed" data-original-title="Tooltip on right">P</span>';
+        additionalClasses += ' <span class="label label-warning top panel-label label-reqss" title="Prerequisites needed" data-original-title="Tooltip on right">P</span>';
     }
     if (this.cocourses) {
-        additionalClasses += ' <span class="label label-warning top course-details" title="Cocourses needed" data-original-title="Tooltip on right">C</span>';
+        additionalClasses += ' <span class="label label-warning top panel-label" title="Cocourses needed" data-original-title="Tooltip on right">C</span>';
     }
     return additionalClasses;
 };
