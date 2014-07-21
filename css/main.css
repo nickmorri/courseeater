@@ -2,7 +2,7 @@
 body { background-color: #eee; }
 /* Setting margin values for a clear interface */
 .navbar { margin-bottom: 15px; }
-.progress { margin-bottom: 4px; }
+.progress { margin-bottom: 0px; }
 .add-course-entry { margin-top: -10px; }
 .button-add { margin-top: -1px; }
 .course-view-courseID { margin-top: 1px; }
@@ -47,4 +47,9 @@ body { background-color: #eee; }
 .alert-account-info { 
 	margin-top: 10px;
 	margin-bottom: 5px;
+}
+.label {
+	display: inline-block;
+	line-height: normal;
+	border-radius: 0px;
 }

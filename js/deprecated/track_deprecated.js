@@ -30,7 +30,7 @@ function cacheFresh(reason) {
 function getCourses() {
 	cacheFresh();
 	if (typeof(sessionStorage['courses']) == 'undefined') {
-		var courses = Parse.User.current().relation("betaCourses");	
+		var courses = Parse.User.current().relation("courses");	
 		courses.query().find({				
 			success: function(remoteCourses) {
 				sessionStorage['courses'] = JSON.stringify(remoteCourses);
@@ -118,23 +118,55 @@ $(document).on("click", ".button-add", function() {
 	lBtn.start();
 	bBtn.button("loading");
 	lBtn.setProgress(0);
-	var Course = Parse.Object.extend("BetaCourse");
+	var Course = Parse.Object.extend("Course");
 	var courseQuery = new Parse.Query(Course);
 	courseQuery.equalTo("courseCode", courseCode);
 	courseQuery.first({
 		success: function(course) {
 			lBtn.setProgress(.25);
-			Parse.User.current().relation("betaCourses").add(course);
-			Parse.User.current().save(null, {
-				success: function() {
-					lBtn.setProgress(1);
-					sessionStorage.clear();
-					getCourses();
-					$("#courseID").val('');
-					lBtn.stop();
-					bBtn.button("reset");
-				}
-			});
+			if (!course) {
+				var course = new Course();
+				course.set("courseCode", courseCode);
+				course.save(null, {
+					success:function(course) {
+						lBtn.setProgress(.5);
+						Parse.User.current().relation("courses").add(course);
+						Parse.User.current().save(null, {
+							success: function() {
+								lBtn.setProgress(1);
+								sessionStorage.clear();
+								getCourses();
+								$("#courseID").val('');
+								lBtn.stop();
+								bBtn.button("reset");
+							}
+						});
+						
+					},
+					error: function(course, error) {
+						$(".alert-invalid-courseid").html("Course <strong>" + courseCode + "</strong> does not exist.");
+						$(".alert-invalid-courseid").show();
+						$("#courseID").val('');
+						lBtn.stop();
+						bBtn.button("reset");
+					}
+				});
+			}
+			else {
+				course.save().then(function() {
+					Parse.User.current().relation("courses").add(course);
+					Parse.User.current().save(null, {
+						success: function() {
+							lBtn.setProgress(1);
+							sessionStorage.clear();
+							getCourses();
+							$("#courseID").val('');
+							lBtn.stop();
+							bBtn.button("reset");
+						}
+					});
+				});
+			}	
 		},
 		error: function(course, error) {
 			console.log(error);
@@ -150,13 +182,13 @@ $(document).on('click', ".btn-remove", function() {
 	$(this).button("loading");
 	btn.start();
 	btn.setProgress(.25);
-	var Course = Parse.Object.extend("BetaCourse");
+	var Course = Parse.Object.extend("Course");
 	var courseQuery = new Parse.Query(Course);
 	var courseID = $(this).parent().attr('id');
 	courseQuery.get(courseID, {
 		success: function(course) {
 			btn.setProgress(.5);
-			Parse.User.current().relation("betaCourses").remove(course);
+			Parse.User.current().relation("courses").remove(course);
 			Parse.User.current().save(null, {
 				success: function() {
 					btn.setProgress(1);
