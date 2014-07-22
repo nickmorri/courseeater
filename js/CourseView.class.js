@@ -93,7 +93,7 @@ CourseView.prototype.getCourseDaysHTML = function () {
     if (this.days.indexOf("F") > -1) {
         heldDays += "Fri";
     }
-    dayString += '<li class="list-group-item"><span class="glyphicon glyphicon-calendar list-detail-glyphicon"></span>';
+    dayString += '<li class="list-group-item day-labels"><span class="glyphicon glyphicon-calendar list-detail-glyphicon"></span>';
     for (i = 0; i < predefinedDays.length; i++) {
         if (heldDays.indexOf(predefinedDays[i]) > -1) {
             dayString += '<span class="label label-primary label-day">' + predefinedDays[i] + '</span>';
@@ -115,42 +115,59 @@ CourseView.prototype.getCourseLocationHTML = function () {
 CourseView.prototype.getCourseProgressHTML = function () {
     "use strict";
     var coursePercentFull, remaining, progressString, waitlistPercentage, waitlistPercentageOffset;
+	remaining = this.max - this.enrolled;
+	coursePercentFull = this.enrolled / this.max * 100;
     if (this.enrolled == 0) {
         return '<li class="list-group-item"><span class="glyphicon glyphicon-stats list-detail-glyphicon pull-left"></span><div class="progress"><div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="' + 100 + '" aria-valuemin="0" aria-valuemax="100" style="width:' + 100 + '%;">Class empty!</div></div></li>';
-    }
-    coursePercentFull = this.enrolled / this.max * 100;
-    remaining = this.max - this.enrolled;
-    progressString = "";
-    if (this.waitlist > 0) {
+    } else if (remaining == 0) {
+        return '<li class="list-group-item"><span class="glyphicon glyphicon-stats list-detail-glyphicon pull-left"></span><div class="progress"><div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="' + coursePercentFull + '" aria-valuemin="0" aria-valuemax="100" style="width:' + coursePercentFull + '%;">Class full!</div></div></li>';
+    } else if (this.waitlist > 0) {
         waitlistPercentage = (this.waitlist / this.max) * 100 * 10;
         waitlistPercentageOffset = (100 - waitlistPercentage);
-        progressString = '<li class="list-group-item"><span class="glyphicon glyphicon-stats list-detail-glyphicon pull-left"></span><div class="progress"><div class="progress-bar progress-bar-warning" style="width:' + waitlistPercentage + '%"></div><div class="progress-bar progress-bar-danger" style="width:' + waitlistPercentageOffset + '%">' + this.waitlist + ' waitlisted</div></div></li>';
-    } else if (remaining == 0) {
-        progressString = '<li class="list-group-item"><span class="glyphicon glyphicon-stats list-detail-glyphicon pull-left"></span><div class="progress"><div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="' + coursePercentFull + '" aria-valuemin="0" aria-valuemax="100" style="width:' + coursePercentFull + '%;">Class full!</div></div></li>';
-    } else {
-        progressString = '<li class="list-group-item"><span class="glyphicon glyphicon-stats list-detail-glyphicon pull-left"></span><div class="progress"><div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="' + coursePercentFull + '" aria-valuemin="0" aria-valuemax="100" style="width:' + coursePercentFull + '%;">' + remaining + ' spots left</div></div></li>';
+        return '<li class="list-group-item"><span class="glyphicon glyphicon-stats list-detail-glyphicon pull-left"></span><div class="progress"><div class="progress-bar progress-bar-warning" style="width:' + waitlistPercentage + '%"></div><div class="progress-bar progress-bar-danger" style="width:' + waitlistPercentageOffset + '%">' + this.waitlist + ' waitlisted</div></div></li>';
+	} else {
+		if (coursePercentFull < 30) {
+			coursePercentFull *= 3;
+		}
+	    return '<li class="list-group-item"><span class="glyphicon glyphicon-stats list-detail-glyphicon pull-left"></span><div class="progress"><div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="' + coursePercentFull + '" aria-valuemin="0" aria-valuemax="100" style="width:' + coursePercentFull + '%;">' + remaining + ' spots left</div></div></li>';
     }
-    return progressString;
 };
 
 CourseView.prototype.getCourseTimeHTML = function () {
     "use strict";
-    var timeString;
-    timeString = '<li class="list-group-item"><span class="glyphicon glyphicon-time list-detail-glyphicon"></span> ' + this.time + '</li>';
-    return timeString;
+    return '<li class="list-group-item"><span class="glyphicon glyphicon-time list-detail-glyphicon"></span> ' + this.time + '</li>';
 };
 
 CourseView.prototype.getCourseInstructorHTML = function () {
     "use strict";
-    var instructorString;
-    instructorString = '<li class="list-group-item"><span class="glyphicon glyphicon-user list-detail-glyphicon"></span> <a href="http://www.ratemyprofessors.com/SelectTeacher.jsp?searchName=' + this.instructor.split(',')[0] + '&search_submit1=Search&sid=1074" target="_blank">' + this.instructor + '</a></li>';
-    return instructorString;
+	return '<li class="list-group-item">' + 
+	'<span class="glyphicon glyphicon-user list-detail-glyphicon">' + 
+	'</span> <a href="http://www.ratemyprofessors.com/SelectTeacher.jsp?searchName=' + 
+	this.instructor + 
+	'&search_submit1=Search&sid=1074" target="_blank">' + 
+	this.instructor + 
+	'</a></li>';
 };
 
 CourseView.prototype.getCourseActionsHTML = function () {
     "use strict";
     var buttonString;
-    buttonString = '<button type="button" class="btn btn-danger btn-block btn-remove ladda-button" data-loading-text="Removing...">Remove</button>';
+    buttonString = '<div class="panel-footer">' +
+    '<div class="btn-group btn-block dropup">' +
+    '<button type="button" class="btn col-xs-10 btn-danger btn-remove ladda-button" data-loading-text="Removing...">Remove</button>' +
+	'<button type="button" class="btn col-xs-2 btn-primary dropdown-toggle" data-toggle="dropdown">' +
+    '<span class="caret"></span>' +
+    '<span class="sr-only">Toggle Dropdown</span>' +
+	'</button>' +
+	'<ul class="dropdown-menu col-md-12" role="menu">' +
+    '<li><a class="btn-log-dis" href="#">Log Discussions</a></li>' +
+    '<li><a class="btn-log-lec" href="#">Log Lectures</a></li>' +
+    '<li><a class="btn-log-lab" href="#">Log Labs</a></li>' +
+    '<li class="divider"></li>' +
+    '<li><a href="#">Separated link</a></li>' +
+	'</ul>' +
+	'</div>' +
+	'</div>';
     return buttonString;
 };
 

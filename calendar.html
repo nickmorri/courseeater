@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <title>Track - CourseEater</title>
+    <title>Calendar - CourseEater</title>
     <link rel="icon" type="image/png" href="favicon.png">
     
     <!-- Initial Javascript -->
@@ -11,6 +11,7 @@
     <script src="https://www.parsecdn.com/js/parse-1.2.18.min.js"></script>
     <script src="js/main.js"></script>
     <script src="js/track.js"></script>
+    <script src="js/calendar.js"></script>
     
     <!-- Initial Stylesheets -->
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
@@ -33,8 +34,8 @@
 				</div>
 				<div class="collapse navbar-collapse">
 					<ul class="nav navbar-nav">
-						<li class="active"><a href="track"><span class="glyphicon glyphicon-book"></span> Track</a></li>
-						<li><a href="calendar"><span class="glyphicon glyphicon-time"></span> Calendar</a></li>
+						<li><a href="track"><span class="glyphicon glyphicon-book"></span> Track</a></li>
+						<li class="active"><a href="calendar"><span class="glyphicon glyphicon-time"></span> Calendar</a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						<li><a class="ladda-button refresh-data" data-style="slide-up" data-spinner-color="#000000" href="#"><span class="glyphicon glyphicon-refresh"></span> Refresh</a></li>
@@ -51,25 +52,18 @@
 		</nav>
 	</header>
 	
-	<div class="container form-user-management hidden-print">
-    	<div class="container add-course-entry">
-			<input id="courseID" type="tel" maxlength="5" class="form-control" placeholder="Enter CourseID" autocomplete="off" required autofocus />
-			<button type="button" data-loading-text="Adding..." class="btn btn-lg btn-primary btn-block button-add ladda-button"><span class="ladda-label">Add</span></button>
-			<div class="alert alert-danger alert-invalid-courseid" style="display: none;"></div>
-		</div>
-		<div class="container" id="courseDisplay"></div>
-	</div>
-	
-	<div class="container visible-print">
-		Hello this is for all out printers out there! Nice formatted data coming soon!
-	</div>
+	<div id='calendar'></div>
 	
 	<!-- Additional CSS -->
 	<link rel="stylesheet" href="css/ladda.min.css">
     <link rel="stylesheet" href="css/prism.css">
+	<link rel='stylesheet' href="css/fullcalendar.css">
 	
 	<!-- Additional Javascript -->
 	<script src="js/CourseView.class.js"></script>
+	<script src="js/moment.min.js"></script>
+	<script src="js/fullcalendar.js"></script>
+	
     <script src="js/prism.min.js"></script>
     <script src="js/spin.min.js"></script>
     <script src="js/ladda.min.js"></script>

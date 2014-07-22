@@ -1,4 +1,4 @@
-@media (min-width: 1200px) { .container { width: 970px; } }
+@media (min-width: 1200px) { .container { width: 900px; } }
 body { background-color: #eee; }
 /* Setting margin values for a clear interface */
 .navbar { margin-bottom: 15px; }
@@ -18,6 +18,7 @@ body { background-color: #eee; }
 .panel { border-radius: 0px; }
 .panel-heading { border-radius: 0px; }
 .label-day { border-radius: 0px; }
+.progress { border-radius: 0px; }
 
 .jumbotron {
 	display: block;
@@ -72,4 +73,10 @@ body { background-color: #eee; }
 	margin-right: -15px;
 	margin-bottom: -10px;
 	border-radius: 0px;
+}
+.btn-group.btn-block .dropdown-toggle {
+	padding-right: 0px;
+}
+#calendar {
+	margin-top: -32px;
 }

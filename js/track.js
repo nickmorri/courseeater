@@ -1,15 +1,15 @@
 /*global window, CourseView, Ladda, jQuery */
 
-var cacheFresh, storeCourses, getCourses, displayCourses, removeCachedCourse;
+var cacheFresh, storeCourses, getCourses, displayCourses, removeCachedCourse, displaySearch, searchForCoCourses, searchCoursesByType, searchCoursesByDepartment, searchCoursesByCourseName, searchCoursesByInstructor, validateCourseCode;
 
 $(document).ready(function () {
     "use strict";
     getCourses();
 });
 
-function toTitleCase(str)
-{
-    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+function toTitleCase(str) {
+    "use strict";
+    return str.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
 }
 
 // Determines cache's freshness
@@ -37,7 +37,7 @@ cacheFresh = function (reason) {
 
 // Stores course information from Parse
 storeCourses = function () {
-    "use strict";
+	"use strict";
     cacheFresh();
     var courseRelation, courses, i;
     courseRelation = Parse.User.current().relation("courses");
@@ -72,8 +72,10 @@ displayCourses = function () {
         $("#courseDisplay").html("<div class='jumbotron'><h1><small>You're not tracking any courses.</small></h1></div>");
     } else {
         for (course in courses) {
-            courseView = new CourseView(courses[course]);
-            $("#courseDisplay").append(courseView.buildHTML());
+            if (courses.hasOwnProperty(course)) {
+                courseView = new CourseView(courses[course]);
+                $("#courseDisplay").append(courseView.buildHTML());
+            }
         }
         $(".top").tooltip({
             placement: "top"
@@ -81,45 +83,114 @@ displayCourses = function () {
     }
 };
 
-displaySearch = function (results) {
-	console.log(results);	
+filterLec = function (course) {
+    return course.attributes.type == "Lec";  
+};
+
+filterLab = function (course) {
+    return course.attributes.type == "Lab";  
+};
+
+filterDis = function (course) {
+    return course.attributes.type == "Dis";
+};
+
+displaySearch = function (results, filter) {
+    "use strict";
+    var i;
+    if (filter) {
+        for (i = 0; i < results.length; i++) {
+            if (filter(results[i])) {
+                console.log(results[i].attributes);
+            }
+        }  
+    } else {
+        for (i = 0; i < results.length; i++) {
+            console.log(results[i].attributes);
+        }
+    }
+};
+
+searchForCoCourses = function (courseCode, callback, filter) {
+    "use strict";
+    var Course, courseQuery, courseName, coCourseQuery;
+    Course = Parse.Object.extend("Course");
+    courseQuery = new Parse.Query(Course);
+    courseQuery.equalTo("courseCode", parseInt(courseCode));
+    courseQuery.first().then(function (course) {
+        courseName = course.get("courseName");
+        coCourseQuery = new Parse.Query(Course);
+        coCourseQuery.equalTo("courseName", courseName);
+        return coCourseQuery.find();
+    }).then(function (results) {
+        callback(results, filter);
+    });
 };
 
 searchCoursesByType = function (type) {
-	var Course = Parse.Object.extend("Course");
-	var query = new Parse.Query(Course);
-	query.startsWith("type", toTitleCase(type));
-	query.find().then(function (results) {
-		displaySearch(results);
-	});	
-}
+    "use strict";
+    var Course, query;
+    Course = Parse.Object.extend("Course");
+    query = new Parse.Query(Course);
+    query.startsWith("type", toTitleCase(type));
+    query.find().then(function (results) {
+        displaySearch(results);
+    });
+};
 
 searchCoursesByDepartment = function (department) {
-	var Course = Parse.Object.extend("Course");
-	var query = new Parse.Query(Course);
-	query.startsWith("courseIdentifier", toTitleCase(department));
-	query.find().then(function (results) {
-		displaySearch(results);
-	});	
+    "use strict";
+    var Course, query;
+    Course = Parse.Object.extend("Course");
+    query = new Parse.Query(Course);
+    query.startsWith("courseIdentifier", toTitleCase(department));
+    query.find().then(function (results) {
+        displaySearch(results);
+    });
 };
 
 searchCoursesByCourseName = function (courseName) {
-	var Course = Parse.Object.extend("Course");
-	var query = new Parse.Query(Course);
-	query.startsWith("courseName", courseName.toUpperCase());
-	query.find().then(function (results) {
-		displaySearch(results);
-	});		
+    "use strict";
+    var Course, query;
+    Course = Parse.Object.extend("Course");
+    query = new Parse.Query(Course);
+    query.startsWith("courseName", courseName.toUpperCase());
+    query.find().then(function (results) {
+        displaySearch(results);
+    });
 };
 
 searchCoursesByInstructor = function (instructor) {
-	var Course = Parse.Object.extend("Course");
-	var query = new Parse.Query(Course);
-	query.startsWith("instructor", instructor.toUpperCase());
-	query.find().then(function (results) {
-		displaySearch(results);
-	});	
+    "use strict";
+    var Course, query;
+    Course = Parse.Object.extend("Course");
+    query = new Parse.Query(Course);
+    query.startsWith("instructor", instructor.toUpperCase());
+    query.find().then(function (results) {
+        displaySearch(results);
+    });
 };
+
+$(document).on("click", ".btn-log-lab", function () {
+    var courseCode, filter;
+    courseCode = $(this).parent().parent().parent().parent().parent().children(".panel-heading").children(".panel-title").children(".course-view-courseID").text();
+    filter = filterLab;
+    searchForCoCourses(courseCode, displaySearch, filter);
+});
+
+$(document).on("click", ".btn-log-lec", function () {
+    var courseCode, filter;
+    courseCode = $(this).parent().parent().parent().parent().parent().children(".panel-heading").children(".panel-title").children(".course-view-courseID").text();
+    filter = filterLec;
+    searchForCoCourses(courseCode, displaySearch, filter);
+});
+
+$(document).on("click", ".btn-log-dis", function () {
+    var courseCode, filter;
+    courseCode = $(this).parent().parent().parent().parent().parent().children(".panel-heading").children(".panel-title").children(".course-view-courseID").text();
+    filter = filterDis;
+    searchForCoCourses(courseCode, displaySearch, filter);
+});
 
 // Allows enter to submit course by calling #addCourse button click
 $(document).on("keypress", "#courseID", function (event) {
@@ -144,8 +215,10 @@ $(document).on("click", ".course-view-courseID", function () {
     }
 });
 
-function validateCourseCode (courseCode) {
-	if ($("#courseID").val() == "") {
+validateCourseCode = function (courseCode) {
+    "use strict";
+    var courses, course;
+    if ($("#courseID").val() == "") {
         $(".alert-invalid-courseid").html("<strong>No courseID entered.</strong>");
         $(".alert-invalid-courseid").show();
         $("#courseID").val('');
@@ -160,11 +233,13 @@ function validateCourseCode (courseCode) {
     courses = JSON.parse(sessionStorage.courses);
     if (courses !== undefined || !jQuery.isEmptyObject(courses)) {
         for (course in courses) {
-            if (courses[course].courseCode == courseCode) {
+            if (courses.hasOwnProperty(course) && courses[course].courseCode == courseCode) {
+
                 $(".alert-invalid-courseid").html("<strong>" + $("#courseID").val() + "</strong> is already being tracked.");
                 $(".alert-invalid-courseid").show();
                 $("#courseID").val('');
                 return false;
+
             }
         }
     }
@@ -174,36 +249,32 @@ function validateCourseCode (courseCode) {
 // Adds to user profile
 $(document).on("click", ".button-add", function () {
     "use strict";
-    var courseCode, courses, i, lBtn, bBtn, Course, courseQuery;
+    var courseCode, lBtn, bBtn;
     courseCode = parseInt($("#courseID").val(), 10);
     $(".alert-invalid-courseid").hide();
-    if (!validateCourseCode (courseCode)) {
-	    return false;
+    if (!validateCourseCode(courseCode)) {
+        return false;
     }
-    
     lBtn = Ladda.create(this);
     bBtn = $(this);
     lBtn.start();
     bBtn.button("loading");
     lBtn.setProgress('.50');
-    
-    Parse.Cloud.run('addCourse', {courseCode: courseCode}).then(function (response) {
-    	$("#courseID").val('');
-	    lBtn.setProgress('1');
-	    lBtn.stop();
-	    bBtn.button("reset");
-	    
-	    cacheFresh("refresh");
-        getCourses();
-    }, function (error) {
-    	if (error.code == 141) {
-			$(".alert-invalid-courseid").html("Course <strong>" + $("#courseID").val() + "</strong> does not exist.");
-            $(".alert-invalid-courseid").show();
-    	}
-	    console.log(error);
+    Parse.Cloud.run('addCourse', {courseCode: courseCode}).then(function () {
+        $("#courseID").val('');
+        lBtn.setProgress('1');
         lBtn.stop();
         bBtn.button("reset");
-        
+        cacheFresh("refresh");
+        getCourses();
+    }, function (error) {
+        if (error.code == 141) {
+            $(".alert-invalid-courseid").html("Course <strong>" + $("#courseID").val() + "</strong> does not exist.");
+            $(".alert-invalid-courseid").show();
+        }
+        console.log(error);
+        lBtn.stop();
+        bBtn.button("reset");
         cacheFresh("refresh");
         getCourses();
     });
@@ -212,32 +283,27 @@ $(document).on("click", ".button-add", function () {
 // Remove course from user's profile
 $(document).on('click', ".btn-remove", function () {
     "use strict";
-    var Course, courseQuery, courseCode, lBtn, bBtn;
-    
+    var courseCode, lBtn, bBtn;
     lBtn = Ladda.create(this);
-	bBtn = $(this);
-	lBtn.start();
-	bBtn.button("loading");
-	lBtn.setProgress('.50');
-
-    courseCode = $(this).parent().children(".panel-heading").children(".panel-title").children(".course-view-courseID").text();
-    Parse.Cloud.run("removeCourse", {courseCode: courseCode}).then(function (response) {
-	    lBtn.setProgress('1');
-	    lBtn.stop();
-	    bBtn.button("reset");
-	    
-	    cacheFresh("refresh");
+    bBtn = $(this);
+    lBtn.start();
+    bBtn.button("loading");
+    lBtn.setProgress('.50');
+    courseCode = $(this).parent().parent().parent().children(".panel-heading").children(".panel-title").children(".course-view-courseID").text();
+    Parse.Cloud.run("removeCourse", {courseCode: courseCode}).then(function () {
+        lBtn.setProgress('1');
+        lBtn.stop();
+        bBtn.button("reset");
+        cacheFresh("refresh");
         getCourses();
     }, function (error) {
-	    console.log(error);
-	    $(".alert-invalid-courseid").html("Whoops something went wrong.");
-		$(".alert-invalid-courseid").show();
-		
-		lBtn.setProgress('1');
-	    lBtn.stop();
-	    bBtn.button("reset");
-	    
-	    cacheFresh("refresh");
+        console.log(error);
+        $(".alert-invalid-courseid").html("Whoops something went wrong.");
+        $(".alert-invalid-courseid").show();
+        lBtn.setProgress('1');
+        lBtn.stop();
+        bBtn.button("reset");
+        cacheFresh("refresh");
         getCourses();
     });
 });
