@@ -1,4 +1,8 @@
-@media (min-width: 1200px) { .container { width: 900px; } }
+@media (min-width: 1200px) {
+	.container {
+		/* width: 900px; */
+	}
+}
 body { background-color: #eee; }
 /* Setting margin values for a clear interface */
 .navbar { margin-bottom: 15px; }
@@ -10,6 +14,8 @@ body { background-color: #eee; }
 .form-control.update-info { margin-bottom: 10px; }
 .form-control-username { margin-bottom: -1px; }
 .form-control-email { margin-bottom: -1px; }
+.fc-event-vert.fc-event-end { border-radius: 0px !important; }
+.modal-content { border-radius: 0px; }
 
 /* Removing border-radius for a square look */
 .form-control { border-radius: 0; }
@@ -79,4 +85,7 @@ body { background-color: #eee; }
 }
 #calendar {
 	margin-top: -32px;
+}
+.fc-event-time {
+	text-decoration: underline;
 }

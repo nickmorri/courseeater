@@ -3,7 +3,6 @@
 // CourseView class
 function CourseView(course) {
     "use strict";
-    this.ParseObjectID = course.objectId;
     this.instructor = course.instructor;
     this.courseName = course.courseName;
     this.courseIdentifier = course.courseIdentifier;
@@ -23,26 +22,87 @@ function CourseView(course) {
 
 CourseView.prototype.getCourseInfoHTML = function () {
     "use strict";
-    var copyString, infoString;
-    copyString = "Control-C to copy.";
-    if (navigator.appVersion.indexOf("Mac") != -1) {
-        copyString = "⌘-C to copy.";
-    }
-    infoString = '<div class="panel-heading clearfix">';
-    infoString += '<h3 class="panel-title">';
-    infoString += '<span class="label label-info panel-label label-type">';
-    infoString += this.type.toUpperCase();
-    infoString += '</span> ';
-    infoString += '<span class="label label-success panel-label label-identifier">';
-    infoString += this.courseIdentifier.toUpperCase().replace(/ /g, '');
-    infoString += '</span>';
-    infoString += this.getCourseReqsHTML();
-    infoString += ' <span class="badge pull-right course-view-courseID top" title="Click to highlight. ' + copyString + '" data-original-title="Tooltip on right">';
-    infoString += this.courseCode;
-    infoString += '</span>';
-    infoString += '</h3>';
-    infoString += '</div>';
-    return infoString;
+    var infoString;
+    infoString = '<div class="panel-heading">' +
+    '<h3 class="panel-title">' +
+    '<span class="label label-info panel-label label-type">' +
+    this.type.toUpperCase() +
+    '</span> ' +
+    '<span class="label label-success panel-label label-identifier">' +
+    this.courseIdentifier.toUpperCase().replace(/ /g, '') +
+    '</span>' +
+    this.getCourseReqsHTML() +
+    ' <span class="badge pull-right course-view-courseID">' +
+    this.courseCode +
+    '</span>' +
+    '</h3>' +
+    '</div>';
+	return infoString;
+};
+
+CourseView.prototype.buildCollapsable = function () {
+	var collapse;
+	collapse = '<div class="panel-group" id="accordion">' +
+	'<div class="panel panel-default">' +
+	'<div class="panel-heading">' +
+	'<h4 class="panel-title">' +
+	'<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">' +
+	'<span class="label label-info panel-label label-type">' +
+    this.type.toUpperCase() +
+    '</span> ' +
+    '<span class="label label-success panel-label label-identifier">' +
+    this.courseIdentifier.toUpperCase().replace(/ /g, '') +
+    '</span>' +
+    this.getCourseReqsHTML() +
+    ' <span class="badge pull-right course-view-courseID top">' +
+    this.courseCode +
+    '</span>' +
+	'</a>' +
+	'</h4>' +
+    '</div>' +
+    '<div id="collapseOne" class="panel-collapse collapse in">' +
+    '<div class="panel-body">' +
+	'<ul class="list-group">' +
+	this.getCourseNameHTML() +
+	this.getCourseInstructorHTML() +
+	this.getCourseDaysHTML() +
+	this.getCourseTimeHTML() +
+	this.getCourseLocationHTML() +
+	this.getCourseProgressHTML() +
+	'</ul>' +
+    '</div>' +
+    '</div>' +
+	'</div>' +
+	'<div class="panel panel-default">' +
+	'<div class="panel-heading">' +
+	'<h4 class="panel-title">' +
+	'<a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">' +
+	'Collapsible Group Item #2' +
+	'</a>' +
+	'</h4>' +
+    '</div>' +
+    '<div id="collapseTwo" class="panel-collapse collapse in">' +
+    '<div class="panel-body">' +
+	'Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably havent heard of them accusamus labore sustainable VHS.' +
+    '</div>' +
+    '</div>' +
+	'</div>' +
+  '<div class="panel panel-default">' +
+	'<div class="panel-heading">' +
+	'<h4 class="panel-title">' +
+	'<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">' +
+	'Collapsible Group Item #3' +
+	'</a>' +
+	'</h4>' +
+    '</div>' +
+    '<div id="collapseThree" class="panel-collapse collapse in">' +
+    '<div class="panel-body">' +
+	'Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably havent heard of them accusamus labore sustainable VHS.' +
+    '</div>' +
+    '</div>' +
+	'</div>' +
+	'</div>';
+	return collapse;
 };
 
 CourseView.prototype.getCourseNameHTML = function () {
@@ -61,7 +121,7 @@ CourseView.prototype.getCourseReqsHTML = function () {
     var additionalClasses;
     additionalClasses = '';
     if (this.prerequisites) {
-        additionalClasses += ' <span class="label label-warning top panel-label label-reqss" title="Prerequisites needed" data-original-title="Tooltip on right">P</span>';
+        additionalClasses += ' <span class="label label-warning top panel-label label-reqss" title="Prerequisites required" data-original-title="Tooltip on right">P</span>';
     }
     if (this.cocourses) {
         additionalClasses += ' <span class="label label-warning top panel-label" title="Cocourses needed" data-original-title="Tooltip on right">C</span>';
@@ -118,19 +178,20 @@ CourseView.prototype.getCourseProgressHTML = function () {
 	remaining = this.max - this.enrolled;
 	coursePercentFull = this.enrolled / this.max * 100;
     if (this.enrolled == 0) {
-        return '<li class="list-group-item"><span class="glyphicon glyphicon-stats list-detail-glyphicon pull-left"></span><div class="progress"><div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="' + 100 + '" aria-valuemin="0" aria-valuemax="100" style="width:' + 100 + '%;">Class empty!</div></div></li>';
-    } else if (remaining == 0) {
-        return '<li class="list-group-item"><span class="glyphicon glyphicon-stats list-detail-glyphicon pull-left"></span><div class="progress"><div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="' + coursePercentFull + '" aria-valuemin="0" aria-valuemax="100" style="width:' + coursePercentFull + '%;">Class full!</div></div></li>';
-    } else if (this.waitlist > 0) {
+        progressString = '<li class="list-group-item"><span class="glyphicon glyphicon-stats list-detail-glyphicon pull-left"></span><div class="progress"><div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="' + 100 + '" aria-valuemin="0" aria-valuemax="100" style="width:' + 100 + '%;">Class empty!</div></div></li>';
+    } else if (this.waitlist > 0 && remaining == 0) {
         waitlistPercentage = (this.waitlist / this.max) * 100 * 10;
         waitlistPercentageOffset = (100 - waitlistPercentage);
-        return '<li class="list-group-item"><span class="glyphicon glyphicon-stats list-detail-glyphicon pull-left"></span><div class="progress"><div class="progress-bar progress-bar-warning" style="width:' + waitlistPercentage + '%"></div><div class="progress-bar progress-bar-danger" style="width:' + waitlistPercentageOffset + '%">' + this.waitlist + ' waitlisted</div></div></li>';
-	} else {
+        progressString = '<li class="list-group-item"><span class="glyphicon glyphicon-stats list-detail-glyphicon pull-left"></span><div class="progress"><div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%">' + this.waitlist + ' waitlisted</div></div></li>';
+	} else if (remaining == 0) {
+        progressString = '<li class="list-group-item"><span class="glyphicon glyphicon-stats list-detail-glyphicon pull-left"></span><div class="progress"><div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%;">Class full!</div></div></li>';
+     } else {
 		if (coursePercentFull < 30) {
 			coursePercentFull *= 3;
 		}
-	    return '<li class="list-group-item"><span class="glyphicon glyphicon-stats list-detail-glyphicon pull-left"></span><div class="progress"><div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="' + coursePercentFull + '" aria-valuemin="0" aria-valuemax="100" style="width:' + coursePercentFull + '%;">' + remaining + ' spots left</div></div></li>';
+	    progressString = '<li class="list-group-item"><span class="glyphicon glyphicon-stats list-detail-glyphicon pull-left"></span><div class="progress"><div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="' + coursePercentFull + '" aria-valuemin="0" aria-valuemax="100" style="width:' + coursePercentFull + '%;">' + remaining + ' spots remaining of ' + this.max + '</div></div></li>';
     }
+    return progressString;
 };
 
 CourseView.prototype.getCourseTimeHTML = function () {
@@ -151,31 +212,31 @@ CourseView.prototype.getCourseInstructorHTML = function () {
 
 CourseView.prototype.getCourseActionsHTML = function () {
     "use strict";
-    var buttonString;
-    buttonString = '<div class="panel-footer">' +
+	if (!cachedCourse(this.courseCode)) {
+		return '<div class="panel-footer"><button type="button" class="btn btn-block btn-success btn-add ladda-button" data-loading-text="Adding...">Add</button></div>';
+	} else {
+    return '<div class="panel-footer">' +
     '<div class="btn-group btn-block dropup">' +
     '<button type="button" class="btn col-xs-10 btn-danger btn-remove ladda-button" data-loading-text="Removing...">Remove</button>' +
-	'<button type="button" class="btn col-xs-2 btn-primary dropdown-toggle" data-toggle="dropdown">' +
+	'<button type="button" class="btn col-xs-2 btn-default dropdown-toggle" data-toggle="dropdown">' +
     '<span class="caret"></span>' +
     '<span class="sr-only">Toggle Dropdown</span>' +
 	'</button>' +
 	'<ul class="dropdown-menu col-md-12" role="menu">' +
-    '<li><a class="btn-log-dis" href="#">Log Discussions</a></li>' +
-    '<li><a class="btn-log-lec" href="#">Log Lectures</a></li>' +
-    '<li><a class="btn-log-lab" href="#">Log Labs</a></li>' +
-    '<li class="divider"></li>' +
-    '<li><a href="#">Separated link</a></li>' +
+    '<li><a class="btn-search-dis" href="#">Search for discussions</a></li>' +
+    '<li><a class="btn-search-lec" href="#">Search for lectures</a></li>' +
+    '<li><a class="btn-search-lab" href="#">Search for labs</a></li>' +
 	'</ul>' +
 	'</div>' +
 	'</div>';
-    return buttonString;
+	}
 };
 
 CourseView.prototype.buildHTML = function () {
     "use strict";
     var courseString;
     courseString = '';
-    courseString += "<div id='" + this.ParseObjectID + "' class='panel panel-primary course-list-item'>";
+    courseString += "<div id='" + this.courseCode + "' class='panel panel-primary course-list-item'>";
     courseString += this.getCourseInfoHTML();
     courseString += '<ul class="list-group">';
     courseString += this.getCourseNameHTML();

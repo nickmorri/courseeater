@@ -2,7 +2,11 @@ var displayCalendar, returnCourseEvents;
 
 $(document).ready(function() {
 	"use strict";
-    storeCourses().then(displayCalendar);
+	if (sessionStorage.courses === undefined) {
+		storeCourses().then(displayCalendar);	
+	} else {
+	  	displayCalendar();  
+    }
 });
 
 displayCalendar = function () {
@@ -25,13 +29,18 @@ displayCalendar = function () {
 }
 
 returnCourseEvents = function () {
-	var calendarCourses, courses, event, days, time, title, today, start, end, heldDays;
+	var calendarCourses, courses, event, days, time, title, today, start, end, heldDays, i, colors, color;
+	colors = ["red", "green", "blue", "purple", "orange", "brown"];
 	startingDay = "2014-07-";
 	calendarCourses = [];
 	courses = JSON.parse(sessionStorage.courses);
 	for (course in courses) {
 		// Title processing
 		title = courses[course].courseCode + " " + courses[course].courseIdentifier + " " + courses[course].courseName;
+		
+		// Random color
+		color = colors[parseInt((Math.random() * 5) + 1)];
+		colors.splice(colors.indexOf(color), 1);
 		
 		//Day parsing
 		days = courses[course].days;
@@ -70,11 +79,12 @@ returnCourseEvents = function () {
 		}
 		
 	    //Event object creation
-	    for (var i = 0; i < heldDays.length; i++) {
+	    for (i = 0; i < heldDays.length; i++) {
 		    event = {
 				title: title,
 				start: heldDays[i] + start,
-				end: heldDays[i] + end
+				end: heldDays[i] + end,
+				backgroundColor: color
 			}
 			calendarCourses.push(event);
 	    }

@@ -71,10 +71,11 @@ displayCourses = function () {
     if (courses === undefined || jQuery.isEmptyObject(courses)) {
         $("#courseDisplay").html("<div class='jumbotron'><h1><small>You're not tracking any courses.</small></h1></div>");
     } else {
+    	$("#courseDisplay").html("<div class='row'>");
         for (course in courses) {
             if (courses.hasOwnProperty(course)) {
                 courseView = new CourseView(courses[course]);
-                $("#courseDisplay").append(courseView.buildHTML());
+                $("#courseDisplay .row").append("<div class='col-lg-4 col-md-6'>" + courseView.buildHTML() + "</div>");
             }
         }
         $(".top").tooltip({
@@ -83,35 +84,53 @@ displayCourses = function () {
     }
 };
 
-filterLec = function (course) {
-    return course.attributes.type == "Lec";  
+toStringDays = function (days) {
+	var dayString = "";
+	if (days.indexOf("M") != -1) {
+		dayString += "Monday";
+	}
+	if (days.indexOf("Tu") != -1) {
+		dayString += "Tuesday";
+	}
+	if (days.indexOf("W") != -1) {
+		dayString += "Wednesday";
+	}
+	if (days.indexOf("Th") != -1) {
+		dayString += "Thursday";
+	}
+	if (days.indexOf("F") != -1) {
+		dayString += "Friday";
+	}
+	return dayString;
+}
+
+function cachedCourse(courseCode) {
+	return JSON.parse(sessionStorage.courses)[courseCode] !== undefined;
 };
 
-filterLab = function (course) {
-    return course.attributes.type == "Lab";  
-};
-
-filterDis = function (course) {
-    return course.attributes.type == "Dis";
-};
-
-displaySearch = function (results, filter) {
+displaySearch = function (results) {
     "use strict";
-    var i;
-    if (filter) {
+    var i, potentialCourse;
+    $("#courseInformationDisplay .modal-dialog .modal-content .modal-body").empty();
+    if (results.length > 0) {
+    	$("#courseInformationDisplay .modal-dialog .modal-content .modal-header .modal-title").html(results[0].attributes.courseName + " (" + results[0].attributes.type + ")");
         for (i = 0; i < results.length; i++) {
-            if (filter(results[i])) {
-                console.log(results[i].attributes);
-            }
-        }  
-    } else {
-        for (i = 0; i < results.length; i++) {
-            console.log(results[i].attributes);
+			potentialCourse = new CourseView(results[i].attributes);
+            $("#courseInformationDisplay .modal-dialog .modal-content .modal-body").append(potentialCourse.buildHTML());
         }
+        $(".top").tooltip({
+            placement: "top"
+        });
+        $("#courseInformationDisplay").modal("show");
+    } else {
+    	$("#courseInformationDisplay .modal-dialog .modal-content .modal-header .modal-title").html("No results");
+        $("#courseInformationDisplay .modal-dialog .modal-content .modal-body .list-group").empty();
+        $("#courseInformationDisplay .modal-dialog .modal-content .modal-body .list-group").append("There were no courses found.");
+        $("#courseInformationDisplay").modal("show");
     }
 };
 
-searchForCoCourses = function (courseCode, callback, filter) {
+searchForCoCourses = function (courseCode, callback, type) {
     "use strict";
     var Course, courseQuery, courseName, coCourseQuery;
     Course = Parse.Object.extend("Course");
@@ -121,9 +140,10 @@ searchForCoCourses = function (courseCode, callback, filter) {
         courseName = course.get("courseName");
         coCourseQuery = new Parse.Query(Course);
         coCourseQuery.equalTo("courseName", courseName);
+        coCourseQuery.equalTo("type", toTitleCase(type));
         return coCourseQuery.find();
     }).then(function (results) {
-        callback(results, filter);
+        callback(results);
     });
 };
 
@@ -171,25 +191,26 @@ searchCoursesByInstructor = function (instructor) {
     });
 };
 
-$(document).on("click", ".btn-log-lab", function () {
-    var courseCode, filter;
+displayRateData = function (data) {
+	console.log(data);	
+};
+
+$(document).on("click", ".btn-search-lab", function () {
+    var courseCode;
     courseCode = $(this).parent().parent().parent().parent().parent().children(".panel-heading").children(".panel-title").children(".course-view-courseID").text();
-    filter = filterLab;
-    searchForCoCourses(courseCode, displaySearch, filter);
+    searchForCoCourses(courseCode, displaySearch, "Lab");
 });
 
-$(document).on("click", ".btn-log-lec", function () {
-    var courseCode, filter;
+$(document).on("click", ".btn-search-lec", function () {
+    var courseCode;
     courseCode = $(this).parent().parent().parent().parent().parent().children(".panel-heading").children(".panel-title").children(".course-view-courseID").text();
-    filter = filterLec;
-    searchForCoCourses(courseCode, displaySearch, filter);
+    searchForCoCourses(courseCode, displaySearch, "Lec");
 });
 
-$(document).on("click", ".btn-log-dis", function () {
-    var courseCode, filter;
+$(document).on("click", ".btn-search-dis", function () {
+    var courseCode;
     courseCode = $(this).parent().parent().parent().parent().parent().children(".panel-heading").children(".panel-title").children(".course-view-courseID").text();
-    filter = filterDis;
-    searchForCoCourses(courseCode, displaySearch, filter);
+    searchForCoCourses(courseCode, displaySearch, "Dis");
 });
 
 // Allows enter to submit course by calling #addCourse button click
@@ -271,12 +292,46 @@ $(document).on("click", ".button-add", function () {
         if (error.code == 141) {
             $(".alert-invalid-courseid").html("Course <strong>" + $("#courseID").val() + "</strong> does not exist.");
             $(".alert-invalid-courseid").show();
+        } else {
+			console.log(error);
         }
-        console.log(error);
         lBtn.stop();
         bBtn.button("reset");
         cacheFresh("refresh");
         getCourses();
+    });
+});
+
+$(document).on("click", ".btn-add", function () {
+	"use strict";
+	var courseCode, lBtn, bBtn, modal;
+	courseCode = parseInt($(this).parent().parent().attr('id'));
+	modal = $(this).parent().parent().parent().parent().parent().parent();
+	lBtn = Ladda.create(this);
+    bBtn = $(this);
+    lBtn.start();
+    bBtn.button("loading");
+    lBtn.setProgress('.50');
+	Parse.Cloud.run('addCourse', {courseCode: courseCode}).then(function () {
+        $("#courseID").val('');
+        lBtn.setProgress('1');
+        lBtn.stop();
+        bBtn.button("reset");
+        cacheFresh("refresh");
+        getCourses();
+        modal.modal('hide');
+    }, function (error) {
+        if (error.code == 141) {
+            $(".alert-invalid-courseid").html("Course <strong>" + $("#courseID").val() + "</strong> does not exist.");
+            $(".alert-invalid-courseid").show();
+        } else {
+			console.log(error);
+        }
+        lBtn.stop();
+        bBtn.button("reset");
+        cacheFresh("refresh");
+        getCourses();
+        modal.modal('hide');
     });
 });
 
