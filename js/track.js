@@ -1,6 +1,6 @@
-/*global window, CourseView, Ladda, jQuery */
+/*global window, CourseView, ClassView, Ladda, jQuery */
 
-var cacheFresh, storeCourses, getCourses, displayCourses, removeCachedCourse, displaySearch, searchForCoCourses, searchCoursesByType, searchCoursesByDepartment, searchCoursesByCourseName, searchCoursesByInstructor, validateCourseCode;
+var cacheFresh, storeCourses, getCourses, sameClass, classGroups, displayCourses, displayCollapsibleClasses, displaySingleCourses, toStringDays, cachedCourse, removeCachedCourse, displaySearch, searchForCoCourses, searchCoursesByType, searchCoursesByDepartment, searchCoursesByCourseName, searchCoursesByInstructor, validateCourseCode;
 
 $(document).ready(function () {
     "use strict";
@@ -37,7 +37,7 @@ cacheFresh = function (reason) {
 
 // Stores course information from Parse
 storeCourses = function () {
-	"use strict";
+    "use strict";
     cacheFresh();
     var courseRelation, courses, i;
     courseRelation = Parse.User.current().relation("courses");
@@ -64,52 +64,52 @@ getCourses = function () {
 
 // Determines if two courses belong to the same class
 sameClass = function (course1, course2, courses) {
-	return courses[course1].courseIdentifier == courses[course2].courseIdentifier && courses[course1].courseName == courses[course2].courseName;
+    "use strict";
+    return courses[course1].courseIdentifier == courses[course2].courseIdentifier && courses[course1].courseName == courses[course2].courseName;
 };
 
 // Groups courses by class
 classGroups = function () {
-	var courses, courseIDs, lastCourse, classGroups;
-	courses = JSON.parse(sessionStorage.courses);
-	courseIDs = Object.keys(courses);
-	classGroups = {};
-	lastCourse = courseIDs[0];
-	
-	for (var i = 1; i < Object.keys(courses).length; i++) {
-		if (classGroups[lastCourse] === undefined) {
-			classGroups[lastCourse] = [lastCourse];
-		}
-		if (sameClass(courseIDs[i], lastCourse, courses)) {
-			classGroups[lastCourse].push(courseIDs[i]);
-		} else {
-			lastCourse = courseIDs[i];
-			classGroups[lastCourse] = [lastCourse];
-		}
-	}
-	return classGroups;
-};
-
-displayCollapsibleClasses = function () {
-	"use strict";
-    $("#courseDisplay").empty();
-    var courses, courseView, course;
+    "use strict";
+    var courses, courseIDs, lastCourse, classGroups, i;
     courses = JSON.parse(sessionStorage.courses);
-    
-	var classes = classGroups();
-
-	for (var i = 0; i < Object.keys(classes).length; i++) {
-		var classView = new ClassView();
-		var classGroup = classes[Object.keys(classes)[i]];
-		for (var j = 0; j < classGroup.length; j++) {
-			classView.addCourse(courses[classGroup[j]]);	
-		}
-		$("#courseDisplay").append(classView.buildCollapsible());		
-	}
+    courseIDs = Object.keys(courses);
+    classGroups = {};
+    lastCourse = courseIDs[0];
+    for (i = 1; i < Object.keys(courses).length; i++) {
+        if (classGroups[lastCourse] === undefined) {
+            classGroups[lastCourse] = [lastCourse];
+        }
+        if (sameClass(courseIDs[i], lastCourse, courses)) {
+            classGroups[lastCourse].push(courseIDs[i]);
+        } else {
+            lastCourse = courseIDs[i];
+            classGroups[lastCourse] = [lastCourse];
+        }
+    }
+    return classGroups;
 };
 
 displayCourses = function () {
-	"use strict";
-	displayCollapsibleClasses();
+    "use strict";
+    /* displaySingleCourses(); */
+    displayCollapsibleClasses();
+};
+
+displayCollapsibleClasses = function () {
+    "use strict";
+    $("#courseDisplay").empty();
+    var courses, classes, classView, classGroup, i, j;
+    courses = JSON.parse(sessionStorage.courses);
+    classes = classGroups();
+    for (i = 0; i < Object.keys(classes).length; i++) {
+        classView = new ClassView();
+        classGroup = classes[Object.keys(classes)[i]];
+        for (j = 0; j < classGroup.length; j++) {
+            classView.addCourse(courses[classGroup[j]]);
+        }
+        $("#courseDisplay").append(classView.buildCollapsible());
+    }
 };
 
 // Display Legacy Course objects
@@ -118,7 +118,6 @@ displaySingleCourses = function () {
     $("#courseDisplay").empty();
     var courses, courseView, course;
     courses = JSON.parse(sessionStorage.courses);
-	
     if (courses === undefined || jQuery.isEmptyObject(courses)) {
         $("#courseDisplay").html("<div class='jumbotron'><h2>You're not tracking any courses.</h2></div>");
     } else {
@@ -136,28 +135,30 @@ displaySingleCourses = function () {
 
 // Converts a character respresentation of a dayt to a full string
 toStringDays = function (days) {
-	var dayString = "";
-	if (days.indexOf("M") != -1) {
-		dayString += "Monday";
-	}
-	if (days.indexOf("Tu") != -1) {
-		dayString += "Tuesday";
-	}
-	if (days.indexOf("W") != -1) {
-		dayString += "Wednesday";
-	}
-	if (days.indexOf("Th") != -1) {
-		dayString += "Thursday";
-	}
-	if (days.indexOf("F") != -1) {
-		dayString += "Friday";
-	}
-	return dayString;
-}
+    "use strict";
+    var dayString = "";
+    if (days.indexOf("M") != -1) {
+        dayString += "Monday";
+    }
+    if (days.indexOf("Tu") != -1) {
+        dayString += "Tuesday";
+    }
+    if (days.indexOf("W") != -1) {
+        dayString += "Wednesday";
+    }
+    if (days.indexOf("Th") != -1) {
+        dayString += "Thursday";
+    }
+    if (days.indexOf("F") != -1) {
+        dayString += "Friday";
+    }
+    return dayString;
+};
 
 // Determines if a a course object is locally cached
 cachedCourse = function (courseCode) {
-	return JSON.parse(sessionStorage.courses)[courseCode] !== undefined;
+    "use strict";
+    return JSON.parse(sessionStorage.courses)[courseCode] !== undefined;
 };
 
 // Displays a search in a modal view
@@ -166,9 +167,9 @@ displaySearch = function (results) {
     var i, potentialCourse;
     $("#courseInformationDisplay .modal-dialog .modal-content .modal-body").empty();
     if (results.length > 0) {
-    	$("#courseInformationDisplay .modal-dialog .modal-content .modal-header .modal-title").html(results[0].attributes.courseName + " (" + results[0].attributes.type + ")");
+        $("#courseInformationDisplay .modal-dialog .modal-content .modal-header .modal-title").html(results[0].attributes.courseName + " (" + results[0].attributes.type + ")");
         for (i = 0; i < results.length; i++) {
-			potentialCourse = new CourseView(results[i].attributes);
+            potentialCourse = new CourseView(results[i].attributes);
             $("#courseInformationDisplay .modal-dialog .modal-content .modal-body").append(potentialCourse.buildCourse());
         }
         $(".top").tooltip({
@@ -176,7 +177,7 @@ displaySearch = function (results) {
         });
         $("#courseInformationDisplay").modal("show");
     } else {
-    	$("#courseInformationDisplay .modal-dialog .modal-content .modal-header .modal-title").html("No results");
+        $("#courseInformationDisplay .modal-dialog .modal-content .modal-header .modal-title").html("No results");
         $("#courseInformationDisplay .modal-dialog .modal-content .modal-body .list-group").empty();
         $("#courseInformationDisplay .modal-dialog .modal-content .modal-body .list-group").append("There were no courses found.");
         $("#courseInformationDisplay").modal("show");
@@ -188,7 +189,7 @@ searchForCoCourses = function (courseCode, callback, type) {
     var Course, courseQuery, courseName, coCourseQuery;
     Course = Parse.Object.extend("Course");
     courseQuery = new Parse.Query(Course);
-    courseQuery.equalTo("courseCode", parseInt(courseCode));
+    courseQuery.equalTo("courseCode", parseInt(courseCode, 10));
     courseQuery.first().then(function (course) {
         courseName = course.get("courseName");
         coCourseQuery = new Parse.Query(Course);
@@ -244,23 +245,22 @@ searchCoursesByInstructor = function (instructor) {
     });
 };
 
-displayRateData = function (data) {
-	console.log(data);	
-};
-
 $(document).on("click", ".btn-search-lab", function () {
+    "use strict";
     var courseCode;
     courseCode = $(this).parent().parent().parent().parent().parent().children(".panel-heading").children(".panel-title").children(".course-view-courseID").text();
     searchForCoCourses(courseCode, displaySearch, "Lab");
 });
 
 $(document).on("click", ".btn-search-lec", function () {
+    "use strict";
     var courseCode;
     courseCode = $(this).parent().parent().parent().parent().parent().children(".panel-heading").children(".panel-title").children(".course-view-courseID").text();
     searchForCoCourses(courseCode, displaySearch, "Lec");
 });
 
 $(document).on("click", ".btn-search-dis", function () {
+    "use strict";
     var courseCode;
     courseCode = $(this).parent().parent().parent().parent().parent().children(".panel-heading").children(".panel-title").children(".course-view-courseID").text();
     searchForCoCourses(courseCode, displaySearch, "Dis");
@@ -346,7 +346,7 @@ $(document).on("click", ".button-add", function () {
             $(".alert-invalid-courseid").html("Course <strong>" + $("#courseID").val() + "</strong> does not exist.");
             $(".alert-invalid-courseid").show();
         } else {
-			console.log(error);
+            console.log(error);
         }
         lBtn.stop();
         bBtn.button("reset");
@@ -356,16 +356,16 @@ $(document).on("click", ".button-add", function () {
 });
 
 $(document).on("click", ".btn-add", function () {
-	"use strict";
-	var courseCode, lBtn, bBtn, modal;
-	courseCode = parseInt($(this).parent().parent().attr('id'));
-	modal = $(this).parent().parent().parent().parent().parent().parent();
-	lBtn = Ladda.create(this);
+    "use strict";
+    var courseCode, lBtn, bBtn, modal;
+    courseCode = parseInt($(this).parent().parent().attr('id'), 10);
+    modal = $(this).parent().parent().parent().parent().parent().parent();
+    lBtn = Ladda.create(this);
     bBtn = $(this);
     lBtn.start();
     bBtn.button("loading");
     lBtn.setProgress('.50');
-	Parse.Cloud.run('addCourse', {courseCode: courseCode}).then(function () {
+    Parse.Cloud.run('addCourse', {courseCode: courseCode}).then(function () {
         $("#courseID").val('');
         lBtn.setProgress('1');
         lBtn.stop();
@@ -378,7 +378,7 @@ $(document).on("click", ".btn-add", function () {
             $(".alert-invalid-courseid").html("Course <strong>" + $("#courseID").val() + "</strong> does not exist.");
             $(".alert-invalid-courseid").show();
         } else {
-			console.log(error);
+            console.log(error);
         }
         lBtn.stop();
         bBtn.button("reset");

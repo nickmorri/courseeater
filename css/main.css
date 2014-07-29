@@ -67,6 +67,7 @@ body { background-color: #eee; }
 .label-type {
 	margin-left: -15px;
 	margin-right: 0px;
+	width: 40px;
 }
 .label-identifier {
 	margin-left: -5px;
@@ -101,6 +102,7 @@ body { background-color: #eee; }
 }
 .panel.panel-primary {
 	border-radius: 0px;
+	margin-bottom: -6px;
 }
 .panel-title a:hover {
 	text-decoration: none;
