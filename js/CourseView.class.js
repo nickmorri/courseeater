@@ -25,7 +25,18 @@ function CourseView(course) {
 CourseView.prototype.getCourseInfo = function () {
     "use strict";
     var infoString;
-    infoString = '<span class="label label-info panel-label label-type">';
+    infoString = '';
+    if (this.type == "Lec") {
+        infoString += '<span class="label label-success panel-label label-type">';
+    } else if (this.type == "Dis") {
+        infoString += '<span class="label label-primary panel-label label-type">';
+    } else if (this.type == "Lab") {
+        infoString += '<span class="label label-danger panel-label label-type">';
+    } else {
+        infoString += '<span class="label label-warning panel-label label-type">';
+    }
+    
+    
     infoString += this.type.toUpperCase();
     infoString += '</span>';
     infoString += '<span class="label label-success panel-label label-identifier">';
@@ -176,8 +187,7 @@ CourseView.prototype.getCourseActions = function () {
 CourseView.prototype.buildPanel = function () {
     "use strict";
     var courseString;
-    courseString = '<div class="col-lg-4 col-md-6">';
-    courseString += "<div id='" + this.courseCode + "' class='panel panel-primary course-list-item'>";
+    courseString = "<div id='" + this.courseCode + "' class='panel panel-primary course-list-item'>";
     courseString += '<div class="panel-heading">';
     courseString += '<h3 class="panel-title">';
     courseString += this.getCourseInfo();
@@ -194,7 +204,6 @@ CourseView.prototype.buildPanel = function () {
     courseString += '<div class="panel-footer">';
     courseString += this.getCourseActions();
     courseString += '</div>';
-    courseString += "</div>";
     courseString += "</div>";
     return courseString;
 };

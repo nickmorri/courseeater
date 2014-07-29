@@ -108,7 +108,7 @@ displayCollapsibleClasses = function () {
         for (j = 0; j < classGroup.length; j++) {
             classView.addCourse(courses[classGroup[j]]);
         }
-        $("#courseDisplay").append(classView.buildCollapsible());
+        $("#courseDisplay").append('<div class="col-lg-4 col-md-6">' + classView.buildCollapsible() + '</div>');
     }
 };
 
@@ -124,7 +124,7 @@ displaySingleCourses = function () {
         for (course in courses) {
             if (courses.hasOwnProperty(course)) {
                 courseView = new CourseView(courses[course]);
-                $("#courseDisplay").append(courseView.buildCourse());
+                $("#courseDisplay").append('<div class="col-lg-4 col-md-6">' + courseView.buildCourse() + "</div>");
             }
         }
         $(".top").tooltip({
@@ -186,14 +186,16 @@ displaySearch = function (results) {
 
 searchForCoCourses = function (courseCode, callback, type) {
     "use strict";
-    var Course, courseQuery, courseName, coCourseQuery;
+    var Course, courseQuery, courseName, courseIdentifier, coCourseQuery;
     Course = Parse.Object.extend("Course");
     courseQuery = new Parse.Query(Course);
     courseQuery.equalTo("courseCode", parseInt(courseCode, 10));
     courseQuery.first().then(function (course) {
         courseName = course.get("courseName");
+        courseIdentifier = course.get("courseIdentifier");
         coCourseQuery = new Parse.Query(Course);
         coCourseQuery.equalTo("courseName", courseName);
+        coCourseQuery.equalTo("courseIdentifier", courseIdentifier);
         coCourseQuery.equalTo("type", toTitleCase(type));
         return coCourseQuery.find();
     }).then(function (results) {
@@ -248,21 +250,21 @@ searchCoursesByInstructor = function (instructor) {
 $(document).on("click", ".btn-search-lab", function () {
     "use strict";
     var courseCode;
-    courseCode = $(this).parent().parent().parent().parent().parent().children(".panel-heading").children(".panel-title").children(".course-view-courseID").text();
+	courseCode = $(this).parent().parent().parent().parent().parent().attr("id").split("-")[1];
     searchForCoCourses(courseCode, displaySearch, "Lab");
 });
 
 $(document).on("click", ".btn-search-lec", function () {
     "use strict";
     var courseCode;
-    courseCode = $(this).parent().parent().parent().parent().parent().children(".panel-heading").children(".panel-title").children(".course-view-courseID").text();
+    courseCode = $(this).parent().parent().parent().parent().parent().attr("id").split("-")[1];
     searchForCoCourses(courseCode, displaySearch, "Lec");
 });
 
 $(document).on("click", ".btn-search-dis", function () {
     "use strict";
     var courseCode;
-    courseCode = $(this).parent().parent().parent().parent().parent().children(".panel-heading").children(".panel-title").children(".course-view-courseID").text();
+    courseCode = $(this).parent().parent().parent().parent().parent().attr("id").split("-")[1];
     searchForCoCourses(courseCode, displaySearch, "Dis");
 });
 
@@ -397,7 +399,7 @@ $(document).on('click', ".btn-remove", function () {
     lBtn.start();
     bBtn.button("loading");
     lBtn.setProgress('.50');
-    courseCode = $(this).parent().parent().parent().children(".panel-heading").children(".panel-title").children(".course-view-courseID").text();
+    courseCode = $(this).parent().parent().parent().attr("id").split("-")[1];
     Parse.Cloud.run("removeCourse", {courseCode: courseCode}).then(function () {
         lBtn.setProgress('1');
         lBtn.stop();

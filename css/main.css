@@ -103,6 +103,7 @@ body { background-color: #eee; }
 .panel.panel-primary {
 	border-radius: 0px;
 	margin-bottom: -6px;
+	border-color: black;
 }
 .panel-title a:hover {
 	text-decoration: none;
