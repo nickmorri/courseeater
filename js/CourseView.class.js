@@ -199,12 +199,12 @@ CourseView.prototype.buildPanel = function () {
     return courseString;
 };
 
-CourseView.prototype.buildSubPanel = function (num) {
+CourseView.prototype.buildSubPanel = function (num, mainCourseCode) {
 	var courseString;
 	courseString = '<div class="panel panel-primary">' +
 	'<div class="panel-heading">' +
 	'<h4 class="panel-title">' +
-	'<a data-toggle="collapse" data-parent="#accordion-' + this.courseCode + '" href="#collapse' + num + '-' + this.courseCode + '">' +
+	'<a data-toggle="collapse" data-parent="#accordion-' + mainCourseCode + '" href="#collapse' + num + '-' + this.courseCode + '">' +
 	this.getCourseInfo() + 
 	'</a>' +
 	'</h4>' +

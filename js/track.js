@@ -62,10 +62,12 @@ getCourses = function () {
     }
 };
 
-function sameClass(course1, course2, courses) {
+// Determines if two courses belong to the same class
+sameClass = function (course1, course2, courses) {
 	return courses[course1].courseIdentifier == courses[course2].courseIdentifier && courses[course1].courseName == courses[course2].courseName;
 };
 
+// Groups courses by class
 classGroups = function () {
 	var courses, courseIDs, lastCourse, classGroups;
 	courses = JSON.parse(sessionStorage.courses);
@@ -87,12 +89,36 @@ classGroups = function () {
 	return classGroups;
 };
 
-// Display Course objects
+displayCollapsibleClasses = function () {
+	"use strict";
+    $("#courseDisplay").empty();
+    var courses, courseView, course;
+    courses = JSON.parse(sessionStorage.courses);
+    
+	var classes = classGroups();
+
+	for (var i = 0; i < Object.keys(classes).length; i++) {
+		var classView = new ClassView();
+		var classGroup = classes[Object.keys(classes)[i]];
+		for (var j = 0; j < classGroup.length; j++) {
+			classView.addCourse(courses[classGroup[j]]);	
+		}
+		$("#courseDisplay").append(classView.buildCollapsible());		
+	}
+};
+
 displayCourses = function () {
+	"use strict";
+	displayCollapsibleClasses();
+};
+
+// Display Legacy Course objects
+displaySingleCourses = function () {
     "use strict";
     $("#courseDisplay").empty();
     var courses, courseView, course;
     courses = JSON.parse(sessionStorage.courses);
+	
     if (courses === undefined || jQuery.isEmptyObject(courses)) {
         $("#courseDisplay").html("<div class='jumbotron'><h2>You're not tracking any courses.</h2></div>");
     } else {
@@ -108,6 +134,7 @@ displayCourses = function () {
     }
 };
 
+// Converts a character respresentation of a dayt to a full string
 toStringDays = function (days) {
 	var dayString = "";
 	if (days.indexOf("M") != -1) {
@@ -128,10 +155,12 @@ toStringDays = function (days) {
 	return dayString;
 }
 
-function cachedCourse(courseCode) {
+// Determines if a a course object is locally cached
+cachedCourse = function (courseCode) {
 	return JSON.parse(sessionStorage.courses)[courseCode] !== undefined;
 };
 
+// Displays a search in a modal view
 displaySearch = function (results) {
     "use strict";
     var i, potentialCourse;
