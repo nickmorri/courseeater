@@ -62,6 +62,31 @@ getCourses = function () {
     }
 };
 
+function sameClass(course1, course2, courses) {
+	return courses[course1].courseIdentifier == courses[course2].courseIdentifier && courses[course1].courseName == courses[course2].courseName;
+};
+
+classGroups = function () {
+	var courses, courseIDs, lastCourse, classGroups;
+	courses = JSON.parse(sessionStorage.courses);
+	courseIDs = Object.keys(courses);
+	classGroups = {};
+	lastCourse = courseIDs[0];
+	
+	for (var i = 1; i < Object.keys(courses).length; i++) {
+		if (classGroups[lastCourse] === undefined) {
+			classGroups[lastCourse] = [lastCourse];
+		}
+		if (sameClass(courseIDs[i], lastCourse, courses)) {
+			classGroups[lastCourse].push(courseIDs[i]);
+		} else {
+			lastCourse = courseIDs[i];
+			classGroups[lastCourse] = [lastCourse];
+		}
+	}
+	return classGroups;
+};
+
 // Display Course objects
 displayCourses = function () {
     "use strict";
@@ -69,13 +94,12 @@ displayCourses = function () {
     var courses, courseView, course;
     courses = JSON.parse(sessionStorage.courses);
     if (courses === undefined || jQuery.isEmptyObject(courses)) {
-        $("#courseDisplay").html("<div class='jumbotron'><h1><small>You're not tracking any courses.</small></h1></div>");
+        $("#courseDisplay").html("<div class='jumbotron'><h2>You're not tracking any courses.</h2></div>");
     } else {
-    	$("#courseDisplay").html("<div class='row'>");
         for (course in courses) {
             if (courses.hasOwnProperty(course)) {
                 courseView = new CourseView(courses[course]);
-                $("#courseDisplay .row").append("<div class='col-lg-4 col-md-6'>" + courseView.buildHTML() + "</div>");
+                $("#courseDisplay").append(courseView.buildCourse());
             }
         }
         $(".top").tooltip({
@@ -116,7 +140,7 @@ displaySearch = function (results) {
     	$("#courseInformationDisplay .modal-dialog .modal-content .modal-header .modal-title").html(results[0].attributes.courseName + " (" + results[0].attributes.type + ")");
         for (i = 0; i < results.length; i++) {
 			potentialCourse = new CourseView(results[i].attributes);
-            $("#courseInformationDisplay .modal-dialog .modal-content .modal-body").append(potentialCourse.buildHTML());
+            $("#courseInformationDisplay .modal-dialog .modal-content .modal-body").append(potentialCourse.buildCourse());
         }
         $(".top").tooltip({
             placement: "top"

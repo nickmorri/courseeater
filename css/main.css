@@ -4,6 +4,7 @@
 	}
 }
 body { background-color: #eee; }
+
 /* Setting margin values for a clear interface */
 .navbar { margin-bottom: 15px; }
 .progress { margin-bottom: 0px; }
@@ -88,4 +89,19 @@ body { background-color: #eee; }
 }
 .fc-event-time {
 	text-decoration: underline;
+}
+/* Collapsible */
+.panel-collapse .list-group {
+	margin-top: -16px;
+	margin-left: -16px;
+	margin-right: -16px;
+}
+.panel-collapse .list-group .list-group-item {
+	border-radius: 0px;
+}
+.panel.panel-primary {
+	border-radius: 0px;
+}
+.panel-title a:hover {
+	text-decoration: none;
 }
