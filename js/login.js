@@ -26,11 +26,9 @@ $(document).on('click', '.btn-login', function () {
     "use strict";
     var bBtn = $(this);
     bBtn.button("loading");
-    Parse.User.logIn($(".form-control-username").val(), $(".form-control-password.login-password").val(), {
-        success: function () {
-            window.location.replace("track");
-        },
-        error: function (error) {
+    Parse.User.logIn($(".form-control-username").val(), $(".form-control-password.login-password").val()).then(function () {
+	    window.location.replace("track");
+    }, function (error) {
             if (error.code == 101) {
                 bBtn.button("reset");
                 $(".alert-login").show();
@@ -38,7 +36,6 @@ $(document).on('click', '.btn-login', function () {
                 $("#loginForm .form-control-username.login-username").focus();
             }
             console.log(error);
-        }
     });
 });
 
