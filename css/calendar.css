@@ -1,0 +1,7 @@
+/* Calendar page */
+#calendar {
+	margin-top: -32px;
+}
+.fc-event-time {
+	text-decoration: underline;
+}

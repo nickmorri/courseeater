@@ -1,0 +1,58 @@
+.course-list-item {
+	margin-top: 20px;
+	border-radius: 0;
+}
+
+.progress {
+	margin-bottom: 0px;
+	border-radius: 0px;
+}
+
+.list-detail-glyphicon { padding-right: 20px; }
+.panel { border-radius: 0px; }
+.panel-heading { border-radius: 0px; }
+.label-day { border-radius: 0px; }
+
+/* CourseView */
+.panel-label {
+	display: inline-block;
+	padding-top: 15px;
+	padding-bottom: 14px;
+	margin-top: -10px;
+	margin-bottom: -10px;
+	border-radius: 0px;
+}
+.label-type {
+	margin-left: -15px;
+	margin-right: 0px;
+	width: 40px;
+}
+.label-identifier {
+	margin-left: -5px;
+	margin-right: -5px;
+}
+.label-course-code {
+	margin-right: -15px;
+	float: right;
+}
+.dropdown-menu {
+	border-radius: 0px;
+}
+
+/* Collapsible */
+.panel-collapse .list-group {
+	margin-top: -16px;
+	margin-left: -16px;
+	margin-right: -16px;
+}
+.panel-collapse .list-group .list-group-item {
+	border-radius: 0px;
+}
+.panel.panel-primary {
+	border-radius: 0px;
+	margin-bottom: -6px;
+	border-color: black;
+}
+.panel-title a:hover {
+	text-decoration: none;
+}

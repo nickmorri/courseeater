@@ -1,32 +1,27 @@
-@media (min-width: 1200px) {
-	.container {
-		/* width: 900px; */
-	}
-}
 body { background-color: #eee; }
 
 /* Setting margin values for a clear interface */
 .navbar { margin-bottom: 15px; }
-.progress { margin-bottom: 0px; }
 .add-course-entry { margin-top: -10px; }
 .button-add { margin-top: -1px; }
-.course-view-courseID { margin-top: 1px; }
-.list-detail-glyphicon { padding-right: 20px; }
 .form-control.update-info { margin-bottom: 10px; }
 .form-control-username { margin-bottom: -1px; }
 .form-control-email { margin-bottom: -1px; }
 .fc-event-vert.fc-event-end { border-radius: 0px !important; }
 .modal-content { border-radius: 0px; }
+.alert-invalid-courseid {
+	margin-top: 20px;
+	margin-bottom: 0px;
+}
+.alert-account-info { 
+	margin-top: 10px;
+	margin-bottom: 5px;
+}
 
 /* Removing border-radius for a square look */
 .form-control { border-radius: 0; }
 .alert { border-radius: 0px; }
 .btn { border-radius: 0px; }
-.panel { border-radius: 0px; }
-.panel-heading { border-radius: 0px; }
-.label-day { border-radius: 0px; }
-.progress { border-radius: 0px; }
-
 .jumbotron {
 	display: block;
 	max-width: 800px;
@@ -43,68 +38,4 @@ body { background-color: #eee; }
     box-sizing: border-box;
     padding: 10px;
     font-size: 16px;
-}
-.alert-invalid-courseid {
-	margin-top: 20px;
-	margin-bottom: 0px;
-}
-.course-list-item {
-	margin-top: 20px;
-	border-radius: 0;
-}
-.alert-account-info { 
-	margin-top: 10px;
-	margin-bottom: 5px;
-}
-.panel-label {
-	display: inline-block;
-	padding-top: 15px;
-	padding-bottom: 14px;
-	margin-top: -10px;
-	margin-bottom: -10px;
-	border-radius: 0px;
-}
-.label-type {
-	margin-left: -15px;
-	margin-right: 0px;
-	width: 40px;
-}
-.label-identifier {
-	margin-left: -5px;
-	margin-right: -5px;
-}
-.course-view-courseID {
-	display: inline-block;
-	padding-top: 15px;
-	padding-bottom: 14px;
-	margin-top: -10px;
-	margin-right: -15px;
-	margin-bottom: -10px;
-	border-radius: 0px;
-}
-.btn-group.btn-block .dropdown-toggle {
-	padding-right: 0px;
-}
-#calendar {
-	margin-top: -32px;
-}
-.fc-event-time {
-	text-decoration: underline;
-}
-/* Collapsible */
-.panel-collapse .list-group {
-	margin-top: -16px;
-	margin-left: -16px;
-	margin-right: -16px;
-}
-.panel-collapse .list-group .list-group-item {
-	border-radius: 0px;
-}
-.panel.panel-primary {
-	border-radius: 0px;
-	margin-bottom: -6px;
-	border-color: black;
-}
-.panel-title a:hover {
-	text-decoration: none;
 }

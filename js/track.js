@@ -73,7 +73,7 @@ displaySingleCourses = function () {
         for (course in courses) {
             if (courses.hasOwnProperty(course)) {
                 courseView = new CourseView(courses[course]);
-                $("#courseDisplay").append('<div class="col-lg-4 col-md-6">' + courseView.buildCourse() + "</div>");
+                $("#courseDisplay").append('<div class="col-lg-4 col-md-6">' + courseView.buildCourse() + '</div>');
             }
         }
         $(".top").tooltip({
@@ -88,10 +88,10 @@ displaySearch = function (results) {
     var i, potentialCourse;
     $("#courseInformationDisplay .modal-dialog .modal-content .modal-body").empty();
     if (results.length > 0) {
-        $("#courseInformationDisplay .modal-dialog .modal-content .modal-header .modal-title").html(results[0].attributes.courseName + " (" + results[0].attributes.type + ")");
+        $("#courseInformationDisplay .modal-dialog .modal-content .modal-header .modal-title").html(results[0].attributes.courseName + " (" + results[0].attributes.type.toUpperCase() + ")");
         for (i = 0; i < results.length; i++) {
             potentialCourse = new CourseView(results[i].attributes);
-            $("#courseInformationDisplay .modal-dialog .modal-content .modal-body").append(potentialCourse.buildCourse());
+            $("#courseInformationDisplay .modal-dialog .modal-content .modal-body").append('<div class="col-lg-4 col-md-6">' + potentialCourse.buildCourse() + '</div>');
         }
         $(".top").tooltip({
             placement: "top"
@@ -107,13 +107,13 @@ displaySearch = function (results) {
 
 searchForCoCourses = function (courseCode, callback, type) {
     "use strict";
-    var Course, courseQuery, courseName, courseIdentifier, coCourseQuery;
+    var Course, courseQuery, courseName, courseIdentifier, coCourseQuery, exclusionQuery;
     Course = Parse.Object.extend("Course");
     courseQuery = new Parse.Query(Course);
     courseQuery.equalTo("courseCode", parseInt(courseCode, 10));
     courseQuery.first().then(function (course) {
         courseName = course.get("courseName");
-        courseIdentifier = course.get("courseIdentifier");
+        courseIdentifier = course.get("courseIdentifier");        
         coCourseQuery = new Parse.Query(Course);
         coCourseQuery.equalTo("courseName", courseName);
         coCourseQuery.equalTo("courseIdentifier", courseIdentifier);
@@ -196,7 +196,7 @@ $(document).on("keypress", "#courseID", function (event) {
 });
 
 // Selects courseCode on click of courseCode div
-$(document).on("click", ".course-view-courseID", function () {
+$(document).on("click", ".badge-course-code", function () {
     "use strict";
     var range, selection;
     if (window.getSelection && document.createRange) {
@@ -282,7 +282,7 @@ $(document).on("click", ".btn-add", function () {
     "use strict";
     var courseCode, lBtn, bBtn, modal;
     courseCode = parseInt($(this).parent().parent().attr('id'), 10);
-    modal = $(this).parent().parent().parent().parent().parent().parent();
+    modal = $(this).parent().parent().parent().parent().parent().parent().parent();
     lBtn = Ladda.create(this);
     bBtn = $(this);
     lBtn.start();
@@ -294,8 +294,8 @@ $(document).on("click", ".btn-add", function () {
         lBtn.stop();
         bBtn.button("reset");
         cacheFresh("refresh");
-        getCourses();
         modal.modal('hide');
+        getCourses();
     }, function (error) {
         if (error.code == 141) {
             $(".alert-invalid-courseid").html("Course <strong>" + $("#courseID").val() + "</strong> does not exist.");
@@ -306,26 +306,33 @@ $(document).on("click", ".btn-add", function () {
         lBtn.stop();
         bBtn.button("reset");
         cacheFresh("refresh");
-        getCourses();
         modal.modal('hide');
+        getCourses();
     });
 });
 
 // Remove course from user's profile
 $(document).on('click', ".btn-remove", function () {
     "use strict";
-    var courseCode, lBtn, bBtn;
+    var courseCode, lBtn, bBtn, modal;
     lBtn = Ladda.create(this);
     bBtn = $(this);
     lBtn.start();
     bBtn.button("loading");
     lBtn.setProgress('.50');
     courseCode = $(this).parent().parent().parent().attr("id").split("-")[1];
+	if (courseCode === undefined ) {
+		courseCode = $(this).parent().parent().parent().attr("id");
+		modal = $(this).parent().parent().parent().parent().parent().parent().parent().parent();
+	}
     Parse.Cloud.run("removeCourse", {courseCode: courseCode}).then(function () {
         lBtn.setProgress('1');
         lBtn.stop();
         bBtn.button("reset");
         cacheFresh("refresh");
+        if (modal !== undefined) {
+	        modal.modal('hide');
+        }
         getCourses();
     }, function (error) {
         console.log(error);
@@ -335,6 +342,9 @@ $(document).on('click', ".btn-remove", function () {
         lBtn.stop();
         bBtn.button("reset");
         cacheFresh("refresh");
+        if (modal !== undefined) {
+	        modal.modal('hide');
+        }
         getCourses();
     });
 });
