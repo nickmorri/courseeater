@@ -16,24 +16,6 @@ getCalendar = function () {
     }	
 };
 
-displayReplacements = function () {
-	"use strict";
-	var temporaryCourses, event, course, data;
-	temporaryCourses = [];
-	data = JSON.parse(sessionStorage.temporaryCourses);
-	if (jQuery.isEmptyObject(data)) {
-		$("#coursePanelDisplay .modal-dialog").html("<div class='modal-content'><div class='modal-header'><h4 class='modal-title'>No replacements found.</h4></div></div>");
-		return;
-	}
-	for (course in data) {
-		if (getCourseFromCache(data) === undefined) {
-			temporaryCourses = temporaryCourses.concat(getCourseEvent(getTemporaryCourse(course), "black"));	
-		}
-	}
-	$("#coursePanelDisplay").modal("hide");
-	$('#calendar').fullCalendar( 'addEventSource', temporaryCourses);
-};
-
 handleCourseClick = function (calEvent, jsEvent, view) {
 	var courseObject, courseCode, coursePanel;
     courseCode = calEvent.id;
@@ -166,10 +148,55 @@ getCourseEvents = function () {
     return calendarCourses;
 };
 
+displayReplacements = function () {
+	"use strict";
+	var temporaryCourses, event, course, data;
+	temporaryCourses = [];
+	data = JSON.parse(sessionStorage.temporaryCourses);
+	if (jQuery.isEmptyObject(data)) {
+		$("#coursePanelDisplay .modal-dialog").html("<div class='modal-content'><div class='modal-header'><h4 class='modal-title'>No replacements found.</h4></div></div>");
+		return;
+	}
+	for (course in data) {
+		if (getCourseFromCache(data) === undefined) {
+			temporaryCourses = temporaryCourses.concat(getCourseEvent(getTemporaryCourse(course), "black"));	
+		}
+	}
+	$("#coursePanelDisplay").modal("hide");
+	$('#calendar').fullCalendar( 'addEventSource', temporaryCourses);
+};
+
+displaySearch = function () {
+    "use strict";
+    var temporaryCourses, event, course, data;
+	temporaryCourses = [];
+	data = JSON.parse(sessionStorage.temporaryCourses);
+	if (jQuery.isEmptyObject(data)) {
+		$("#coursePanelDisplay .modal-dialog").html("<div class='modal-content'><div class='modal-header'><h4 class='modal-title'>No replacements found.</h4></div></div>");
+		return;
+	}
+	for (course in data) {
+		if (getCourseFromCache(data) === undefined) {
+			temporaryCourses = temporaryCourses.concat(getCourseEvent(getTemporaryCourse(course), "black"));	
+		}
+	}
+	$("#coursePanelDisplay").modal("hide");
+	$('#calendar').fullCalendar( 'addEventSource', temporaryCourses);
+};
+
+// Conducts search for CoCourses or replacements
+$(document).on("click", ".btn-search", function () {
+    "use strict";
+    var type, courseCode;
+    type = $(this).attr("class").split(" ")[1].split("-")[1];
+    courseCode = $(this).parent().parent().parent().parent().parent().attr("id");
+    getCourseFromCache(courseCode).findCoCourses(type, displayReplacements);
+});
+
 $(document).on('click', ".btn-search-replacements", function () {
 	var courseCode, course;
     courseCode = $(this).parent().parent().parent().parent().parent().attr("id");
-    var course = getCourseFromCache(courseCode);
+    course = getCourseFromCache(courseCode);
     course.findCoCourses(course.type, displayReplacements);
 });
 
@@ -196,6 +223,7 @@ $(document).on("click", ".btn-add", function () {
 		displayCalendar();
 		modal.modal('hide');
 		storeCourses();
+		delete sessionStorage.temporaryCourses;
     });
 });
 

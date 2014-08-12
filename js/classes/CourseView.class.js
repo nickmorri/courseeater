@@ -185,6 +185,11 @@ CourseView.prototype.getSchedulingCourseActions = function () {
         actionString += '</button>';
         actionString += '<ul class="dropdown-menu col-md-12" role="menu">';
         actionString += '<li><a class="btn-search-replacements" href="#">Search for replacements</a></li>';
+        /*
+actionString += '<li><a class="btn-search search-Dis" href="#">Search for discussions</a></li>';
+        actionString += '<li><a class="btn-search search-Lec" href="#">Search for lectures</a></li>';
+        actionString += '<li><a class="btn-search search-Lab" href="#">Search for labs</a></li>';
+*/
         actionString += '</ul>';
         actionString += '</div>';
     }
