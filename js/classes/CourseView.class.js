@@ -152,7 +152,7 @@ CourseView.prototype.getCourseInstructor = function () {
 CourseView.prototype.getCourseActions = function () {
     "use strict";
     var actionString;
-    if (!cachedCourse(this.courseCode)) {
+    if (getCourseFromCache(this.courseCode) === undefined) {
         actionString = '<button type="button" class="btn btn-block btn-success btn-add ladda-button" data-loading-text="Adding...">Add</button>';
     } else {
         actionString = '<div class="btn-group btn-block dropup">';
@@ -174,7 +174,7 @@ CourseView.prototype.getCourseActions = function () {
 CourseView.prototype.getSchedulingCourseActions = function () {
     "use strict";
     var actionString;
-    if (!cachedCourse(this.courseCode)) {
+    if (getCourseFromCache(this.courseCode) === undefined) {
         actionString = '<button type="button" class="btn btn-block btn-success btn-add ladda-button" data-loading-text="Adding...">Add</button>';
     } else {
         actionString = '<div class="btn-group btn-block dropup">';
@@ -274,4 +274,36 @@ CourseView.prototype.buildSubPanel = function (num, mainCourseCode) {
 CourseView.prototype.buildCourse = function () {
     "use strict";
     return this.buildPanel();
+};
+
+CourseView.prototype.findCoCourses = function (type, callback) {
+	"use strict";
+    var Course, courseQuery, courseName, courseIdentifier, coCourseQuery, exclusionQuery, i;
+    Course = Parse.Object.extend("Course");
+    courseQuery = new Parse.Query(Course);
+    courseQuery.equalTo("courseCode", parseInt(this.courseCode, 10));
+    courseQuery.first().then(function (course) {
+        courseName = course.get("courseName");
+        courseIdentifier = course.get("courseIdentifier");        
+        coCourseQuery = new Parse.Query(Course);
+        coCourseQuery.equalTo("courseName", courseName);
+        coCourseQuery.equalTo("courseIdentifier", courseIdentifier);
+        coCourseQuery.equalTo("type", type);
+        return coCourseQuery.find();
+    }).then(function (results) {
+        for (i = 0; i < results.length; i++) {
+        	addTemporaryCourse(results[i].attributes);
+        }
+    }).then(callback);
+};
+
+CourseView.prototype.remove = function () {
+	"use strict";
+	var courseCode;
+	courseCode = this.courseCode;
+    return Parse.Cloud.run("removeCourse", {courseCode: courseCode}).then(function () {
+		removeCourseFromCache(courseCode);
+    }, function (error) {
+        console.log(error);
+    });	
 };

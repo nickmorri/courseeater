@@ -18,8 +18,8 @@ getCalendar = function () {
 
 searchForReplacementCourses = function (courseCode, callback, type) {
     "use strict";
-    var Course, courseQuery, courseName, courseIdentifier, coCourseQuery, exclusionQuery, replacements, i;
-    replacements = {};
+    var Course, courseQuery, courseName, courseIdentifier, coCourseQuery, exclusionQuery, i;
+	sessionStorage.temporaryCourses = JSON.stringify({});    
     Course = Parse.Object.extend("Course");
     courseQuery = new Parse.Query(Course);
     courseQuery.equalTo("courseCode", parseInt(courseCode, 10));
@@ -33,25 +33,24 @@ searchForReplacementCourses = function (courseCode, callback, type) {
         return coCourseQuery.find();
     }).then(function(results) {
     	for (i = 0; i < results.length; i++) {
-    		if (!cachedCourse(results[i].attributes.courseCode)) {
-            	replacements[results[i].attributes.courseCode] = results[i];
+    		if (getCourseFromCache(results[i].attributes.courseCode) === undefined) {
+    			addTemporaryCourse(results[i].attributes);
             }
         }
-	    sessionStorage.possibleReplacements = JSON.stringify(replacements);
 	    callback();
     });
 };
 
 displayReplacements = function () {
-	var possibleReplacements, event, course, data;
-	possibleReplacements = [];
-	data = JSON.parse(sessionStorage.possibleReplacements);
+	var temporaryCourses, event, course, data;
+	temporaryCourses = [];
+	data = JSON.parse(sessionStorage.temporaryCourses);
 	for (course in data) {
-		if (!cachedCourse(data)) {
-			possibleReplacements = possibleReplacements.concat(getCourseEvent(data[course], "black"));	
+		if (getCourseFromCache(data) === undefined) {
+			temporaryCourses = temporaryCourses.concat(getCourseEvent(getTemporaryCourse(course), "black"));	
 		}
 	}
-	$('#calendar').fullCalendar( 'addEventSource', possibleReplacements);
+	$('#calendar').fullCalendar( 'addEventSource', temporaryCourses);
 };
 
 displayCalendar = function () {
@@ -59,13 +58,13 @@ displayCalendar = function () {
     $('#calendar').fullCalendar({
     	eventClick: function(calEvent, jsEvent, view) {
 	        var courseCode = calEvent.id;
-	        if (cachedCourse(courseCode)) {
-		        var courseObject = getCachedCourse(courseCode);
+	        if (getCourseFromCache(courseCode) !== undefined) {
+		        var courseObject = getCourseFromCache(courseCode);
 				var coursePanel = courseObject.buildSchedulingPanel();
 				$("#coursePanelDisplay .modal-dialog").html(coursePanel);
 				$("#coursePanelDisplay").modal("show");
 	        } else {
-		     	var courseObject = getPossibleReplacement(courseCode);
+		     	var courseObject = getTemporaryCourse(courseCode);
 				var coursePanel = courseObject.buildSchedulingPanel();
 				$("#coursePanelDisplay .modal-dialog").html(coursePanel);
 				$("#coursePanelDisplay").modal("show");   
@@ -88,6 +87,86 @@ displayCalendar = function () {
         /* eventSources: [returnCourseEvents(), fetchFriendsClasses()] */
     });
 };
+
+$(document).on('click', ".btn-search-replacements", function () {
+	var courseCode, courseType;
+    courseCode = $(this).parent().parent().parent().parent().parent().attr("id");
+    courseType = $(this).parent().parent().parent().parent().parent().children(".panel-heading").children(".panel-title").children(".label-type").text();
+    searchForReplacementCourses(courseCode, displayReplacements, courseType);
+    $("#coursePanelDisplay").modal("hide");
+});
+
+$(document).on("click", ".btn-add", function () {
+    "use strict";
+    var courseCode, lBtn, bBtn, modal, temporaryCourse;
+    courseCode = parseInt($(this).parent().parent().attr('id'), 10);
+    modal = $(this).parent().parent().parent().parent();
+    lBtn = Ladda.create(this);
+    bBtn = $(this);
+    lBtn.start();
+    bBtn.button("loading");
+    lBtn.setProgress('.50');
+    Parse.Cloud.run('addCourse', {courseCode: courseCode}).then(function () {
+    	return getCourseFromCache(getEquivalentCourse(courseCode).courseCode).remove();
+    }, function (error) {
+        console.log(error);
+    }).then(function () {
+	    lBtn.setProgress('1');
+        transferCourseFromTemporaryToCache(courseCode);
+		lBtn.stop();
+		bBtn.button("reset");
+		$("#calendar").fullCalendar('destroy');
+		displayCalendar();
+		modal.modal('hide');
+		storeCourses();
+    });
+});
+
+// Remove course from user's profile
+$(document).on('click', ".btn-remove", function () {
+    "use strict";
+    var courseCode, lBtn, bBtn, modal;
+    lBtn = Ladda.create(this);
+    bBtn = $(this);
+    lBtn.start();
+    bBtn.button("loading");
+    lBtn.setProgress('.50');
+    courseCode = $(this).parent().parent().parent().attr("id").split("-")[1];
+	if (courseCode === undefined ) {
+		courseCode = $(this).parent().parent().parent().attr("id");
+		modal = $(this).parent().parent().parent().parent().parent();
+	}
+    Parse.Cloud.run("removeCourse", {courseCode: courseCode}).then(function () {
+        $("#calendar").fullCalendar('removeEvents', [courseCode]);
+    }, function (error) {
+        console.log(error);
+        $(".alert-invalid-courseid").html("Whoops something went wrong.");
+        $(".alert-invalid-courseid").show();
+    }).then(function () {
+		lBtn.setProgress('1');
+        lBtn.stop();
+        bBtn.button("reset");
+        cacheFresh("refresh");
+        if (modal !== undefined) {
+	        modal.modal('hide');
+        }
+        storeCourses();
+    });
+});
+
+// Clears any sessionStorage data and reloads data from Parse
+$(document).on("click", ".refresh-data", function () {
+    "use strict";
+    var btn;
+    btn = Ladda.create(this);
+    btn.start();
+    cacheFresh("refresh");
+    storeCourses().then(function () {
+        $('#calendar').fullCalendar('destroy');
+        displayCalendar();
+    });
+    btn.stop();
+});
 
 getCourseEvent = function (course, color) {
     "use strict";
@@ -186,84 +265,3 @@ getCourseEvents = function () {
     }
     return calendarCourses;
 };
-
-$(document).on('click', ".btn-search-replacements", function () {
-	var courseCode, courseType;
-    courseCode = $(this).parent().parent().parent().parent().parent().attr("id");
-    courseType = $(this).parent().parent().parent().parent().parent().children(".panel-heading").children(".panel-title").children(".label-type").text();
-    searchForReplacementCourses(courseCode, displayReplacements, courseType);
-    $("#coursePanelDisplay").modal("hide");
-});
-
-$(document).on("click", ".btn-add", function () {
-    "use strict";
-    var courseCode, lBtn, bBtn, modal;
-    courseCode = parseInt($(this).parent().parent().attr('id'), 10);
-    modal = $(this).parent().parent().parent().parent();
-    lBtn = Ladda.create(this);
-    bBtn = $(this);
-    lBtn.start();
-    bBtn.button("loading");
-    lBtn.setProgress('.50');
-    Parse.Cloud.run('addCourse', {courseCode: courseCode}).then(function () {
-    	return Parse.Cloud.run('removeCourse', {courseCode: getEquivalentCourse(courseCode).courseCode});
-    }, function (error) {
-        console.log(error);
-    }).then(function () {
-	    lBtn.setProgress('1');
-        cacheFresh("refresh");
-		storeCourses().then(function () {
-			lBtn.stop();
-			bBtn.button("reset");
-        	$("#calendar").fullCalendar('destroy');
-			displayCalendar();
-			modal.modal('hide');
-		});
-    });
-});
-
-// Remove course from user's profile
-$(document).on('click', ".btn-remove", function () {
-    "use strict";
-    var courseCode, lBtn, bBtn, modal;
-    lBtn = Ladda.create(this);
-    bBtn = $(this);
-    lBtn.start();
-    bBtn.button("loading");
-    lBtn.setProgress('.50');
-    courseCode = $(this).parent().parent().parent().attr("id").split("-")[1];
-	if (courseCode === undefined ) {
-		courseCode = $(this).parent().parent().parent().attr("id");
-		modal = $(this).parent().parent().parent().parent().parent();
-	}
-    Parse.Cloud.run("removeCourse", {courseCode: courseCode}).then(function () {
-        $("#calendar").fullCalendar('removeEvents', [courseCode]);
-    }, function (error) {
-        console.log(error);
-        $(".alert-invalid-courseid").html("Whoops something went wrong.");
-        $(".alert-invalid-courseid").show();
-    }).then(function () {
-		lBtn.setProgress('1');
-        lBtn.stop();
-        bBtn.button("reset");
-        cacheFresh("refresh");
-        if (modal !== undefined) {
-	        modal.modal('hide');
-        }
-        storeCourses();
-    });
-});
-
-// Clears any sessionStorage data and reloads data from Parse
-$(document).on("click", ".refresh-data", function () {
-    "use strict";
-    var btn;
-    btn = Ladda.create(this);
-    btn.start();
-    cacheFresh("refresh");
-    storeCourses().then(function () {
-        $('#calendar').fullCalendar('destroy');
-        displayCalendar();
-    });
-    btn.stop();
-});

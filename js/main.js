@@ -13,7 +13,7 @@ $(document).ready(function () {
 
 getEquivalentCourse = function (courseCode) {
 	var courses = JSON.parse(sessionStorage.courses);
-	var initalCourse = JSON.parse(sessionStorage.possibleReplacements)[courseCode];
+	var initalCourse = JSON.parse(sessionStorage.temporaryCourses)[courseCode];
 	for (course in courses) {
 		if (courses[course].courseIdentifier == initalCourse.courseIdentifier && courses[course].courseName == initalCourse.courseName && courses[course].type == initalCourse.type) {
 			return courses[course];
@@ -22,19 +22,67 @@ getEquivalentCourse = function (courseCode) {
 	return undefined;
 };
 
-getPossibleReplacement = function (courseCode) {
-	return new CourseView(JSON.parse(sessionStorage.possibleReplacements)[courseCode]);	
+addTemporaryCourse = function (course) {
+	var temporaryCourses;
+	if (sessionStorage.temporaryCourses !== undefined) {
+		temporaryCourses = JSON.parse(sessionStorage.temporaryCourses);
+	} else {
+		temporaryCourses = {};
+	}
+	temporaryCourses[course.courseCode] = course;
+	sessionStorage.temporaryCourses = JSON.stringify(temporaryCourses);
+};
+
+getTemporaryCourse = function (courseCode) {
+	var course;
+	course = JSON.parse(sessionStorage.temporaryCourses)[courseCode];
+	
+	if (course !== undefined) {
+		return new CourseView(course);	
+	} else {
+		return undefined;
+	}
+};
+
+transferCourseFromTemporaryToCache = function (courseCode) {
+	var course = JSON.parse(sessionStorage.temporaryCourses)[courseCode];
+	var courses = JSON.parse(sessionStorage.courses);
+	courses[courseCode] = course;
+	sessionStorage.courses = JSON.stringify(courses);
+};
+
+addCourseToCache = function (course) {
+	var courses;
+	if (sessionStorage.courses) {
+		courses = JSON.parse(sessionStorage.courses);
+	} else {
+		courses = {};
+	}
+	courses[course.attributes.courseCode] = course;
+	sessionStorage.courses = JSON.stringify(courses);
+};
+
+removeCourseFromCache = function (courseCode) {
+	var courses;
+	if (sessionStorage.courses) {
+		courses = JSON.parse(sessionStorage.courses);
+	} else {
+		return false;
+	}
+	delete courses[courseCode];
+	sessionStorage.courses = JSON.stringify(courses);
 };
 
 // Returns cached CourseView object
-getCachedCourse = function (courseCode) {
-	return new CourseView(JSON.parse(sessionStorage.courses)[courseCode]);
-};
-
-// Determines if a a course object is locally cached
-cachedCourse = function (courseCode) {
-    "use strict";
-    return JSON.parse(sessionStorage.courses)[courseCode] !== undefined;
+getCourseFromCache = function (courseCode) {
+	var course;
+	course = JSON.parse(sessionStorage.courses)[courseCode];
+	
+	if (course !== undefined) {
+		return new CourseView(course);
+	} else {
+		return undefined;	
+	} 
 };
 
 // Converts a character respresentation of a dayt to a full string
@@ -60,8 +108,14 @@ toStringDays = function (days) {
 };
 
 // Determines if two courses belong to the same class
-sameClass = function (course1, course2, courses) {
+sameClass = function (course1, course2) {
     "use strict";
+    var courses;
+    if (sessionStorage.courses !== undefined) {
+		courses = JSON.parse(sessionStorage.courses);    
+    } else {
+	    return undefined;
+    }
     return courses[course1].courseIdentifier == courses[course2].courseIdentifier && courses[course1].courseName == courses[course2].courseName;
 };
 
@@ -69,14 +123,12 @@ sameClass = function (course1, course2, courses) {
 storeCourses = function () {
     "use strict";
     cacheFresh();
-    var courseRelation, courses, i;
+    var courseRelation, i;
     courseRelation = Parse.User.current().relation("courses");
-    courses = {};
     return courseRelation.query().find().then(function (remoteCourses) {
         for (i = 0; i < remoteCourses.length; i++) {
-            courses[remoteCourses[i].attributes.courseCode] = remoteCourses[i];
+            addCourseToCache(remoteCourses[i]);
         }
-        sessionStorage.courses = JSON.stringify(courses);
     }, function (error) {
         console.log(error);
     });
