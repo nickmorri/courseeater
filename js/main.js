@@ -122,13 +122,16 @@ sameClass = function (course1, course2) {
 // Stores course information from Parse
 storeCourses = function () {
     "use strict";
+    var courses;
+    courses = {};
     cacheFresh();
     var courseRelation, i;
     courseRelation = Parse.User.current().relation("courses");
     return courseRelation.query().find().then(function (remoteCourses) {
         for (i = 0; i < remoteCourses.length; i++) {
-            addCourseToCache(remoteCourses[i]);
+        	courses[remoteCourses[i].attributes.courseCode] = remoteCourses[i];
         }
+        sessionStorage.courses = JSON.stringify(courses);
     }, function (error) {
         console.log(error);
     });

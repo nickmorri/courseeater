@@ -14,27 +14,16 @@ getCalendar = function () {
 displayCalendar = function () {
     "use strict";
     $('#calendar').fullCalendar({
-    	eventClick: function(calEvent, jsEvent, view) {
-	        var courseCode = calEvent.id;
-			var courseObject = getCachedCourse(courseCode);
-			var coursePanel = courseObject.buildPanel();
-			$("#coursePanelDisplay .modal-dialog").html(coursePanel);
-			$("#coursePanelDisplay").modal("show");
-	    },
         header: "",
         defaultView: "agendaWeek",
         defaultDate: "2014-07-14",
         minTime: "08:00:00",
         maxTime: "22:00:00",
         weekends: false,
-        columnFormat: {
-            week: "ddd"
-        },
+        columnFormat: { week: "ddd" },
         allDaySlot: false,
         aspectRatio: '.25',
         eventSources: [getCourseFinals()]
-        /* Future feature */
-        /* eventSources: [returnCourseEvents(), fetchFriendsClasses()] */
     });
 };
 
@@ -124,45 +113,6 @@ getCourseFinals = function () {
     }
     return finals;
 };
-
-// Remove course from user's profile
-$(document).on('click', ".btn-remove", function () {
-    "use strict";
-    var courseCode, lBtn, bBtn, modal;
-    lBtn = Ladda.create(this);
-    bBtn = $(this);
-    lBtn.start();
-    bBtn.button("loading");
-    lBtn.setProgress('.50');
-    courseCode = $(this).parent().parent().parent().attr("id").split("-")[1];
-	if (courseCode === undefined ) {
-		courseCode = $(this).parent().parent().parent().attr("id");
-		modal = $(this).parent().parent().parent().parent().parent();
-	}
-    Parse.Cloud.run("removeCourse", {courseCode: courseCode}).then(function () {
-        lBtn.setProgress('1');
-        lBtn.stop();
-        bBtn.button("reset");
-        cacheFresh("refresh");
-        if (modal !== undefined) {
-	        modal.modal('hide');
-        }
-        $("#calendar").fullCalendar('removeEvents', [courseCode]);
-        storeCourses();
-    }, function (error) {
-        console.log(error);
-        $(".alert-invalid-courseid").html("Whoops something went wrong.");
-        $(".alert-invalid-courseid").show();
-        lBtn.setProgress('1');
-        lBtn.stop();
-        bBtn.button("reset");
-        cacheFresh("refresh");
-        if (modal !== undefined) {
-	        modal.modal('hide');
-        }
-        storeCourses();
-    });
-});
 
 
 $(document).ready(function () {

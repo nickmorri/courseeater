@@ -162,9 +162,9 @@ CourseView.prototype.getCourseActions = function () {
         actionString += '<span class="sr-only">Toggle Dropdown</span>';
         actionString += '</button>';
         actionString += '<ul class="dropdown-menu col-md-12" role="menu">';
-        actionString += '<li><a class="btn-search-dis" href="#">Search for discussions</a></li>';
-        actionString += '<li><a class="btn-search-lec" href="#">Search for lectures</a></li>';
-        actionString += '<li><a class="btn-search-lab" href="#">Search for labs</a></li>';
+        actionString += '<li><a class="btn-search search-Dis" href="#">Search for discussions</a></li>';
+        actionString += '<li><a class="btn-search search-Lec" href="#">Search for lectures</a></li>';
+        actionString += '<li><a class="btn-search search-Lab" href="#">Search for labs</a></li>';
         actionString += '</ul>';
         actionString += '</div>';
     }
@@ -288,11 +288,13 @@ CourseView.prototype.findCoCourses = function (type, callback) {
         coCourseQuery = new Parse.Query(Course);
         coCourseQuery.equalTo("courseName", courseName);
         coCourseQuery.equalTo("courseIdentifier", courseIdentifier);
-        coCourseQuery.equalTo("type", type);
+        coCourseQuery.equalTo("type", toTitleCase(type));
         return coCourseQuery.find();
     }).then(function (results) {
         for (i = 0; i < results.length; i++) {
-        	addTemporaryCourse(results[i].attributes);
+        	if (getCourseFromCache(results[i].attributes.courseCode) === undefined) {
+    			addTemporaryCourse(results[i].attributes);
+            }
         }
     }).then(callback);
 };

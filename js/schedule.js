@@ -16,84 +16,161 @@ getCalendar = function () {
     }	
 };
 
-searchForReplacementCourses = function (courseCode, callback, type) {
-    "use strict";
-    var Course, courseQuery, courseName, courseIdentifier, coCourseQuery, exclusionQuery, i;
-	sessionStorage.temporaryCourses = JSON.stringify({});    
-    Course = Parse.Object.extend("Course");
-    courseQuery = new Parse.Query(Course);
-    courseQuery.equalTo("courseCode", parseInt(courseCode, 10));
-    courseQuery.first().then(function (course) {
-        courseName = course.get("courseName");
-        courseIdentifier = course.get("courseIdentifier");        
-        coCourseQuery = new Parse.Query(Course);
-        coCourseQuery.equalTo("courseName", courseName);
-        coCourseQuery.equalTo("courseIdentifier", courseIdentifier);
-        coCourseQuery.equalTo("type", toTitleCase(type));
-        return coCourseQuery.find();
-    }).then(function(results) {
-    	for (i = 0; i < results.length; i++) {
-    		if (getCourseFromCache(results[i].attributes.courseCode) === undefined) {
-    			addTemporaryCourse(results[i].attributes);
-            }
-        }
-	    callback();
-    });
-};
-
 displayReplacements = function () {
+	"use strict";
 	var temporaryCourses, event, course, data;
 	temporaryCourses = [];
 	data = JSON.parse(sessionStorage.temporaryCourses);
+	if (jQuery.isEmptyObject(data)) {
+		$("#coursePanelDisplay .modal-dialog").html("<div class='modal-content'><div class='modal-header'><h4 class='modal-title'>No replacements found.</h4></div></div>");
+		return;
+	}
 	for (course in data) {
 		if (getCourseFromCache(data) === undefined) {
 			temporaryCourses = temporaryCourses.concat(getCourseEvent(getTemporaryCourse(course), "black"));	
 		}
 	}
+	$("#coursePanelDisplay").modal("hide");
 	$('#calendar').fullCalendar( 'addEventSource', temporaryCourses);
+};
+
+handleCourseClick = function (calEvent, jsEvent, view) {
+	var courseObject, courseCode, coursePanel;
+    courseCode = calEvent.id;
+    if (getCourseFromCache(courseCode) !== undefined) {
+        courseObject = getCourseFromCache(courseCode);
+    } else {
+     	courseObject = getTemporaryCourse(courseCode);
+    }
+    coursePanel = courseObject.buildSchedulingPanel();
+	$("#coursePanelDisplay .modal-dialog").html(coursePanel);
+	$("#coursePanelDisplay").modal("show"); 
 };
 
 displayCalendar = function () {
     "use strict";
     $('#calendar').fullCalendar({
-    	eventClick: function(calEvent, jsEvent, view) {
-	        var courseCode = calEvent.id;
-	        if (getCourseFromCache(courseCode) !== undefined) {
-		        var courseObject = getCourseFromCache(courseCode);
-				var coursePanel = courseObject.buildSchedulingPanel();
-				$("#coursePanelDisplay .modal-dialog").html(coursePanel);
-				$("#coursePanelDisplay").modal("show");
-	        } else {
-		     	var courseObject = getTemporaryCourse(courseCode);
-				var coursePanel = courseObject.buildSchedulingPanel();
-				$("#coursePanelDisplay .modal-dialog").html(coursePanel);
-				$("#coursePanelDisplay").modal("show");   
-	        }
-	    },
+    	eventClick: handleCourseClick,
         header: "",
         defaultView: "agendaWeek",
         defaultDate: "2014-07-14",
         minTime: "08:00:00",
         maxTime: "22:00:00",
         weekends: false,
-        columnFormat: {
-            week: "ddd"
-        },
+        columnFormat: { week: "ddd" },
         timeFormat: "",
         allDaySlot: false,
         aspectRatio: '.25',
         events: getCourseEvents()
-        /* Future feature */
-        /* eventSources: [returnCourseEvents(), fetchFriendsClasses()] */
     });
 };
 
+getCourseEvent = function (course, color) {
+    "use strict";
+    var startingDay, calendarCourses, title, color, days, heldDays, time, start, end, event, i, endFront, endBack, startFront, startBack;
+    // Title processing
+    startingDay = "2014-07-";
+    calendarCourses = [];
+    heldDays = [];
+    title = course.courseIdentifier.toUpperCase() + " - " + course.type.toUpperCase();
+    
+    //Day parsing
+    days = course.days;
+    heldDays = [];
+    if (days.indexOf("M") > -1) {
+        heldDays.push(startingDay + "14");
+    }
+    if (days.indexOf("Tu") > -1) {
+        heldDays.push(startingDay + "15");
+    }
+    if (days.indexOf("W") > -1) {
+        heldDays.push(startingDay + "16");
+    }
+    if (days.indexOf("Th") > -1) {
+        heldDays.push(startingDay + "17");
+    }
+    if (days.indexOf("F") > -1) {
+        heldDays.push(startingDay + "18");
+    }
+    // Time parsing
+    time = course.time.split(" to ");
+    start = time[0];
+    end = time[1];
+    if (time[0][0] == " ") {
+        start = start.slice(1);
+    }
+    if (time[1][0] == " ") {
+        end = end.slice(1);
+    }
+    
+    if (start.indexOf("AM") != -1) {
+        start = start.split(" AM")[0];
+    }
+    startFront = parseInt(start.split(":")[0], 10);
+    startBack = parseInt(start.split(":")[1], 10);
+    if (startBack == 0) {
+        startBack = "00";
+    }
+    
+    
+    endFront = parseInt(end.split(":")[0]);
+
+    if (end.indexOf("PM") != -1) {    
+        if (start.indexOf("12") == -1 && endFront != 12) {
+            startFront += 12;
+            endFront += 12;
+        } else if (start.indexOf("12") != -1 && end.indexOf(" PM" != -1)) {
+	        endFront += 12;
+        }
+    }
+    endBack = parseInt(end.split(":")[1].slice(0, 2), 10);
+    if (startFront < 10) {
+        startFront = "0" + startFront;
+    }
+    if (endFront < 10) {
+        endFront = "0" + end.split(":")[0];
+    }
+	start = "T" + startFront + ":" + startBack + ":00";
+    end = "T" + endFront + ":" + endBack + ":00";
+    
+    //Event object creation
+    for (i = 0; i < heldDays.length; i++) {
+        event = {
+        	id: course.courseCode,
+            title: title,
+            start: heldDays[i] + start,
+            end: heldDays[i] + end,
+            backgroundColor: color
+        };
+        calendarCourses.push(event);
+    }
+    return calendarCourses;
+};
+
+getCourseEvents = function () {
+    "use strict";
+    var calendarCourses, courses, course, colors, color;
+    colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
+    
+    calendarCourses = [];
+    courses = JSON.parse(sessionStorage.courses);
+    for (course in courses) {
+        if (courses.hasOwnProperty(course)) {
+            // Random color
+            color = colors[parseInt((Math.random() * 5), 10)];
+            colors.splice(colors.indexOf(color), 1);
+            calendarCourses = calendarCourses.concat(getCourseEvent(courses[course], color));
+        }
+    }
+ 
+    return calendarCourses;
+};
+
 $(document).on('click', ".btn-search-replacements", function () {
-	var courseCode, courseType;
+	var courseCode, course;
     courseCode = $(this).parent().parent().parent().parent().parent().attr("id");
-    courseType = $(this).parent().parent().parent().parent().parent().children(".panel-heading").children(".panel-title").children(".label-type").text();
-    searchForReplacementCourses(courseCode, displayReplacements, courseType);
-    $("#coursePanelDisplay").modal("hide");
+    var course = getCourseFromCache(courseCode);
+    course.findCoCourses(course.type, displayReplacements);
 });
 
 $(document).on("click", ".btn-add", function () {
@@ -167,101 +244,3 @@ $(document).on("click", ".refresh-data", function () {
     });
     btn.stop();
 });
-
-getCourseEvent = function (course, color) {
-    "use strict";
-    var startingDay, calendarCourses, title, color, days, heldDays, time, start, end, event, i, endFront, endBack, startFront, startBack;
-    // Title processing
-    startingDay = "2014-07-";
-    calendarCourses = [];
-    heldDays = [];
-    title = course.courseIdentifier.toUpperCase() + " - " + course.type.toUpperCase();
-    
-    //Day parsing
-    days = course.days;
-    heldDays = [];
-    if (days.indexOf("M") > -1) {
-        heldDays.push(startingDay + "14");
-    }
-    if (days.indexOf("Tu") > -1) {
-        heldDays.push(startingDay + "15");
-    }
-    if (days.indexOf("W") > -1) {
-        heldDays.push(startingDay + "16");
-    }
-    if (days.indexOf("Th") > -1) {
-        heldDays.push(startingDay + "17");
-    }
-    if (days.indexOf("F") > -1) {
-        heldDays.push(startingDay + "18");
-    }
-    // Time parsing
-    time = course.time.split(" to ");
-    start = time[0];
-    end = time[1];
-    if (time[0][0] == " ") {
-        start = start.slice(1);
-    }
-    if (time[1][0] == " ") {
-        end = end.slice(1);
-    }
-    
-    if (start.indexOf("AM") != -1) {
-        start = start.split(" AM")[0];
-    }
-    startFront = parseInt(start.split(":")[0], 10);
-    startBack = parseInt(start.split(":")[1], 10);
-    if (startBack == 0) {
-        startBack = "00";
-    }
-    
-    endFront = parseInt(end.split(":")[0]);
-    if (end.indexOf("PM") != -1) {    
-        if (start.indexOf("12") == -1) {
-            startFront += 12;
-            endFront += 12;
-        } else if (start.indexOf("12") != -1 && end.indexOf(" PM" != -1)) {
-	        endFront += 12;
-        }
-    }
-    endBack = parseInt(end.split(":")[1].slice(0, 2), 10);
-    if (startFront < 10) {
-        startFront = "0" + startFront;
-    }
-    if (endFront < 10) {
-        endFront = "0" + end.split(":")[0];
-    }
-    start = "T" + startFront + ":" + startBack + ":00";
-    end = "T" + endFront + ":" + endBack + ":00";
-    
-    //Event object creation
-    for (i = 0; i < heldDays.length; i++) {
-        event = {
-        	id: course.courseCode,
-            title: title,
-            start: heldDays[i] + start,
-            end: heldDays[i] + end,
-            backgroundColor: color
-        };
-        calendarCourses.push(event);
-    }
-    return calendarCourses;
-};
-
-getCourseEvents = function () {
-    "use strict";
-    var calendarCourses, courses, course, colors, color;
-    colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
-    
-    calendarCourses = [];
-    courses = JSON.parse(sessionStorage.courses);
-    for (course in courses) {
-        if (courses.hasOwnProperty(course)) {
-            // Random color
-            color = colors[parseInt((Math.random() * 5), 10)];
-            colors.splice(colors.indexOf(color), 1);
-            calendarCourses = calendarCourses.concat(getCourseEvent(courses[course], color));
-        }
-    }
-    return calendarCourses;
-};

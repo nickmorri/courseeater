@@ -5,6 +5,9 @@
 .fc-event {
 	border-color: black;
 }
+.fc-event:hover {
+	cursor:	pointer;
+}
 .fc-event-title {
 	font-weight: bold;	
 }
