@@ -206,31 +206,19 @@ $(document).on("click", ".btn-add", function () {
     bBtn.button("loading");
     lBtn.setProgress('.50');
     Parse.Cloud.run('addCourse', {courseCode: courseCode}).then(function () {
-        $("#courseID").val('');
-        lBtn.setProgress('1');
-        lBtn.stop();
-        bBtn.button("reset");
-        var oldCourse = getEquivalentCourse(courseCode);
-        Parse.Cloud.run('removeCourse', {courseCode: oldCourse.courseCode}).then(function () {
-	        cacheFresh("refresh");
-			storeCourses().then(function () {
-	        	$("#calendar").fullCalendar('destroy');
-				displayCalendar();
-				modal.modal('hide');
-			});
-        });
+    	return Parse.Cloud.run('removeCourse', {courseCode: getEquivalentCourse(courseCode).courseCode});
     }, function (error) {
-        if (error.code == 141) {
-            $(".alert-invalid-courseid").html("Course <strong>" + $("#courseID").val() + "</strong> does not exist.");
-            $(".alert-invalid-courseid").show();
-        } else {
-            console.log(error);
-        }
-        lBtn.stop();
-        bBtn.button("reset");
+        console.log(error);
+    }).then(function () {
+	    lBtn.setProgress('1');
         cacheFresh("refresh");
-        modal.modal('hide');
-		getCalendar();
+		storeCourses().then(function () {
+			lBtn.stop();
+			bBtn.button("reset");
+        	$("#calendar").fullCalendar('destroy');
+			displayCalendar();
+			modal.modal('hide');
+		});
     });
 });
 
@@ -249,20 +237,13 @@ $(document).on('click', ".btn-remove", function () {
 		modal = $(this).parent().parent().parent().parent().parent();
 	}
     Parse.Cloud.run("removeCourse", {courseCode: courseCode}).then(function () {
-        lBtn.setProgress('1');
-        lBtn.stop();
-        bBtn.button("reset");
-        cacheFresh("refresh");
-        if (modal !== undefined) {
-	        modal.modal('hide');
-        }
         $("#calendar").fullCalendar('removeEvents', [courseCode]);
-        storeCourses();
     }, function (error) {
         console.log(error);
         $(".alert-invalid-courseid").html("Whoops something went wrong.");
         $(".alert-invalid-courseid").show();
-        lBtn.setProgress('1');
+    }).then(function () {
+		lBtn.setProgress('1');
         lBtn.stop();
         bBtn.button("reset");
         cacheFresh("refresh");
