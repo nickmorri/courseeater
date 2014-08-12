@@ -23,12 +23,10 @@ classGroups = function () {
     var courses, courseIDs, lastCourse, classGroups, i;
     courses = JSON.parse(sessionStorage.courses);
     courseIDs = Object.keys(courses);
-    classGroups = {};
     lastCourse = courseIDs[0];
+    classGroups = {};
+    classGroups[lastCourse] = [lastCourse];
     for (i = 1; i < Object.keys(courses).length; i++) {
-        if (classGroups[lastCourse] === undefined) {
-            classGroups[lastCourse] = [lastCourse];
-        }
         if (sameClass(courseIDs[i], lastCourse, courses)) {
             classGroups[lastCourse].push(courseIDs[i]);
         } else {
@@ -41,15 +39,19 @@ classGroups = function () {
 
 displayCourses = function () {
     "use strict";
+    $("#courseDisplay").empty();
+    var courses = JSON.parse(sessionStorage.courses);
     /* displaySingleCourses(); */
-    displayCollapsibleClasses();
+	if (jQuery.isEmptyObject(courses)) {
+		$("#courseDisplay").html("<div class='container'><h2>Not tracking any courses.</h2></div>");
+	} else {
+    	displayCollapsibleClasses(courses);
+    }
 };
 
-displayCollapsibleClasses = function () {
+displayCollapsibleClasses = function (courses) {
     "use strict";
-    $("#courseDisplay").empty();
-    var courses, classes, classView, classGroup, i, j;
-    courses = JSON.parse(sessionStorage.courses);
+    var classes, classView, classGroup, i, j;
     classes = classGroups();
     for (i = 0; i < Object.keys(classes).length; i++) {
         classView = new ClassView();
@@ -168,6 +170,37 @@ searchCoursesByInstructor = function (instructor) {
     });
 };
 
+validateCourseCode = function (courseCode) {
+    "use strict";
+    var courses, course;
+    if ($("#courseID").val() == "") {
+        $(".alert-invalid-courseid").html("<strong>No courseID entered.</strong>");
+        $(".alert-invalid-courseid").show();
+        $("#courseID").val('');
+        return false;
+    }
+    if ($("#courseID").val() != courseCode || courseCode < 10000) {
+        $(".alert-invalid-courseid").html("<strong>" + $("#courseID").val() + "</strong> is an invalid Course ID. Valid courseIDs must be 5 exactly 5 nubmers.");
+        $(".alert-invalid-courseid").show();
+        $("#courseID").val('');
+        return false;
+    }
+    courses = JSON.parse(sessionStorage.courses);
+    if (courses !== undefined || !jQuery.isEmptyObject(courses)) {
+        for (course in courses) {
+            if (courses.hasOwnProperty(course) && courses[course].courseCode == courseCode) {
+
+                $(".alert-invalid-courseid").html("<strong>" + $("#courseID").val() + "</strong> is already being tracked.");
+                $(".alert-invalid-courseid").show();
+                $("#courseID").val('');
+                return false;
+
+            }
+        }
+    }
+    return true;
+};
+
 $(document).on("click", ".btn-search-lab", function () {
     "use strict";
     var courseCode;
@@ -211,37 +244,6 @@ $(document).on("click", ".badge-course-code", function () {
         range.select();
     }
 });
-
-validateCourseCode = function (courseCode) {
-    "use strict";
-    var courses, course;
-    if ($("#courseID").val() == "") {
-        $(".alert-invalid-courseid").html("<strong>No courseID entered.</strong>");
-        $(".alert-invalid-courseid").show();
-        $("#courseID").val('');
-        return false;
-    }
-    if ($("#courseID").val() != courseCode || courseCode < 10000) {
-        $(".alert-invalid-courseid").html("<strong>" + $("#courseID").val() + "</strong> is an invalid Course ID. Valid courseIDs must be 5 exactly 5 nubmers.");
-        $(".alert-invalid-courseid").show();
-        $("#courseID").val('');
-        return false;
-    }
-    courses = JSON.parse(sessionStorage.courses);
-    if (courses !== undefined || !jQuery.isEmptyObject(courses)) {
-        for (course in courses) {
-            if (courses.hasOwnProperty(course) && courses[course].courseCode == courseCode) {
-
-                $(".alert-invalid-courseid").html("<strong>" + $("#courseID").val() + "</strong> is already being tracked.");
-                $(".alert-invalid-courseid").show();
-                $("#courseID").val('');
-                return false;
-
-            }
-        }
-    }
-    return true;
-};
 
 // Adds to user profile
 $(document).on("click", ".button-add", function () {

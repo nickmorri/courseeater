@@ -3,18 +3,19 @@
 <head>
 	<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <title>Track - CourseEater</title>
+    <title>Finals - CourseEater</title>
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- Initial JavaScript -->
+    <!-- Initial Javascript -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="https://www.parsecdn.com/js/parse-1.2.18.min.js"></script>
     <script src="js/main.js"></script>
-    <script src="js/track.js"></script>
+    <script src="js/finals.js"></script>
     
     <!-- Initial Stylesheets -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/calendar.css">
     <link rel="stylesheet" href="css/CourseView.css">
     
 </head>
@@ -34,8 +35,14 @@
 				</div>
 				<div class="collapse navbar-collapse">
 					<ul class="nav navbar-nav">
-						<li class="active"><a href="track"><span class="glyphicon glyphicon-book"></span> Track</a></li>
-						<li><a href="schedule"><span class="glyphicon glyphicon-time"></span> Schedule</a></li>
+						<li><a href="track"><span class="glyphicon glyphicon-book"></span> Track</a></li>
+						<li class="dropdown active">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-time"></span> Schedule</a>
+							<ul class="dropdown-menu" role="menu">
+								<li><a href="schedule"><span class="glyphicon glyphicon-time"></span> Schedule</a></li>
+								<li class="active"><a href="finals"><span class="glyphicon glyphicon-record"></span> Finals</a></li>
+							</ul>
+						</li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						<li><a class="ladda-button refresh-data" data-style="slide-up" data-spinner-color="#000000" href="#"><span class="glyphicon glyphicon-refresh"></span> Refresh</a></li>
@@ -52,42 +59,23 @@
 		</nav>
 	</header>
 	
-	<!-- Course actions container -->
-	<div class="container form-user-management hidden-print">
-		<!-- Adding courses -->
-    	<div class="container add-course-entry">
-			<input id="courseID" type="tel" maxlength="5" class="form-control" placeholder="Enter CourseID" autocomplete="off" required autofocus />
-			<button type="button" data-loading-text="Adding..." class="btn btn-lg btn-primary btn-block button-add ladda-button"><span class="ladda-label">Add</span></button>
-			<div class="alert alert-danger alert-invalid-courseid" style="display: none;"></div>
-		</div>
-		<!-- Course display -->
-		<div class="container" >
-			<div id="courseDisplay" class="row"></div>
-		</div>
-	</div>
+	<div id='calendar'></div>
 	
-	<!-- Additional Courses -->
-	<div class="modal fade" id="courseInformationDisplay" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	  <div class="modal-dialog modal-lg">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-	        <h4 class="modal-title"></h4>
-	      </div>
-	      <div class="modal-body row"></div>
-	    </div>
-	  </div>
+	<div class="modal fade" id="coursePanelDisplay">
+		<div class="modal-dialog"></div>
 	</div>
 	
 	<!-- Additional CSS -->
 	<link rel="stylesheet" href="css/libraries/ladda.min.css">
     <link rel="stylesheet" href="css/libraries/prism.css">
+	<link rel='stylesheet' href="css/libraries/fullcalendar.css">
 	
-	<!-- Custom JavaScript -->
-	<script src="js/classes/ClassView.class.js"></script>
+	<!-- JavaScript Classes -->
 	<script src="js/classes/CourseView.class.js"></script>
-	
-    <!-- JavaScript Libraries -->
+		
+	<!-- JavaScript Libraries -->
+	<script src="js/libraries/moment.min.js"></script>
+	<script src="js/libraries/fullcalendar.js"></script>
     <script src="js/libraries/prism.min.js"></script>
     <script src="js/libraries/spin.min.js"></script>
     <script src="js/libraries/ladda.min.js"></script>

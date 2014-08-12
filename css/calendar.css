@@ -2,6 +2,9 @@
 #calendar {
 	margin-top: -32px;
 }
-.fc-event-time {
-	text-decoration: underline;
+.fc-event {
+	border-color: black;
+}
+.fc-event-title {
+	font-weight: bold;	
 }

@@ -24,12 +24,12 @@
 }
 .label-type {
 	margin-left: -15px;
-	margin-right: 0px;
-	width: 40px;
+	width: 60px;
 }
 .label-identifier {
 	margin-left: -5px;
 	margin-right: -5px;
+	width: 100px;
 }
 .label-course-code {
 	margin-right: -15px;
@@ -52,7 +52,4 @@
 	border-radius: 0px;
 	margin-bottom: -6px;
 	border-color: black;
-}
-.panel-title a:hover {
-	text-decoration: none;
 }

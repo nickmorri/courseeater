@@ -11,6 +11,26 @@ $(document).ready(function () {
     googleAnalytics();
 });
 
+getEquivalentCourse = function (courseCode) {
+	var courses = JSON.parse(sessionStorage.courses);
+	var initalCourse = JSON.parse(sessionStorage.possibleReplacements)[courseCode];
+	for (course in courses) {
+		if (courses[course].courseIdentifier == initalCourse.courseIdentifier && courses[course].courseName == initalCourse.courseName && courses[course].type == initalCourse.type) {
+			return courses[course];
+		}
+	}
+	return undefined;
+};
+
+getPossibleReplacement = function (courseCode) {
+	return new CourseView(JSON.parse(sessionStorage.possibleReplacements)[courseCode]);	
+};
+
+// Returns cached CourseView object
+getCachedCourse = function (courseCode) {
+	return new CourseView(JSON.parse(sessionStorage.courses)[courseCode]);
+};
+
 // Determines if a a course object is locally cached
 cachedCourse = function (courseCode) {
     "use strict";

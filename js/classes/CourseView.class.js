@@ -107,10 +107,10 @@ CourseView.prototype.getCourseProgress = function () {
     if (this.enrolled == 0) {
         progressString += '<div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%;">';
         progressString += 'Class empty!';
-    } else if (this.waitlist > 0 && remaining == 0) {
+    } else if (this.waitlist > 0 && remaining <= 0) {
         progressString += '<div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%">';
         progressString += this.waitlist + ' waitlisted';
-    } else if (remaining == 0) {
+    } else if (remaining <= 0) {
         progressString += '<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%;">';
         progressString += 'Class full!';
     } else {
@@ -138,7 +138,11 @@ CourseView.prototype.getCourseInstructor = function () {
     var instructorString;
     instructorString = '<span class="glyphicon glyphicon-user list-detail-glyphicon">';
     instructorString += '</span> <a href="http://www.ratemyprofessors.com/SelectTeacher.jsp?searchName=';
-    instructorString += this.instructor;
+    if (this.instructor.indexOf(", ") != -1) {
+		instructorString += this.instructor.split(", ")[0];    
+    } else {
+	    instructorString += this.instructor;
+    }
     instructorString += '&search_submit1=Search&sid=1074" target="_blank">';
     instructorString += this.instructor;
     instructorString += '</a>';
@@ -165,6 +169,50 @@ CourseView.prototype.getCourseActions = function () {
         actionString += '</div>';
     }
     return actionString;
+};
+
+CourseView.prototype.getSchedulingCourseActions = function () {
+    "use strict";
+    var actionString;
+    if (!cachedCourse(this.courseCode)) {
+        actionString = '<button type="button" class="btn btn-block btn-success btn-add ladda-button" data-loading-text="Adding...">Add</button>';
+    } else {
+        actionString = '<div class="btn-group btn-block dropup">';
+        actionString += '<button type="button" class="btn col-xs-10 btn-danger btn-remove ladda-button" data-loading-text="Removing...">Remove</button>';
+        actionString += '<button type="button" class="btn col-xs-2 btn-default dropdown-toggle" data-toggle="dropdown">';
+        actionString += '<span class="caret"></span>';
+        actionString += '<span class="sr-only">Toggle Dropdown</span>';
+        actionString += '</button>';
+        actionString += '<ul class="dropdown-menu col-md-12" role="menu">';
+        actionString += '<li><a class="btn-search-replacements" href="#">Search for replacements</a></li>';
+        actionString += '</ul>';
+        actionString += '</div>';
+    }
+    return actionString;
+};
+
+CourseView.prototype.buildSchedulingPanel = function () {
+    "use strict";
+    var courseString;
+    courseString = "<div id='" + this.courseCode + "' class='panel panel-primary course-list-item'>";
+    courseString += '<div class="panel-heading">';
+    courseString += '<h3 class="panel-title">';
+    courseString += this.getCourseHeader();
+    courseString += '</h3>';
+    courseString += '</div>';
+    courseString += '<ul class="list-group">';
+    courseString += '<li class="list-group-item">' + this.getCourseName() + '</li>';
+    courseString += '<li class="list-group-item">' + this.getCourseInstructor() + '</li>';
+    courseString += '<li class="list-group-item">' + this.getCourseDays() + '</li>';
+    courseString += '<li class="list-group-item">' + this.getCourseTime() + '</li>';
+    courseString += '<li class="list-group-item">' + this.getCourseLocation() + '</li>';
+    courseString += '<li class="list-group-item">' + this.getCourseProgress() + '</li>';
+    courseString += '</ul>';
+    courseString += '<div class="panel-footer">';
+    courseString += this.getSchedulingCourseActions();
+    courseString += '</div>';
+    courseString += "</div>";
+    return courseString;
 };
 
 CourseView.prototype.buildPanel = function () {
