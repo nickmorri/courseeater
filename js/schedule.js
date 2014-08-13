@@ -38,6 +38,7 @@ displayCalendar = function () {
         defaultDate: "2014-07-14",
         minTime: "08:00:00",
         maxTime: "22:00:00",
+        aspectRatio: .25,
         weekends: false,
         columnFormat: { week: "ddd" },
         timeFormat: "",
