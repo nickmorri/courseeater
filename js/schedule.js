@@ -78,6 +78,7 @@ getCourseEvent = function (course, color) {
     
     // Time parsing
     time = course.time.split(" to ");
+    console.log(time);
     start = time[0];
     end = time[1];
     
@@ -88,28 +89,34 @@ getCourseEvent = function (course, color) {
     if (time[1][0] == " ") {
         end = end.slice(1);
     }
-    if (start.indexOf("AM") != -1) {
+    /*
+if (start.indexOf("AM") != -1) {
         start = start.split(" AM")[0];
     }
+*/
     // Further breaking things down
     startFront = parseInt(start.split(":")[0], 10);
     startBack = start.split(":")[1].slice(0, 2);
     endFront = parseInt(end.split(":")[0], 10);
 	endBack = end.split(":")[1].slice(0, 2);
-    if (end.indexOf("PM") != -1) {    
-        if (startFront != 12) {
-            startFront += 12;
-		} 
-        if (endFront != 12) {
-	        endFront += 12;
-        }
+	
+	if (end.indexOf("PM") != -1 && endFront != 12) {
+		endFront += 12;
     }
+	if (start.indexOf("PM") != -1 && startFront != 12) {
+	    startFront += 12;
+    }
+    else if (endFront > 12 && startFront != 12) {
+	    startFront += 12;
+    }
+    
     if (startFront < 10) {
         startFront = "0" + startFront;
     }
     if (endFront < 10) {
         endFront = "0" + endFront;
     }
+    
 	start = "T" + startFront + ":" + startBack + ":00";
     end = "T" + endFront + ":" + endBack + ":00";
     calendarCourses = [];
@@ -122,6 +129,7 @@ getCourseEvent = function (course, color) {
             end: heldDays[i] + end,
             backgroundColor: color
         };
+        console.log(event);
         calendarCourses.push(event);
     }
     return calendarCourses;
