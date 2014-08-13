@@ -51,7 +51,9 @@ getCourseEvent = function (course, color) {
     "use strict";
     var startingDay, calendarCourses, title, color, days, heldDays, time, start, end, event, i, endFront, endBack, startFront, startBack;
     startingDay = "2014-07-";
-    
+    if (course.time.indexOf("TBA") != -1) {
+	    return [];
+    }
     // Title processing
     title = course.courseIdentifier.toUpperCase() + " - " + course.type.toUpperCase();
     
@@ -197,14 +199,18 @@ $(document).on('click', ".btn-search-replacements", function () {
 
 $(document).on("click", ".btn-add", function () {
     "use strict";
-    var courseCode, modal, temporaryCourse, lBtn;
+    var courseCode, modal, temporaryCourse, lBtn, course;
     courseCode = parseInt($(this).parent().parent().attr('id'), 10);
     modal = $(this).parent().parent().parent().parent();
     lBtn = Ladda.create(this);
 	lBtn.start();
     lBtn.setProgress('.50');
     Parse.Cloud.run('addCourse', {courseCode: courseCode}).then(function () {
-    	return getCourseFromCache(getEquivalentCourse(courseCode).courseCode).remove();
+    	course = getEquivalentCourse(courseCode);
+    	if (course === undefined) {
+	    	return Parse.Promise.as();
+    	}
+    	return getCourseFromCache(course.courseCode).remove();
     }, function (error) {
     	lBtn.stop();
         console.log(error);

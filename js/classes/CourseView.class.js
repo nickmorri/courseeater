@@ -56,11 +56,11 @@ CourseView.prototype.getCourseName = function () {
 
 CourseView.prototype.getCourseDays = function () {
     "use strict";
-    if (this.days == "TBA") {
-        return "TBA";
-    }
     var dayString;
     dayString = '<span class="glyphicon glyphicon-calendar list-detail-glyphicon"></span>';
+    if (this.days == "TBA") {
+        return dayString + "TBA";
+    }
     if (this.days.indexOf("M") > -1) {
         dayString += '<span class="label label-primary label-day">Mon</span>';
     } else {
@@ -92,8 +92,11 @@ CourseView.prototype.getCourseDays = function () {
 CourseView.prototype.getCourseLocation = function () {
     "use strict";
     var locationString;
-    locationString = '<span class="glyphicon glyphicon-flag list-detail-glyphicon"></span>';
-    locationString += ' <a href="' + this.placeURL + '" target="_blank">' + this.placeBuilding + '</a>';
+    locationString = '<span class="glyphicon glyphicon-flag list-detail-glyphicon"></span> ';
+    if (this.placeBuilding.indexOf("TBA") != -1) {
+	    return locationString + this.placeBuilding;
+    }
+    locationString += '<a href="' + this.placeURL + '" target="_blank">' + this.placeBuilding + '</a>';
     return locationString;
 };
 
@@ -136,8 +139,11 @@ CourseView.prototype.getCourseTime = function () {
 CourseView.prototype.getCourseInstructor = function () {
     "use strict";
     var instructorString;
-    instructorString = '<span class="glyphicon glyphicon-user list-detail-glyphicon">';
-    instructorString += '</span> <a href="http://www.ratemyprofessors.com/SelectTeacher.jsp?searchName=';
+    instructorString = '<span class="glyphicon glyphicon-user list-detail-glyphicon"></span> ';
+    if (this.instructor.indexOf("STAFF") != -1) {
+	    return instructorString + "" + this.instructor;
+    }
+    instructorString += ' <a href="http://www.ratemyprofessors.com/SelectTeacher.jsp?searchName=';
     if (this.instructor.indexOf(", ") != -1) {
 		instructorString += this.instructor.split(", ")[0];    
     } else {
@@ -162,13 +168,12 @@ CourseView.prototype.getCourseActions = function (actionPanel) {
         actionString += '<span class="sr-only">Toggle Dropdown</span>';
         actionString += '</button>';
         actionString += '<ul class="dropdown-menu col-md-12" role="menu">';
-        if (actionPanel == "default" || actionPanel === undefined) {
-	        actionString += '<li><a class="btn-search search-Dis" href="#">Search for discussions</a></li>';
-			actionString += '<li><a class="btn-search search-Lec" href="#">Search for lectures</a></li>';
-			actionString += '<li><a class="btn-search search-Lab" href="#">Search for labs</a></li>';
-        } else if (actionPanel == "scheduling") {
-	    	actionString += '<li><a class="btn-search-replacements" href="#">Search for replacements</a></li>';    
+        if (actionPanel == "scheduling") {
+	        actionString += '<li><a class="btn-search-replacements" href="#">Search for replacements</a></li>';    
         }
+        actionString += '<li><a class="btn-search search-Dis" href="#">Search for discussions</a></li>';
+		actionString += '<li><a class="btn-search search-Lec" href="#">Search for lectures</a></li>';
+		actionString += '<li><a class="btn-search search-Lab" href="#">Search for labs</a></li>';
         actionString += '</ul>';
         actionString += '</div>';
     }
