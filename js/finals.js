@@ -4,7 +4,7 @@ var displayCalendar, getCourseFinals, getCourseFinal;
 
 getCalendar = function () {
 	"use strict";
-    if (sessionStorage.courses === undefined) {
+    if (jQuery.isEmptyObject(JSON.parse(sessionStorage.courses))) {
         storeCourses().then(displayCalendar);
     } else {
         displayCalendar();
@@ -16,11 +16,11 @@ displayCalendar = function () {
     $('#calendar').fullCalendar({
         header: "",
         defaultView: "agendaWeek",
-        defaultDate: "2014-07-14",
+        defaultDate: "2014-12-15",
         minTime: "08:00:00",
         maxTime: "22:00:00",
         weekends: false,
-        columnFormat: { week: "ddd" },
+        /* columnFormat: { week: "ddd" }, */
         allDaySlot: false,
         aspectRatio: '.25',
         eventSources: [getCourseFinals()]
@@ -30,30 +30,17 @@ displayCalendar = function () {
 getCourseFinal = function (course, color) {
     "use strict";
     var startingDay, finalString, title, color, heldDay, time, start, end, endFront, endBack, event;
-    
-    startingDay = "2014-07-";
+
+    startingDay = "2014-12-";
     finalString = course.final;
     if (finalString === "NONE") {
         return undefined;
     }
+    // Day processing
+	heldDay = startingDay + finalString.split(", ")[1].split(" ")[1];
+	
     // Title processing
-    title = course.courseCode + " " + course.courseIdentifier.toUpperCase();
-    //Day parsing
-    if (finalString.indexOf("Mon") > -1) {
-        heldDay = startingDay + "14";
-    }
-    if (finalString.indexOf("Tue") > -1) {
-        heldDay = startingDay + "15";
-    }
-    if (finalString.indexOf("Wed") > -1) {
-        heldDay = startingDay + "16";
-    }
-    if (finalString.indexOf("Thu") > -1) {
-        heldDay = startingDay + "17";
-    }
-    if (finalString.indexOf("Fri") > -1) {
-        heldDay = startingDay + "18";
-    }
+    title = course.courseCode + " " + course.courseIdentifier.toUpperCase() + " - " + course.type.toUpperCase();
     // Time parsing
     time = finalString.split("-");
     start = time[0].split(", ")[2];

@@ -9,7 +9,7 @@ $(document).ready(function () {
 
 getCalendar = function () {
 	"use strict";
-    if (sessionStorage.courses === undefined) {
+    if (jQuery.isEmptyObject(JSON.parse(sessionStorage.courses))) {
         storeCourses().then(displayCalendar);
     } else {
         displayCalendar();
@@ -24,7 +24,7 @@ handleCourseClick = function (calEvent, jsEvent, view) {
     } else {
      	courseObject = getTemporaryCourse(courseCode);
     }
-    coursePanel = courseObject.buildSchedulingPanel();
+    coursePanel = courseObject.buildPanel("scheduling");
 	$("#coursePanelDisplay .modal-dialog").html(coursePanel);
 	$("#coursePanelDisplay").modal("show"); 
 };
@@ -42,7 +42,6 @@ displayCalendar = function () {
         columnFormat: { week: "ddd" },
         timeFormat: "",
         allDaySlot: false,
-        aspectRatio: '.25',
         events: getCourseEvents()
     });
 };
@@ -50,10 +49,9 @@ displayCalendar = function () {
 getCourseEvent = function (course, color) {
     "use strict";
     var startingDay, calendarCourses, title, color, days, heldDays, time, start, end, event, i, endFront, endBack, startFront, startBack;
-    // Title processing
     startingDay = "2014-07-";
-    calendarCourses = [];
-    heldDays = [];
+    
+    // Title processing
     title = course.courseIdentifier.toUpperCase() + " - " + course.type.toUpperCase();
     
     //Day parsing
@@ -74,47 +72,44 @@ getCourseEvent = function (course, color) {
     if (days.indexOf("F") > -1) {
         heldDays.push(startingDay + "18");
     }
+    
     // Time parsing
     time = course.time.split(" to ");
     start = time[0];
     end = time[1];
+    
+    // Removing spaces
     if (time[0][0] == " ") {
         start = start.slice(1);
     }
     if (time[1][0] == " ") {
         end = end.slice(1);
     }
-    
     if (start.indexOf("AM") != -1) {
         start = start.split(" AM")[0];
     }
+    // Further breaking things down
     startFront = parseInt(start.split(":")[0], 10);
-    startBack = parseInt(start.split(":")[1], 10);
-    if (startBack == 0) {
-        startBack = "00";
-    }
-    
-    
-    endFront = parseInt(end.split(":")[0]);
-
+    startBack = start.split(":")[1].slice(0, 2);
+    endFront = parseInt(end.split(":")[0], 10);
+	endBack = end.split(":")[1].slice(0, 2);
     if (end.indexOf("PM") != -1) {    
-        if (start.indexOf("12") == -1 && endFront != 12) {
+        if (startFront != 12) {
             startFront += 12;
-            endFront += 12;
-        } else if (start.indexOf("12") != -1 && end.indexOf(" PM" != -1)) {
+		} 
+        if (endFront != 12) {
 	        endFront += 12;
         }
     }
-    endBack = parseInt(end.split(":")[1].slice(0, 2), 10);
     if (startFront < 10) {
         startFront = "0" + startFront;
     }
     if (endFront < 10) {
-        endFront = "0" + end.split(":")[0];
+        endFront = "0" + endFront;
     }
 	start = "T" + startFront + ":" + startBack + ":00";
     end = "T" + endFront + ":" + endBack + ":00";
-    
+    calendarCourses = [];
     //Event object creation
     for (i = 0; i < heldDays.length; i++) {
         event = {
@@ -144,7 +139,6 @@ getCourseEvents = function () {
             calendarCourses = calendarCourses.concat(getCourseEvent(courses[course], color));
         }
     }
- 
     return calendarCourses;
 };
 
@@ -202,26 +196,23 @@ $(document).on('click', ".btn-search-replacements", function () {
 
 $(document).on("click", ".btn-add", function () {
     "use strict";
-    var courseCode, lBtn, bBtn, modal, temporaryCourse;
+    var courseCode, modal, temporaryCourse, lBtn;
     courseCode = parseInt($(this).parent().parent().attr('id'), 10);
     modal = $(this).parent().parent().parent().parent();
     lBtn = Ladda.create(this);
-    bBtn = $(this);
-    lBtn.start();
-    bBtn.button("loading");
+	lBtn.start();
     lBtn.setProgress('.50');
     Parse.Cloud.run('addCourse', {courseCode: courseCode}).then(function () {
     	return getCourseFromCache(getEquivalentCourse(courseCode).courseCode).remove();
     }, function (error) {
+    	lBtn.stop();
         console.log(error);
     }).then(function () {
-	    lBtn.setProgress('1');
-        transferCourseFromTemporaryToCache(courseCode);
-		lBtn.stop();
-		bBtn.button("reset");
+	    transferCourseFromTemporaryToCache(courseCode);
 		$("#calendar").fullCalendar('destroy');
 		displayCalendar();
 		modal.modal('hide');
+		lBtn.stop();
 		storeCourses();
 		delete sessionStorage.temporaryCourses;
     });
@@ -230,11 +221,9 @@ $(document).on("click", ".btn-add", function () {
 // Remove course from user's profile
 $(document).on('click', ".btn-remove", function () {
     "use strict";
-    var courseCode, lBtn, bBtn, modal;
+    var courseCode, modal, lBtn;
     lBtn = Ladda.create(this);
-    bBtn = $(this);
     lBtn.start();
-    bBtn.button("loading");
     lBtn.setProgress('.50');
     courseCode = $(this).parent().parent().parent().attr("id").split("-")[1];
 	if (courseCode === undefined ) {
@@ -247,10 +236,11 @@ $(document).on('click', ".btn-remove", function () {
         console.log(error);
         $(".alert-invalid-courseid").html("Whoops something went wrong.");
         $(".alert-invalid-courseid").show();
-    }).then(function () {
-		lBtn.setProgress('1');
         lBtn.stop();
-        bBtn.button("reset");
+    }).then(function () {
+        cacheFresh("refresh");
+        lBtn.setProgress('1');
+        lBtn.stop();
         cacheFresh("refresh");
         if (modal !== undefined) {
 	        modal.modal('hide');

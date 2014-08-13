@@ -10,7 +10,7 @@ $(document).ready(function () {
 // Retrieves course information from Parse
 getCourses = function () {
     "use strict";
-    if (sessionStorage.courses === undefined) {
+    if (jQuery.isEmptyObject(JSON.parse(sessionStorage.courses))) {
         storeCourses().then(displayCourses);
     } else {
         displayCourses();
@@ -66,22 +66,19 @@ displayCollapsibleClasses = function (courses) {
 displaySearch = function () {
     "use strict";
     var temporaryCourses, course;
-    if (sessionStorage.temporaryCourses === undefined || jQuery.isEmptyObject(sessionStorage.temporaryCourses)) {
+    temporaryCourses = JSON.parse(sessionStorage.temporaryCourses);
+    if (jQuery.isEmptyObject(temporaryCourses)) {
 	    $("#courseInformationDisplay .modal-dialog .modal-content").html("<div class='modal-header'><h4 class='modal-title'>No results</h4></div>");
         $("#courseInformationDisplay").modal("show");
         return;
     }
-    $("#courseInformationDisplay .modal-dialog .modal-content").html("<div class='modal-body row'></div>");
-    temporaryCourses = JSON.parse(sessionStorage.temporaryCourses);
-    for (course in temporaryCourses) {
-        $("#courseInformationDisplay .modal-dialog .modal-content .modal-body").append('<div class="col-lg-4 col-md-6">' + getTemporaryCourse(course).buildCourse() + '</div>');
-    }
-    $(".top").tooltip({
-        placement: "top"
-    });
-    $("#courseInformationDisplay").modal("show");
     
-    delete sessionStorage.temporaryCourses;
+    $("#courseInformationDisplay .modal-dialog .modal-content").html("<div class='modal-body row'></div>");
+    for (course in temporaryCourses) {
+        $("#courseInformationDisplay .modal-dialog .modal-content .modal-body").append('<div class="col-lg-4 col-md-6">' + getTemporaryCourse(course).buildPanel() + '</div>');
+    }
+    $("#courseInformationDisplay").modal("show");
+	clearTemporaryCourses();
 };
 
 validateCourseCode = function (courseCode) {
@@ -100,7 +97,7 @@ validateCourseCode = function (courseCode) {
         return false;
     }
     courses = JSON.parse(sessionStorage.courses);
-    if (courses !== undefined && getCourseFromCache(courseCode) !== undefined || !jQuery.isEmptyObject(courses) && getCourseFromCache(courseCode) !== undefined) {
+    if (getCourseFromCache(courseCode) !== undefined) {
         $(".alert-invalid-courseid").html("<strong>" + $("#courseID").val() + "</strong> is already being tracked.");
         $(".alert-invalid-courseid").show();
         $("#courseID").val('');
@@ -126,7 +123,7 @@ $(document).on("keypress", "#courseID", function (event) {
 
 $(document).on("click", ".btn-add", function (event) {
 	"use strict";
-	var courseCode, lBtn, bBtn, modal;
+	var courseCode, modal, lBtn;
 	if ($(event.target).parent().parent().attr("class") == "panel panel-primary course-list-item") {
 		courseCode = parseInt($(this).parent().parent().attr('id'), 10);
 	    modal = $(this).parent().parent().parent().parent().parent().parent().parent();
@@ -138,16 +135,13 @@ $(document).on("click", ".btn-add", function (event) {
 	    }
 	}
 	lBtn = Ladda.create(this);
-	bBtn = $(this);
 	lBtn.start();
-    bBtn.button("loading");
     lBtn.setProgress('.50');
 	Parse.Cloud.run('addCourse', {courseCode: courseCode}).then(function () {
         $("#courseID").val('');
     }, function (error) {
         if (error.code == 141) {
         	 lBtn.stop();
-			 bBtn.button("reset");
             $(".alert-invalid-courseid").html("Course <strong>" + $("#courseID").val() + "</strong> does not exist.");
             $(".alert-invalid-courseid").show();
         } else {
@@ -155,7 +149,6 @@ $(document).on("click", ".btn-add", function (event) {
         }
     }).then(function () {
 	    lBtn.stop();
-        bBtn.button("reset");
         cacheFresh("refresh");
         if (modal !== undefined) {
 	    	modal.modal('hide');    
@@ -167,11 +160,9 @@ $(document).on("click", ".btn-add", function (event) {
 // Remove course from user's profile
 $(document).on('click', ".btn-remove", function () {
     "use strict";
-    var courseCode, lBtn, bBtn, modal;
+    var courseCode, modal, lBtn;
     lBtn = Ladda.create(this);
-    bBtn = $(this);
     lBtn.start();
-    bBtn.button("loading");
     lBtn.setProgress('.50');
     courseCode = $(this).parent().parent().parent().attr("id").split("-")[1];
     if (courseCode === undefined ) {
@@ -185,10 +176,10 @@ $(document).on('click', ".btn-remove", function () {
         $(".alert-invalid-courseid").html("Whoops something went wrong.");
         $(".alert-invalid-courseid").show();
         displayCourses();
+        lBtn.stop();
     }).then(function () {
 	    lBtn.setProgress('1');
         lBtn.stop();
-        bBtn.button("reset");
         cacheFresh("refresh");
         if (modal !== undefined) {
 	        modal.modal('hide');

@@ -149,7 +149,7 @@ CourseView.prototype.getCourseInstructor = function () {
     return instructorString;
 };
 
-CourseView.prototype.getCourseActions = function () {
+CourseView.prototype.getCourseActions = function (actionPanel) {
     "use strict";
     var actionString;
     if (getCourseFromCache(this.courseCode) === undefined) {
@@ -162,41 +162,20 @@ CourseView.prototype.getCourseActions = function () {
         actionString += '<span class="sr-only">Toggle Dropdown</span>';
         actionString += '</button>';
         actionString += '<ul class="dropdown-menu col-md-12" role="menu">';
-        actionString += '<li><a class="btn-search search-Dis" href="#">Search for discussions</a></li>';
-        actionString += '<li><a class="btn-search search-Lec" href="#">Search for lectures</a></li>';
-        actionString += '<li><a class="btn-search search-Lab" href="#">Search for labs</a></li>';
+        if (actionPanel == "default" || actionPanel === undefined) {
+	        actionString += '<li><a class="btn-search search-Dis" href="#">Search for discussions</a></li>';
+			actionString += '<li><a class="btn-search search-Lec" href="#">Search for lectures</a></li>';
+			actionString += '<li><a class="btn-search search-Lab" href="#">Search for labs</a></li>';
+        } else if (actionPanel == "scheduling") {
+	    	actionString += '<li><a class="btn-search-replacements" href="#">Search for replacements</a></li>';    
+        }
         actionString += '</ul>';
         actionString += '</div>';
     }
     return actionString;
 };
 
-CourseView.prototype.getSchedulingCourseActions = function () {
-    "use strict";
-    var actionString;
-    if (getCourseFromCache(this.courseCode) === undefined) {
-        actionString = '<button type="button" class="btn btn-block btn-success btn-add ladda-button" data-loading-text="Adding...">Add</button>';
-    } else {
-        actionString = '<div class="btn-group btn-block dropup">';
-        actionString += '<button type="button" class="btn col-xs-10 btn-danger btn-remove ladda-button" data-loading-text="Removing...">Remove</button>';
-        actionString += '<button type="button" class="btn col-xs-2 btn-default dropdown-toggle" data-toggle="dropdown">';
-        actionString += '<span class="caret"></span>';
-        actionString += '<span class="sr-only">Toggle Dropdown</span>';
-        actionString += '</button>';
-        actionString += '<ul class="dropdown-menu col-md-12" role="menu">';
-        actionString += '<li><a class="btn-search-replacements" href="#">Search for replacements</a></li>';
-        /*
-actionString += '<li><a class="btn-search search-Dis" href="#">Search for discussions</a></li>';
-        actionString += '<li><a class="btn-search search-Lec" href="#">Search for lectures</a></li>';
-        actionString += '<li><a class="btn-search search-Lab" href="#">Search for labs</a></li>';
-*/
-        actionString += '</ul>';
-        actionString += '</div>';
-    }
-    return actionString;
-};
-
-CourseView.prototype.buildSchedulingPanel = function () {
+CourseView.prototype.buildPanel = function (actionPanel) {
     "use strict";
     var courseString;
     courseString = "<div id='" + this.courseCode + "' class='panel panel-primary course-list-item'>";
@@ -214,31 +193,7 @@ CourseView.prototype.buildSchedulingPanel = function () {
     courseString += '<li class="list-group-item">' + this.getCourseProgress() + '</li>';
     courseString += '</ul>';
     courseString += '<div class="panel-footer">';
-    courseString += this.getSchedulingCourseActions();
-    courseString += '</div>';
-    courseString += "</div>";
-    return courseString;
-};
-
-CourseView.prototype.buildPanel = function () {
-    "use strict";
-    var courseString;
-    courseString = "<div id='" + this.courseCode + "' class='panel panel-primary course-list-item'>";
-    courseString += '<div class="panel-heading">';
-    courseString += '<h3 class="panel-title">';
-    courseString += this.getCourseHeader();
-    courseString += '</h3>';
-    courseString += '</div>';
-    courseString += '<ul class="list-group">';
-    courseString += '<li class="list-group-item">' + this.getCourseName() + '</li>';
-    courseString += '<li class="list-group-item">' + this.getCourseInstructor() + '</li>';
-    courseString += '<li class="list-group-item">' + this.getCourseDays() + '</li>';
-    courseString += '<li class="list-group-item">' + this.getCourseTime() + '</li>';
-    courseString += '<li class="list-group-item">' + this.getCourseLocation() + '</li>';
-    courseString += '<li class="list-group-item">' + this.getCourseProgress() + '</li>';
-    courseString += '</ul>';
-    courseString += '<div class="panel-footer">';
-    courseString += this.getCourseActions();
+    courseString += this.getCourseActions(actionPanel);
     courseString += '</div>';
     courseString += "</div>";
     return courseString;
@@ -269,21 +224,17 @@ CourseView.prototype.buildSubPanel = function (num, mainCourseCode) {
     courseString += '<li class="list-group-item">' + this.getCourseLocation() + '</li>';
     courseString += '<li class="list-group-item">' + this.getCourseProgress() + '</li>';
     courseString += '</ul>';
-    courseString += this.getCourseActions();
+    courseString += this.getCourseActions("default");
     courseString += '</div>';
     courseString += '</div>';
     courseString += '</div>';
     return courseString;
 };
 
-CourseView.prototype.buildCourse = function () {
-    "use strict";
-    return this.buildPanel();
-};
-
 CourseView.prototype.findCoCourses = function (type, callback) {
 	"use strict";
     var Course, courseQuery, courseName, courseIdentifier, coCourseQuery, exclusionQuery, i;
+    clearTemporaryCourses();
     Course = Parse.Object.extend("Course");
     courseQuery = new Parse.Query(Course);
     courseQuery.equalTo("courseCode", parseInt(this.courseCode, 10));

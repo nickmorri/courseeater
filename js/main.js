@@ -3,11 +3,12 @@
 var googleAnalytics, cachedCourse, toStringDays, sameClass, storeCourses, toTitleCase, cacheFresh;
 
 Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");
-if (!Parse.User.current()) {window.location.replace("/"); }
+if (!Parse.User.current()) {window.location.replace("/"); }	
 
 $(document).ready(function () {
     "use strict";
     $(".user-name-display").text(Parse.User.current().get("username"));
+    cacheFresh();
     googleAnalytics();
 });
 
@@ -20,69 +21,6 @@ getEquivalentCourse = function (courseCode) {
 		}
 	}
 	return undefined;
-};
-
-addTemporaryCourse = function (course) {
-	var temporaryCourses;
-	if (sessionStorage.temporaryCourses !== undefined) {
-		temporaryCourses = JSON.parse(sessionStorage.temporaryCourses);
-	} else {
-		temporaryCourses = {};
-	}
-	temporaryCourses[course.courseCode] = course;
-	sessionStorage.temporaryCourses = JSON.stringify(temporaryCourses);
-};
-
-getTemporaryCourse = function (courseCode) {
-	var course;
-	course = JSON.parse(sessionStorage.temporaryCourses)[courseCode];
-	
-	if (course !== undefined) {
-		return new CourseView(course);	
-	} else {
-		return undefined;
-	}
-};
-
-transferCourseFromTemporaryToCache = function (courseCode) {
-	var course = JSON.parse(sessionStorage.temporaryCourses)[courseCode];
-	var courses = JSON.parse(sessionStorage.courses);
-	courses[courseCode] = course;
-	sessionStorage.courses = JSON.stringify(courses);
-};
-
-addCourseToCache = function (course) {
-	var courses;
-	if (sessionStorage.courses) {
-		courses = JSON.parse(sessionStorage.courses);
-	} else {
-		courses = {};
-	}
-	courses[course.attributes.courseCode] = course;
-	sessionStorage.courses = JSON.stringify(courses);
-};
-
-removeCourseFromCache = function (courseCode) {
-	var courses;
-	if (sessionStorage.courses) {
-		courses = JSON.parse(sessionStorage.courses);
-	} else {
-		return false;
-	}
-	delete courses[courseCode];
-	sessionStorage.courses = JSON.stringify(courses);
-};
-
-// Returns cached CourseView object
-getCourseFromCache = function (courseCode) {
-	var course;
-	course = JSON.parse(sessionStorage.courses)[courseCode];
-	
-	if (course !== undefined) {
-		return new CourseView(course);
-	} else {
-		return undefined;	
-	} 
 };
 
 // Converts a character respresentation of a dayt to a full string
@@ -111,58 +49,13 @@ toStringDays = function (days) {
 sameClass = function (course1, course2) {
     "use strict";
     var courses;
-    if (sessionStorage.courses !== undefined) {
-		courses = JSON.parse(sessionStorage.courses);    
-    } else {
-	    return undefined;
-    }
+    courses = JSON.parse(sessionStorage.courses);
     return courses[course1].courseIdentifier == courses[course2].courseIdentifier && courses[course1].courseName == courses[course2].courseName;
-};
-
-// Stores course information from Parse
-storeCourses = function () {
-    "use strict";
-    var courses;
-    courses = {};
-    cacheFresh();
-    var courseRelation, i;
-    courseRelation = Parse.User.current().relation("courses");
-    return courseRelation.query().find().then(function (remoteCourses) {
-        for (i = 0; i < remoteCourses.length; i++) {
-        	courses[remoteCourses[i].attributes.courseCode] = remoteCourses[i];
-        }
-        sessionStorage.courses = JSON.stringify(courses);
-    }, function (error) {
-        console.log(error);
-    });
 };
 
 toTitleCase = function (str) {
     "use strict";
     return str.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
-};
-
-// Determines cache's freshness
-cacheFresh = function (reason) {
-    "use strict";
-    var expiration, currentTime, freshness, cacheTime;
-    expiration = 1;
-    currentTime = new Date();
-    freshness = true;
-    if (reason == "refresh") {
-        freshness = false;
-    } else if (sessionStorage.cacheAge === undefined) {
-        freshness = false;
-    } else {
-        cacheTime = new Date(sessionStorage.cacheAge);
-        if (currentTime.getMinutes() - cacheTime.getMinutes() > expiration || Parse.User.current().updatedAt > cacheTime) {
-            freshness = false;
-        }
-    }
-    if (freshness == false) {
-        sessionStorage.clear();
-        sessionStorage.cacheAge = currentTime;
-    }
 };
 
 // Performs User logout
