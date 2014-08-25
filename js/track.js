@@ -4,7 +4,7 @@ var getCourses, classGroups, displayCourses, displayCollapsibleClasses, displayS
 
 $(document).ready(function () {
     "use strict";
-    getCourses();
+    getCourses(); 
 });
 
 // Retrieves course information from Parse
@@ -28,10 +28,29 @@ displayCourses = function () {
     }
 };
 
+// Groups courses by class
+classGroups = function (courses) {
+    "use strict";
+    var courseIDs, lastCourse, classGroups, i;
+    courseIDs = Object.keys(courses);
+    lastCourse = courseIDs[0];
+    classGroups = {};
+    classGroups[lastCourse] = [lastCourse];
+    for (i = 1; i < Object.keys(courses).length; i++) {
+        if (sameClass(courseIDs[i], lastCourse, courses)) {
+            classGroups[lastCourse].push(courseIDs[i]);
+        } else {
+            lastCourse = courseIDs[i];
+            classGroups[lastCourse] = [lastCourse];
+        }
+    }
+    return classGroups;
+};
+
 displayCollapsibleClasses = function (courses) {
     "use strict";
     var classes, classView, classGroup, i, j;
-    classes = classGroups();
+    classes = classGroups(courses);
     for (i = 0; i < Object.keys(classes).length; i++) {
         classView = new ClassView();
         classGroup = classes[Object.keys(classes)[i]];

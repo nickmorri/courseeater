@@ -10,26 +10,18 @@ $(document).ready(function () {
     $(".user-name-display").text(Parse.User.current().get("username"));
     cacheFresh();
     googleAnalytics();
+    addBetaContent();
 });
 
-// Groups courses by class
-classGroups = function () {
-    "use strict";
-    var courses, courseIDs, lastCourse, classGroups, i;
-    courses = JSON.parse(sessionStorage.courses);
-    courseIDs = Object.keys(courses);
-    lastCourse = courseIDs[0];
-    classGroups = {};
-    classGroups[lastCourse] = [lastCourse];
-    for (i = 1; i < Object.keys(courses).length; i++) {
-        if (sameClass(courseIDs[i], lastCourse, courses)) {
-            classGroups[lastCourse].push(courseIDs[i]);
-        } else {
-            lastCourse = courseIDs[i];
-            classGroups[lastCourse] = [lastCourse];
-        }
+// Beta content injector
+addBetaContent = function () {
+	if (Parse.User.current().get("username") != "nick") {
+	    window.location.replace("/");
     }
-    return classGroups;
+    if (window.location.pathname != "/search") {
+		var testString = '<li><a href="search"><span class="glyphicon glyphicon-search"></span> Search</a></li>';
+		$(".nav.navbar-nav").append(testString);
+    }
 };
 
 getEquivalentCourse = function (courseCode) {
@@ -44,10 +36,8 @@ getEquivalentCourse = function (courseCode) {
 };
 
 // Determines if two courses belong to the same class
-sameClass = function (course1, course2) {
+sameClass = function (course1, course2, courses) {
     "use strict";
-    var courses;
-    courses = JSON.parse(sessionStorage.courses);
     return courses[course1].courseIdentifier == courses[course2].courseIdentifier && courses[course1].courseName == courses[course2].courseName;
 };
 
