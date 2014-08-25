@@ -11,6 +11,7 @@ function CourseView(course) {
     this.courseCode = course.courseCode;
     this.max = course.max;
     this.enrolled = course.totalEnr;
+    this.remaining = this.max - this.enrolled;
     this.waitlist = course.wl;
     this.final = course.final;
     this.placeURL = course.placeURL;
@@ -33,60 +34,59 @@ CourseView.prototype.getCourseHeader = function () {
     } else {
         infoString += 'label-primary';
     }
-    infoString += '">';
-    infoString += this.type;
-    infoString += '</span>';
-    infoString += '<span class="label panel-label label-identifier label-success">';
-    infoString += this.courseIdentifier;
-    infoString += '</span>';
-    infoString += ' <span class="label panel-label label-course-code label-default">';
-    infoString += this.courseCode;
-    infoString += '</span>';
+    infoString += '">' + this.type + '</span>';
+    infoString += '<span class="label panel-label label-identifier label-success">' + this.courseIdentifier + '</span>';
+    infoString += ' <span class="label panel-label label-course-code label-default">' + this.courseCode + '</span>';
     return infoString;
 };
 
 CourseView.prototype.getCourseName = function () {
     "use strict";
     var courseName;
-    courseName = '<span class="glyphicon glyphicon-pencil list-detail-glyphicon">';
-    courseName += '</span> ';
-    courseName += this.courseName;
+    courseName = '<span class="glyphicon glyphicon-pencil list-detail-glyphicon"></span> ' + this.courseName;;
     return courseName;
 };
 
 CourseView.prototype.getCourseDays = function () {
     "use strict";
-    var dayString;
-    dayString = '<span class="glyphicon glyphicon-calendar list-detail-glyphicon"></span>';
+    var baseDayString, heldDayString, unheldDayString;
+    baseDayString = '<span class="glyphicon glyphicon-calendar list-detail-glyphicon"></span>';
+    heldDayString = '<span class="label label-primary label-day">';
+    unheldDayString = '<span class="label label-default label-day">';
     if (this.days == "TBA") {
-        return dayString + "TBA";
+        return baseDayString + "TBA";
     }
     if (this.days.indexOf("M") > -1) {
-        dayString += '<span class="label label-primary label-day">Mon</span>';
+        baseDayString += heldDayString;
     } else {
-        dayString += '<span class="label label-default label-day">Mon</span>';
+        baseDayString += unheldDayString;
     }
+    baseDayString += 'Mon' + '</span>';
     if (this.days.indexOf("Tu") > -1) {
-        dayString += '<span class="label label-primary label-day">Tue</span>';
+        baseDayString += heldDayString;
     } else {
-        dayString += '<span class="label label-default label-day">Tue</span>';
+        baseDayString += unheldDayString;
     }
+    baseDayString += 'Tue' + '</span>';
     if (this.days.indexOf("W") > -1) {
-        dayString += '<span class="label label-primary label-day">Wed</span>';
+        baseDayString += heldDayString;
     } else {
-        dayString += '<span class="label label-default label-day">Wed</span>';
+        baseDayString += unheldDayString;
     }
+    baseDayString += 'Wed' + '</span>';
     if (this.days.indexOf("Th") > -1) {
-        dayString += '<span class="label label-primary label-day">Thu</span>';
+        baseDayString += heldDayString;
     } else {
-        dayString += '<span class="label label-default label-day">Thu</span>';
+        baseDayString += unheldDayString;
     }
+    baseDayString += 'Thu' + '</span>'
     if (this.days.indexOf("F") > -1) {
-        dayString += '<span class="label label-primary label-day">Fri</span>';
+        baseDayString += heldDayString;
     } else {
-        dayString += '<span class="label label-default label-day">Fri</span>';
+        baseDayString += unheldDayString;
     }
-    return dayString;
+    baseDayString += 'Fri' + '</span>';
+    return baseDayString;
 };
 
 CourseView.prototype.getCourseLocation = function () {
@@ -100,29 +100,41 @@ CourseView.prototype.getCourseLocation = function () {
     return locationString;
 };
 
+CourseView.prototype.isEmpty = function () {
+	"use strict";
+	return this.enrolled == 0;	
+};
+
+CourseView.prototype.isFull = function () {
+	"use strict";
+	return this.remaining <= 0;
+};
+
+CourseView.prototype.isWaitlist = function () {
+	"use strict";
+	return this.waitlist > 0;
+};
+
+CourseView.prototype.percentFull = function () {
+	return this.enrolled / this.max * 100;
+};
+
 CourseView.prototype.getCourseProgress = function () {
     "use strict";
     var remaining, progressString, coursePercentFull;
-    remaining = this.max - this.enrolled;
-    progressString = '<span class="glyphicon glyphicon-stats list-detail-glyphicon pull-left">';
-    progressString += '</span>';
-    progressString += '<div class="progress">';
-    if (this.enrolled == 0) {
+    progressString = '<span class="glyphicon glyphicon-stats list-detail-glyphicon pull-left"></span><div class="progress">';
+    if (this.isEmpty()) {
         progressString += '<div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%;">';
         progressString += 'Class empty!';
-    } else if (this.waitlist > 0 && remaining <= 0) {
+    } else if (this.isWaitlist() && this.isFull()) {
         progressString += '<div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%">';
         progressString += this.waitlist + ' waitlisted';
-    } else if (remaining <= 0) {
+    } else if (this.isFull()) {
         progressString += '<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%;">';
         progressString += 'Class full!';
     } else {
-        coursePercentFull = this.enrolled / this.max * 100;
-        if (coursePercentFull < 30) {
-            coursePercentFull *= 3;
-        }
-        progressString += '<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="' + coursePercentFull + '" aria-valuemin="0" aria-valuemax="100" style="width:' + coursePercentFull + '%;">';
-        progressString += remaining + ' spots left of ' + this.max;
+        progressString += '<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="' + coursePercentFull + '" aria-valuemin="0" aria-valuemax="100" style="width:' + this.percentFull() + '%;">';
+        progressString += this.remaining + ' spots left of ' + this.max;
     }
     progressString += '</div></div>';
     return progressString;
@@ -155,56 +167,65 @@ CourseView.prototype.getCourseInstructor = function () {
     return instructorString;
 };
 
-CourseView.prototype.getCourseActions = function (actionPanel) {
+CourseView.prototype.getCourseActions = function () {
     "use strict";
-    var actionString;
     if (getCourseFromCache(this.courseCode) === undefined) {
-        actionString = '<button type="button" class="btn btn-block btn-success btn-add ladda-button" data-loading-text="Adding...">Add</button>';
-    } else {
-        actionString = '<div class="btn-group btn-block dropup">';
-        actionString += '<button type="button" class="btn col-xs-10 btn-danger btn-remove ladda-button" data-loading-text="Removing...">Remove</button>';
-        actionString += '<button type="button" class="btn col-xs-2 btn-default dropdown-toggle" data-toggle="dropdown">';
-        actionString += '<span class="caret"></span>';
-        actionString += '<span class="sr-only">Toggle Dropdown</span>';
-        actionString += '</button>';
-        actionString += '<ul class="dropdown-menu col-md-12" role="menu">';
-        if (actionPanel == "scheduling") {
-	        actionString += '<li><a class="btn-search-replacements" href="#">Search for replacements</a></li>';    
-        }
-        actionString += '<li><a class="btn-search search-Dis" href="#">Search for discussions</a></li>';
-		actionString += '<li><a class="btn-search search-Lec" href="#">Search for lectures</a></li>';
-		actionString += '<li><a class="btn-search search-Lab" href="#">Search for labs</a></li>';
-        actionString += '</ul>';
-        actionString += '</div>';
+        return '<button type="button" class="btn btn-block btn-success btn-add ladda-button" data-loading-text="Adding...">Add</button>';
     }
+    var actionString;
+    actionString = '<div class="btn-group btn-block dropup">';
+    actionString += '<button type="button" class="btn col-xs-10 btn-danger btn-remove ladda-button" data-loading-text="Removing...">Remove</button>';
+    actionString += '<button type="button" class="btn col-xs-2 btn-default dropdown-toggle" data-toggle="dropdown">';
+    actionString += '<span class="caret"></span>';
+    actionString += '<span class="sr-only">Toggle Dropdown</span>';
+    actionString += '</button>';
+    actionString += '<ul class="dropdown-menu col-md-12" role="menu">';
+    actionString += '<li><a class="btn-search-replacements" href="#">Search for replacements</a></li>';
+	actionString += '<li class="divider"></li>';
+	if (this.type != "LEC") {
+		actionString += '<li><a class="btn-search search-Lec" href="#">Search for lectures</a></li>';	
+	}
+	if (this.type != "DIS") {
+		actionString += '<li><a class="btn-search search-Dis" href="#">Search for discussions</a></li>';	
+	}
+	if (this.type != "LAB") {
+		actionString += '<li><a class="btn-search search-Lab" href="#">Search for labs</a></li>';	
+	}
+    actionString += '</ul>';
+    actionString += '</div>';
     return actionString;
 };
 
-CourseView.prototype.buildPanel = function (actionPanel) {
+CourseView.prototype.buildPanelBody = function() {
+	"use strict";
+	var bodyString;
+	bodyString = '<ul class="list-group">';
+	bodyString += '<li class="list-group-item">' + this.getCourseName() + '</li>';
+    bodyString += '<li class="list-group-item">' + this.getCourseInstructor() + '</li>';
+    bodyString += '<li class="list-group-item">' + this.getCourseDays() + '</li>';
+    bodyString += '<li class="list-group-item">' + this.getCourseTime() + '</li>';
+    bodyString += '<li class="list-group-item">' + this.getCourseLocation() + '</li>';
+    bodyString += '<li class="list-group-item">' + this.getCourseProgress() + '</li>';
+    bodyString += '</ul>';
+    
+    
+    return bodyString;
+};
+
+CourseView.prototype.buildDefaultPanel = function () {
     "use strict";
     var courseString;
     courseString = "<div id='" + this.courseCode + "' class='panel panel-primary course-list-item'>";
-    courseString += '<div class="panel-heading">';
-    courseString += '<h3 class="panel-title">';
-    courseString += this.getCourseHeader();
-    courseString += '</h3>';
-    courseString += '</div>';
-    courseString += '<ul class="list-group">';
-    courseString += '<li class="list-group-item">' + this.getCourseName() + '</li>';
-    courseString += '<li class="list-group-item">' + this.getCourseInstructor() + '</li>';
-    courseString += '<li class="list-group-item">' + this.getCourseDays() + '</li>';
-    courseString += '<li class="list-group-item">' + this.getCourseTime() + '</li>';
-    courseString += '<li class="list-group-item">' + this.getCourseLocation() + '</li>';
-    courseString += '<li class="list-group-item">' + this.getCourseProgress() + '</li>';
-    courseString += '</ul>';
+    courseString += '<div class="panel-heading"><h3 class="panel-title">' + this.getCourseHeader() + '</h3></div>';
+    courseString += this.buildPanelBody();
     courseString += '<div class="panel-footer">';
-    courseString += this.getCourseActions(actionPanel);
+    courseString += this.getCourseActions();
     courseString += '</div>';
-    courseString += "</div>";
+    courseString += '</div>';
     return courseString;
 };
 
-CourseView.prototype.buildSubPanel = function (num, mainCourseCode) {
+CourseView.prototype.buildCollapsiblePanel = function (num, mainCourseCode) {
     "use strict";
     var courseString;
     courseString = '<div class="panel panel-primary">';
@@ -221,15 +242,8 @@ CourseView.prototype.buildSubPanel = function (num, mainCourseCode) {
         courseString += '<div id="collapse' + num + '-' + this.courseCode + '" class="panel-collapse collapse">';
     }
     courseString += '<div class="panel-body">';
-    courseString += '<ul class="list-group">';
-    courseString += '<li class="list-group-item">' + this.getCourseName() + '</li>';
-    courseString += '<li class="list-group-item">' + this.getCourseInstructor() + '</li>';
-    courseString += '<li class="list-group-item">' + this.getCourseDays() + '</li>';
-    courseString += '<li class="list-group-item">' + this.getCourseTime() + '</li>';
-    courseString += '<li class="list-group-item">' + this.getCourseLocation() + '</li>';
-    courseString += '<li class="list-group-item">' + this.getCourseProgress() + '</li>';
-    courseString += '</ul>';
-    courseString += this.getCourseActions("default");
+    courseString += this.buildPanelBody();
+    courseString += this.getCourseActions();
     courseString += '</div>';
     courseString += '</div>';
     courseString += '</div>';

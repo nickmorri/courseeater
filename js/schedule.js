@@ -7,15 +7,17 @@ $(document).ready(function () {
     getCalendar();
 });
 
+// Intelligently displays calendar. Loads data if needed.
 getCalendar = function () {
 	"use strict";
     if (jQuery.isEmptyObject(JSON.parse(sessionStorage.courses))) {
-        storeCourses().then(displayCalendar);
+        retrieveCourses().then(storeCourses).then(displayCalendar);
     } else {
         displayCalendar();
     }	
 };
 
+// Handles Modal launching and creation when Course calendar instance is selected.
 handleCourseClick = function (calEvent, jsEvent, view) {
 	var courseObject, courseCode, coursePanel;
     courseCode = calEvent.id;
@@ -24,11 +26,12 @@ handleCourseClick = function (calEvent, jsEvent, view) {
     } else {
      	courseObject = getTemporaryCourse(courseCode);
     }
-    coursePanel = courseObject.buildPanel("scheduling");
+    coursePanel = courseObject.buildDefaultPanel();
 	$("#coursePanelDisplay .modal-dialog").html(coursePanel);
 	$("#coursePanelDisplay").modal("show"); 
 };
 
+// Initializes FullCalendar library with relevant Course information.
 displayCalendar = function () {
     "use strict";
     $('#calendar').fullCalendar({
@@ -47,6 +50,7 @@ displayCalendar = function () {
     });
 };
 
+// Processes data for individual Course
 getCourseEvent = function (course, color) {
     "use strict";
     var startingDay, calendarCourses, title, color, days, heldDays, time, start, end, event, i, endFront, endBack, startFront, startBack;
@@ -56,7 +60,6 @@ getCourseEvent = function (course, color) {
     }
     // Title processing
     title = course.courseIdentifier.toUpperCase() + " - " + course.type.toUpperCase();
-    
     //Day parsing
     days = course.days;
     heldDays = [];
@@ -75,13 +78,10 @@ getCourseEvent = function (course, color) {
     if (days.indexOf("F") > -1) {
         heldDays.push(startingDay + "18");
     }
-    
     // Time parsing
     time = course.time.split(" to ");
-    console.log(time);
     start = time[0];
     end = time[1];
-    
     // Removing spaces
     if (time[0][0] == " ") {
         start = start.slice(1);
@@ -89,17 +89,12 @@ getCourseEvent = function (course, color) {
     if (time[1][0] == " ") {
         end = end.slice(1);
     }
-    /*
-if (start.indexOf("AM") != -1) {
-        start = start.split(" AM")[0];
-    }
-*/
-    // Further breaking things down
+    // Further breaking things down into 4 distinct parts.
     startFront = parseInt(start.split(":")[0], 10);
     startBack = start.split(":")[1].slice(0, 2);
     endFront = parseInt(end.split(":")[0], 10);
 	endBack = end.split(":")[1].slice(0, 2);
-	
+	// Processing of these parts
 	if (end.indexOf("PM") != -1 && endFront != 12) {
 		endFront += 12;
     }
@@ -109,18 +104,17 @@ if (start.indexOf("AM") != -1) {
     else if (endFront > 12 && startFront != 12) {
 	    startFront += 12;
     }
-    
     if (startFront < 10) {
         startFront = "0" + startFront;
     }
     if (endFront < 10) {
         endFront = "0" + endFront;
     }
-    
+    // Formatting these four parts for the FullCalendar library
 	start = "T" + startFront + ":" + startBack + ":00";
     end = "T" + endFront + ":" + endBack + ":00";
     calendarCourses = [];
-    //Event object creation
+    // Event object creation
     for (i = 0; i < heldDays.length; i++) {
         event = {
         	id: course.courseCode,
@@ -129,12 +123,12 @@ if (start.indexOf("AM") != -1) {
             end: heldDays[i] + end,
             backgroundColor: color
         };
-        console.log(event);
         calendarCourses.push(event);
     }
     return calendarCourses;
 };
 
+// Retrieves courses information from local datastore
 getCourseEvents = function () {
     "use strict";
     var calendarCourses, courses, course, colors, color;
@@ -153,7 +147,8 @@ getCourseEvents = function () {
     return calendarCourses;
 };
 
-displayReplacements = function () {
+// Displays general a course search
+displaySearch = function () {
 	"use strict";
 	var temporaryCourses, event, course, data;
 	temporaryCourses = [];
@@ -171,40 +166,24 @@ displayReplacements = function () {
 	$('#calendar').fullCalendar( 'addEventSource', temporaryCourses);
 };
 
-displaySearch = function () {
-    "use strict";
-    var temporaryCourses, event, course, data;
-	temporaryCourses = [];
-	data = JSON.parse(sessionStorage.temporaryCourses);
-	if (jQuery.isEmptyObject(data)) {
-		$("#coursePanelDisplay .modal-dialog").html("<div class='modal-content'><div class='modal-header'><h4 class='modal-title'>No replacements found.</h4></div></div>");
-		return;
-	}
-	for (course in data) {
-		if (getCourseFromCache(data) === undefined) {
-			temporaryCourses = temporaryCourses.concat(getCourseEvent(getTemporaryCourse(course), "black"));	
-		}
-	}
-	$("#coursePanelDisplay").modal("hide");
-	$('#calendar').fullCalendar( 'addEventSource', temporaryCourses);
-};
-
-// Conducts search for CoCourses or replacements
+// Conducts search for CoCourses
 $(document).on("click", ".btn-search", function () {
     "use strict";
     var type, courseCode;
     type = $(this).attr("class").split(" ")[1].split("-")[1];
     courseCode = $(this).parent().parent().parent().parent().parent().attr("id");
-    getCourseFromCache(courseCode).findCoCourses(type, displayReplacements);
+    getCourseFromCache(courseCode).findCoCourses(type, displaySearch);
 });
 
+// Conducts search for replacements
 $(document).on('click', ".btn-search-replacements", function () {
 	var courseCode, course;
     courseCode = $(this).parent().parent().parent().parent().parent().attr("id");
     course = getCourseFromCache(courseCode);
-    course.findCoCourses(course.type, displayReplacements);
+    course.findCoCourses(course.type, displaySearch);
 });
 
+// Conducts addition of course to user account
 $(document).on("click", ".btn-add", function () {
     "use strict";
     var courseCode, modal, temporaryCourse, lBtn, course;
@@ -233,7 +212,7 @@ $(document).on("click", ".btn-add", function () {
     });
 });
 
-// Remove course from user's profile
+// Remove course from user's account
 $(document).on('click', ".btn-remove", function () {
     "use strict";
     var courseCode, modal, lBtn;
@@ -249,9 +228,7 @@ $(document).on('click', ".btn-remove", function () {
         $("#calendar").fullCalendar('removeEvents', [courseCode]);
     }, function (error) {
         console.log(error);
-        $(".alert-invalid-courseid").html("Whoops something went wrong.");
-        $(".alert-invalid-courseid").show();
-        lBtn.stop();
+		lBtn.stop();
     }).then(function () {
         cacheFresh("refresh");
         lBtn.setProgress('1');
@@ -271,8 +248,8 @@ $(document).on("click", ".refresh-data", function () {
     btn = Ladda.create(this);
     btn.start();
     cacheFresh("refresh");
-    storeCourses().then(function () {
-        $('#calendar').fullCalendar('destroy');
+    retrieveCourses().then(storeCourses).then(function () {
+		$('#calendar').fullCalendar('destroy');
         displayCalendar();
     });
     btn.stop();

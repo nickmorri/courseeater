@@ -12,6 +12,26 @@ $(document).ready(function () {
     googleAnalytics();
 });
 
+// Groups courses by class
+classGroups = function () {
+    "use strict";
+    var courses, courseIDs, lastCourse, classGroups, i;
+    courses = JSON.parse(sessionStorage.courses);
+    courseIDs = Object.keys(courses);
+    lastCourse = courseIDs[0];
+    classGroups = {};
+    classGroups[lastCourse] = [lastCourse];
+    for (i = 1; i < Object.keys(courses).length; i++) {
+        if (sameClass(courseIDs[i], lastCourse, courses)) {
+            classGroups[lastCourse].push(courseIDs[i]);
+        } else {
+            lastCourse = courseIDs[i];
+            classGroups[lastCourse] = [lastCourse];
+        }
+    }
+    return classGroups;
+};
+
 getEquivalentCourse = function (courseCode) {
 	var courses = JSON.parse(sessionStorage.courses);
 	var initalCourse = JSON.parse(sessionStorage.temporaryCourses)[courseCode];
@@ -23,28 +43,6 @@ getEquivalentCourse = function (courseCode) {
 	return undefined;
 };
 
-// Converts a character respresentation of a dayt to a full string
-toStringDays = function (days) {
-    "use strict";
-    var dayString = "";
-    if (days.indexOf("M") != -1) {
-        dayString += "Monday";
-    }
-    if (days.indexOf("Tu") != -1) {
-        dayString += "Tuesday";
-    }
-    if (days.indexOf("W") != -1) {
-        dayString += "Wednesday";
-    }
-    if (days.indexOf("Th") != -1) {
-        dayString += "Thursday";
-    }
-    if (days.indexOf("F") != -1) {
-        dayString += "Friday";
-    }
-    return dayString;
-};
-
 // Determines if two courses belong to the same class
 sameClass = function (course1, course2) {
     "use strict";
@@ -53,6 +51,7 @@ sameClass = function (course1, course2) {
     return courses[course1].courseIdentifier == courses[course2].courseIdentifier && courses[course1].courseName == courses[course2].courseName;
 };
 
+// Transforms a string to Title Case
 toTitleCase = function (str) {
     "use strict";
     return str.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });

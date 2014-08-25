@@ -1,5 +1,22 @@
 /*global window */
 
+initializeStorage = function () {
+	initializeCachedCourses();
+	initializeTemporaryCourses();
+};
+
+initializeTemporaryCourses = function () {
+	if (sessionStorage.temporaryCourses === undefined) {
+		clearTemporaryCourses();
+	}
+};
+
+initializeCachedCourses = function () {
+	if (sessionStorage.courses === undefined) {
+		clearCachedCourses();
+	}
+};
+
 clearStorage = function () {
 	clearCachedCourses();
 	clearTemporaryCourses();
@@ -51,16 +68,20 @@ transferCourseFromTemporaryToCache = function (courseCode) {
 };
 
 addCourseToCache = function (course) {
-	var courses;
+	var courses, promise;
+	promise = new Parse.Promise();
 	courses = JSON.parse(sessionStorage.courses);
 	courses[course.attributes.courseCode] = course;
 	sessionStorage.courses = JSON.stringify(courses);
-	return true;
+	return promise.resolve();
 };
 
 removeCourseFromCache = function (courseCode) {
 	var courses;
 	courses = JSON.parse(sessionStorage.courses);
+	if (courses[courseCode] === undefined) {
+		return false;
+	}
 	delete courses[courseCode];
 	sessionStorage.courses = JSON.stringify(courses);
 	return true;
@@ -77,21 +98,21 @@ getCourseFromCache = function (courseCode) {
 	} 
 };
 
-// Stores course information from Parse
-storeCourses = function () {
+// Retrieves course information from Parse
+retrieveCourses = function () {
     "use strict";
-    var courses, courseRelation, i;
+    return Parse.User.current().relation("courses").query().find();
+};
+
+// Stores course information 
+storeCourses = function (remoteCourses) {
+	var courses, i;
 	courses = {};
-    courseRelation = Parse.User.current().relation("courses");
-    return courseRelation.query().find().then(function (remoteCourses) {
-        for (i = 0; i < remoteCourses.length; i++) {
-        	courses[remoteCourses[i].attributes.courseCode] = remoteCourses[i];
-        }
-        
-        sessionStorage.courses = JSON.stringify(courses);
-    }, function (error) {
-        console.log(error);
-    });
+	for (i = 0; i < remoteCourses.length; i++) {
+    	courses[remoteCourses[i].attributes.courseCode] = remoteCourses[i];
+    }
+    sessionStorage.courses = JSON.stringify(courses);
+    return new Parse.Promise.as();
 };
 
 // Determines cache's freshness

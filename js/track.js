@@ -11,30 +11,10 @@ $(document).ready(function () {
 getCourses = function () {
     "use strict";
     if (jQuery.isEmptyObject(JSON.parse(sessionStorage.courses))) {
-        storeCourses().then(displayCourses);
+        retrieveCourses().then(storeCourses).then(displayCourses);
     } else {
         displayCourses();
     }
-};
-
-// Groups courses by class
-classGroups = function () {
-    "use strict";
-    var courses, courseIDs, lastCourse, classGroups, i;
-    courses = JSON.parse(sessionStorage.courses);
-    courseIDs = Object.keys(courses);
-    lastCourse = courseIDs[0];
-    classGroups = {};
-    classGroups[lastCourse] = [lastCourse];
-    for (i = 1; i < Object.keys(courses).length; i++) {
-        if (sameClass(courseIDs[i], lastCourse, courses)) {
-            classGroups[lastCourse].push(courseIDs[i]);
-        } else {
-            lastCourse = courseIDs[i];
-            classGroups[lastCourse] = [lastCourse];
-        }
-    }
-    return classGroups;
 };
 
 displayCourses = function () {
@@ -106,6 +86,12 @@ validateCourseCode = function (courseCode) {
     return true;
 };
 
+// Allows enter to submit course by calling #addCourse button click
+$(document).on("keypress", "#courseID", function (event) {
+    "use strict";
+    if (event.which == 13) { $(".btn-add.btn-primary.btn-block").click(); }
+});
+
 // Conducts search for CoCourses
 $(document).on("click", ".btn-search", function () {
     "use strict";
@@ -115,10 +101,11 @@ $(document).on("click", ".btn-search", function () {
     getCourseFromCache(courseCode).findCoCourses(type, displaySearch);
 });
 
-// Allows enter to submit course by calling #addCourse button click
-$(document).on("keypress", "#courseID", function (event) {
-    "use strict";
-    if (event.which == 13) { $(".btn-add.btn-primary.btn-block").click(); }
+$(document).on('click', ".btn-search-replacements", function () {
+	var courseCode, course;
+    courseCode = $(this).parent().parent().parent().parent().parent().attr("id").split("-")[1];
+    course = getCourseFromCache(courseCode);
+    course.findCoCourses(course.type, displaySearch);
 });
 
 $(document).on("click", ".btn-add", function (event) {
@@ -178,8 +165,6 @@ $(document).on('click', ".btn-remove", function () {
         displayCourses();
         lBtn.stop();
     }).then(function () {
-	    lBtn.setProgress('1');
-        lBtn.stop();
         cacheFresh("refresh");
         if (modal !== undefined) {
 	        modal.modal('hide');

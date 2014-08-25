@@ -2,15 +2,22 @@
 
 var displayCalendar, getCourseFinals, getCourseFinal;
 
+$(document).ready(function () {
+    "use strict";
+    getCalendar();
+});
+
+// Intelligently displays finals calendar. Loads data if needed.
 getCalendar = function () {
 	"use strict";
     if (jQuery.isEmptyObject(JSON.parse(sessionStorage.courses))) {
-        storeCourses().then(displayCalendar);
+        retrieveCourses().then(storeCourses).then(displayCalendar);
     } else {
         displayCalendar();
     }	
 };
 
+// Initializes FullCalendar library with relevant Course finals information
 displayCalendar = function () {
     "use strict";
     $('#calendar').fullCalendar({
@@ -20,13 +27,13 @@ displayCalendar = function () {
         minTime: "08:00:00",
         maxTime: "22:00:00",
         weekends: false,
-        /* columnFormat: { week: "ddd" }, */
         allDaySlot: false,
         aspectRatio: '.25',
         eventSources: [getCourseFinals()]
     });
 };
 
+// Processes data for individual Course
 getCourseFinal = function (course, color) {
     "use strict";
     var startingDay, finalString, title, color, heldDay, time, start, end, endFront, endBack, event;
@@ -80,6 +87,7 @@ getCourseFinal = function (course, color) {
     return event;
 };
 
+// Retrieves finals information from local datastore
 getCourseFinals = function () {
     "use strict";
     var finals, courses, courseFinal, course, colors, color;
@@ -100,12 +108,6 @@ getCourseFinals = function () {
     }
     return finals;
 };
-
-
-$(document).ready(function () {
-    "use strict";
-    getCalendar();
-});
 
 // Clears any sessionStorage data and reloads data from Parse
 $(document).on("click", ".refresh-data", function () {
