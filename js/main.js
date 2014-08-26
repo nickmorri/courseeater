@@ -1,44 +1,33 @@
-/*global window */
+/*global window, Parse, $, document, sessionStorage, cacheFresh */
 
-var googleAnalytics, cachedCourse, toStringDays, sameClass, storeCourses, toTitleCase, cacheFresh;
+var initialize, onPageLoad, buildBetaContent, toTitleCase, logoutUser, googleAnalytics;
 
-Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");
-if (!Parse.User.current()) {window.location.replace("/"); }	
+// Performs functions immediately (before DOM is ready)
+initialize = function () {
+    "use strict";
+    Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");
+    if (!Parse.User.current()) {window.location.replace("/"); }
+};
 
-$(document).ready(function () {
+// Performs actions after DOM is ready
+onPageLoad = function () {
     "use strict";
     $(".user-name-display").text(Parse.User.current().get("username"));
     cacheFresh();
     googleAnalytics();
-    addBetaContent();
-});
+    buildBetaContent();
+};
 
 // Beta content injector
-addBetaContent = function () {
-	if (Parse.User.current().get("username") != "nick") {
-	    window.location.replace("/");
-    }
-    if (window.location.pathname != "/search") {
-		var testString = '<li><a href="search"><span class="glyphicon glyphicon-search"></span> Search</a></li>';
-		$(".nav.navbar-nav").append(testString);
-    }
-};
-
-getEquivalentCourse = function (courseCode) {
-	var courses = JSON.parse(sessionStorage.courses);
-	var initalCourse = JSON.parse(sessionStorage.temporaryCourses)[courseCode];
-	for (course in courses) {
-		if (courses[course].courseIdentifier == initalCourse.courseIdentifier && courses[course].courseName == initalCourse.courseName && courses[course].type == initalCourse.type) {
-			return courses[course];
-		}
-	}
-	return undefined;
-};
-
-// Determines if two courses belong to the same class
-sameClass = function (course1, course2, courses) {
+buildBetaContent = function () {
     "use strict";
-    return courses[course1].courseIdentifier == courses[course2].courseIdentifier && courses[course1].courseName == courses[course2].courseName;
+    if (Parse.User.current().get("username") !== "nick") {
+        window.location.replace("/");
+    }
+    if (window.location.pathname !== "/search") {
+        var testString = '<li><a href="search"><span class="glyphicon glyphicon-search"></span> Search</a></li>';
+        $(".nav.navbar-nav").first().append(testString);
+    }
 };
 
 // Transforms a string to Title Case
@@ -48,15 +37,15 @@ toTitleCase = function (str) {
 };
 
 // Performs User logout
-$(document).on("click", "#logout", function () {
+logoutUser = function () {
     "use strict";
     Parse.User.logOut();
     sessionStorage.clear();
     window.location.replace("/");
-});
+};
 
 // Google Analytics Information
-function googleAnalytics() {
+googleAnalytics = function () {
     "use strict";
     (function (i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function (){
     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -65,3 +54,7 @@ function googleAnalytics() {
     ga('create', 'UA-9939990-3', 'courseeater.com');
     ga('send', 'pageview');
 };
+
+initialize();
+$(document).ready(onPageLoad);
+$(document).on("click", "#logout", logoutUser);

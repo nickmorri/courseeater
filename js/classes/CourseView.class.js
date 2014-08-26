@@ -1,4 +1,5 @@
-/*global cachedCourse*/
+/*global Parse, cachedCourse, getCourseFromCache, clearTemporaryCourses, toTitleCase, addTemporaryCourse, removeCourseFromCache, console*/
+/*jslint plusplus: true */
 
 var getCourseHeader, getCourseName, getCourseDays, getCourseLocation, getCourseProgress, getCourseTime, getCourseInstructor, getCourseActions, buildPanel, buildSubPanel, buildCourse;
 
@@ -19,17 +20,18 @@ function CourseView(course) {
     this.time = course.time;
     this.days = course.days;
     this.type = course.type.toUpperCase();
+    this.updatedAt = course.updatedAt;
 }
 
 CourseView.prototype.getCourseHeader = function () {
     "use strict";
     var infoString;
     infoString = '<span class="label panel-label label-type ';
-    if (this.type == "LEC") {
+    if (this.type === "LEC") {
         infoString += 'label-warning';
-    } else if (this.type == "DIS") {
+    } else if (this.type === "DIS") {
         infoString += 'label-info';
-    } else if (this.type == "LAB") {
+    } else if (this.type === "LAB") {
         infoString += 'label-danger';
     } else {
         infoString += 'label-primary';
@@ -43,7 +45,7 @@ CourseView.prototype.getCourseHeader = function () {
 CourseView.prototype.getCourseName = function () {
     "use strict";
     var courseName;
-    courseName = '<span class="glyphicon glyphicon-pencil list-detail-glyphicon"></span> ' + this.courseName;;
+    courseName = '<span class="glyphicon glyphicon-pencil list-detail-glyphicon"></span> ' + this.courseName;
     return courseName;
 };
 
@@ -53,7 +55,7 @@ CourseView.prototype.getCourseDays = function () {
     baseDayString = '<span class="glyphicon glyphicon-calendar list-detail-glyphicon"></span>';
     heldDayString = '<span class="label label-primary label-day">';
     unheldDayString = '<span class="label label-default label-day">';
-    if (this.days == "TBA") {
+    if (this.days === "TBA") {
         return baseDayString + "TBA";
     }
     if (this.days.indexOf("M") > -1) {
@@ -79,7 +81,7 @@ CourseView.prototype.getCourseDays = function () {
     } else {
         baseDayString += unheldDayString;
     }
-    baseDayString += 'Thu' + '</span>'
+    baseDayString += 'Thu' + '</span>';
     if (this.days.indexOf("F") > -1) {
         baseDayString += heldDayString;
     } else {
@@ -93,35 +95,36 @@ CourseView.prototype.getCourseLocation = function () {
     "use strict";
     var locationString;
     locationString = '<span class="glyphicon glyphicon-flag list-detail-glyphicon"></span> ';
-    if (this.placeBuilding.indexOf("TBA") != -1) {
-	    return locationString + this.placeBuilding;
+    if (this.placeBuilding.indexOf("TBA") !== -1) {
+        return locationString + this.placeBuilding;
     }
     locationString += '<a href="' + this.placeURL + '" target="_blank">' + this.placeBuilding + '</a>';
     return locationString;
 };
 
 CourseView.prototype.isEmpty = function () {
-	"use strict";
-	return this.enrolled == 0;	
+    "use strict";
+    return this.enrolled === 0;
 };
 
 CourseView.prototype.isFull = function () {
-	"use strict";
-	return this.remaining <= 0;
+    "use strict";
+    return this.remaining <= 0;
 };
 
 CourseView.prototype.isWaitlist = function () {
-	"use strict";
-	return this.waitlist > 0;
+    "use strict";
+    return this.waitlist > 0;
 };
 
 CourseView.prototype.percentFull = function () {
-	return this.enrolled / this.max * 100;
+    "use strict";
+    return this.enrolled / this.max * 100;
 };
 
 CourseView.prototype.getCourseProgress = function () {
     "use strict";
-    var remaining, progressString, coursePercentFull;
+    var progressString;
     progressString = '<span class="glyphicon glyphicon-stats list-detail-glyphicon pull-left"></span><div class="progress">';
     if (this.isEmpty()) {
         progressString += '<div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%;">';
@@ -133,7 +136,7 @@ CourseView.prototype.getCourseProgress = function () {
         progressString += '<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%;">';
         progressString += 'Class full!';
     } else {
-        progressString += '<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="' + coursePercentFull + '" aria-valuemin="0" aria-valuemax="100" style="width:' + this.percentFull() + '%;">';
+        progressString += '<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="' + this.percentFull() + '" aria-valuemin="0" aria-valuemax="100" style="width:' + this.percentFull() + '%;">';
         progressString += this.remaining + ' spots left of ' + this.max;
     }
     progressString += '</div></div>';
@@ -152,14 +155,14 @@ CourseView.prototype.getCourseInstructor = function () {
     "use strict";
     var instructorString;
     instructorString = '<span class="glyphicon glyphicon-user list-detail-glyphicon"></span> ';
-    if (this.instructor.indexOf("STAFF") != -1) {
-	    return instructorString + "" + this.instructor;
+    if (this.instructor.indexOf("STAFF") !== -1) {
+        return instructorString + this.instructor;
     }
     instructorString += ' <a href="http://www.ratemyprofessors.com/SelectTeacher.jsp?searchName=';
-    if (this.instructor.indexOf(", ") != -1) {
-		instructorString += this.instructor.split(", ")[0];    
+    if (this.instructor.indexOf(", ") !== -1) {
+        instructorString += this.instructor.split(", ")[0];
     } else {
-	    instructorString += this.instructor;
+        instructorString += this.instructor;
     }
     instructorString += '&search_submit1=Search&sid=1074" target="_blank">';
     instructorString += this.instructor;
@@ -181,34 +184,32 @@ CourseView.prototype.getCourseActions = function () {
     actionString += '</button>';
     actionString += '<ul class="dropdown-menu col-md-12" role="menu">';
     actionString += '<li><a class="btn-search-replacements" href="#">Search for replacements</a></li>';
-	actionString += '<li class="divider"></li>';
-	if (this.type != "LEC") {
-		actionString += '<li><a class="btn-search search-Lec" href="#">Search for lectures</a></li>';	
-	}
-	if (this.type != "DIS") {
-		actionString += '<li><a class="btn-search search-Dis" href="#">Search for discussions</a></li>';	
-	}
-	if (this.type != "LAB") {
-		actionString += '<li><a class="btn-search search-Lab" href="#">Search for labs</a></li>';	
-	}
+    actionString += '<li class="divider"></li>';
+    if (this.type !== "LEC") {
+        actionString += '<li><a class="btn-search search-Lec" href="#">Search for lectures</a></li>';
+    }
+    if (this.type !== "DIS") {
+        actionString += '<li><a class="btn-search search-Dis" href="#">Search for discussions</a></li>';
+    }
+    if (this.type !== "LAB") {
+        actionString += '<li><a class="btn-search search-Lab" href="#">Search for labs</a></li>';
+    }
     actionString += '</ul>';
     actionString += '</div>';
     return actionString;
 };
 
-CourseView.prototype.buildPanelBody = function() {
-	"use strict";
-	var bodyString;
-	bodyString = '<ul class="list-group">';
-	bodyString += '<li class="list-group-item">' + this.getCourseName() + '</li>';
+CourseView.prototype.buildPanelBody = function () {
+    "use strict";
+    var bodyString;
+    bodyString = '<ul class="list-group">';
+    bodyString += '<li class="list-group-item">' + this.getCourseName() + '</li>';
     bodyString += '<li class="list-group-item">' + this.getCourseInstructor() + '</li>';
     bodyString += '<li class="list-group-item">' + this.getCourseDays() + '</li>';
     bodyString += '<li class="list-group-item">' + this.getCourseTime() + '</li>';
     bodyString += '<li class="list-group-item">' + this.getCourseLocation() + '</li>';
     bodyString += '<li class="list-group-item">' + this.getCourseProgress() + '</li>';
     bodyString += '</ul>';
-    
-    
     return bodyString;
 };
 
@@ -236,7 +237,7 @@ CourseView.prototype.buildCollapsiblePanel = function (num, mainCourseCode) {
     courseString += '</a>';
     courseString += '</h4>';
     courseString += '</div>';
-    if (num == 0) {
+    if (num === 0) {
         courseString += '<div id="collapse' + num + '-' + this.courseCode + '" class="panel-collapse collapse in">';
     } else {
         courseString += '<div id="collapse' + num + '-' + this.courseCode + '" class="panel-collapse collapse">';
@@ -251,15 +252,15 @@ CourseView.prototype.buildCollapsiblePanel = function (num, mainCourseCode) {
 };
 
 CourseView.prototype.findCoCourses = function (type, callback) {
-	"use strict";
-    var Course, courseQuery, courseName, courseIdentifier, coCourseQuery, exclusionQuery, i;
+    "use strict";
+    var Course, courseQuery, courseName, courseIdentifier, coCourseQuery, i;
     clearTemporaryCourses();
     Course = Parse.Object.extend("Course");
     courseQuery = new Parse.Query(Course);
     courseQuery.equalTo("courseCode", parseInt(this.courseCode, 10));
     courseQuery.first().then(function (course) {
         courseName = course.get("courseName");
-        courseIdentifier = course.get("courseIdentifier");        
+        courseIdentifier = course.get("courseIdentifier");
         coCourseQuery = new Parse.Query(Course);
         coCourseQuery.equalTo("courseName", courseName);
         coCourseQuery.equalTo("courseIdentifier", courseIdentifier);
@@ -267,20 +268,20 @@ CourseView.prototype.findCoCourses = function (type, callback) {
         return coCourseQuery.find();
     }).then(function (results) {
         for (i = 0; i < results.length; i++) {
-        	if (getCourseFromCache(results[i].attributes.courseCode) === undefined) {
-    			addTemporaryCourse(results[i].attributes);
+            if (getCourseFromCache(results[i].attributes.courseCode) === undefined) {
+                addTemporaryCourse(results[i].attributes);
             }
         }
     }).then(callback);
 };
 
 CourseView.prototype.remove = function () {
-	"use strict";
-	var courseCode;
-	courseCode = this.courseCode;
+    "use strict";
+    var courseCode;
+    courseCode = this.courseCode;
     return Parse.Cloud.run("removeCourse", {courseCode: courseCode}).then(function () {
-		removeCourseFromCache(courseCode);
+        removeCourseFromCache(courseCode);
     }, function (error) {
         console.log(error);
-    });	
+    });
 };

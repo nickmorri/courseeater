@@ -1,47 +1,44 @@
-/*global storeCourses, Ladda, cacheFresh */
+/*global storeCourses, Ladda, cacheFresh, $, document, jQuery, sessionStorage, retrieveCourses, getCourseFromCache, getTemporaryCourse, Parse, getEquivalentCourse, console, transferCourseFromTemporaryToCache */
+/*jslint plusplus: true */
 
-var displayCalendar, getCourseEvents, getCalendar, displayCalendar, removeReplacements;
-
-$(document).ready(function () {
-    "use strict";
-    getCalendar();
-});
+var getCalendar, handleCourseClick, displayCalendar, getCourseEvent, getCourseEvents, displaySearch;
 
 // Intelligently displays calendar. Loads data if needed.
 getCalendar = function () {
-	"use strict";
+    "use strict";
     if (jQuery.isEmptyObject(JSON.parse(sessionStorage.courses))) {
         retrieveCourses().then(storeCourses).then(displayCalendar);
     } else {
         displayCalendar();
-    }	
+    }
 };
 
 // Handles Modal launching and creation when Course calendar instance is selected.
-handleCourseClick = function (calEvent, jsEvent, view) {
-	var courseObject, courseCode, coursePanel;
+handleCourseClick = function (calEvent) {
+    "use strict";
+    var courseObject, courseCode, coursePanel;
     courseCode = calEvent.id;
     if (getCourseFromCache(courseCode) !== undefined) {
         courseObject = getCourseFromCache(courseCode);
     } else {
-     	courseObject = getTemporaryCourse(courseCode);
+        courseObject = getTemporaryCourse(courseCode);
     }
     coursePanel = courseObject.buildDefaultPanel();
-	$("#coursePanelDisplay .modal-dialog").html(coursePanel);
-	$("#coursePanelDisplay").modal("show"); 
+    $("#coursePanelDisplay .modal-dialog").html(coursePanel);
+    $("#coursePanelDisplay").modal("show");
 };
 
 // Initializes FullCalendar library with relevant Course information.
 displayCalendar = function () {
     "use strict";
     $('#calendar').fullCalendar({
-    	eventClick: handleCourseClick,
+        eventClick: handleCourseClick,
         header: "",
         defaultView: "agendaWeek",
         defaultDate: "2014-07-14",
         minTime: "08:00:00",
         maxTime: "22:00:00",
-        aspectRatio: .25,
+        aspectRatio: '.25',
         weekends: false,
         columnFormat: { week: "ddd" },
         timeFormat: "",
@@ -53,10 +50,10 @@ displayCalendar = function () {
 // Processes data for individual Course
 getCourseEvent = function (course, color) {
     "use strict";
-    var startingDay, calendarCourses, title, color, days, heldDays, time, start, end, event, i, endFront, endBack, startFront, startBack;
+    var startingDay, calendarCourses, title, days, heldDays, time, start, end, event, i, endFront, endBack, startFront, startBack;
     startingDay = "2014-07-";
-    if (course.time.indexOf("TBA") != -1) {
-	    return [];
+    if (course.time.indexOf("TBA") !== -1) {
+        return [];
     }
     // Title processing
     title = course.courseIdentifier.toUpperCase() + " - " + course.type.toUpperCase();
@@ -83,26 +80,26 @@ getCourseEvent = function (course, color) {
     start = time[0];
     end = time[1];
     // Removing spaces
-    if (time[0][0] == " ") {
+    if (time[0][0] === " ") {
         start = start.slice(1);
     }
-    if (time[1][0] == " ") {
+    if (time[1][0] === " ") {
         end = end.slice(1);
     }
     // Further breaking things down into 4 distinct parts.
     startFront = parseInt(start.split(":")[0], 10);
     startBack = start.split(":")[1].slice(0, 2);
     endFront = parseInt(end.split(":")[0], 10);
-	endBack = end.split(":")[1].slice(0, 2);
-	// Processing of these parts
-	if (end.indexOf("PM") != -1 && endFront != 12) {
-		endFront += 12;
+    endBack = end.split(":")[1].slice(0, 2);
+    // Processing of these parts
+    if (end.indexOf("PM") !== -1 && endFront !== 12) {
+        endFront += 12;
     }
-	if (start.indexOf("PM") != -1 && startFront != 12) {
-	    startFront += 12;
+    if (start.indexOf("PM") !== -1 && startFront !== 12) {
+        startFront += 12;
     }
-    else if (endFront > 12 && startFront != 12) {
-	    startFront += 12;
+    if (endFront > 12 && startFront !== 12) {
+        startFront += 12;
     }
     if (startFront < 10) {
         startFront = "0" + startFront;
@@ -111,13 +108,13 @@ getCourseEvent = function (course, color) {
         endFront = "0" + endFront;
     }
     // Formatting these four parts for the FullCalendar library
-	start = "T" + startFront + ":" + startBack + ":00";
+    start = "T" + startFront + ":" + startBack + ":00";
     end = "T" + endFront + ":" + endBack + ":00";
     calendarCourses = [];
     // Event object creation
     for (i = 0; i < heldDays.length; i++) {
         event = {
-        	id: course.courseCode,
+            id: course.courseCode,
             title: title,
             start: heldDays[i] + start,
             end: heldDays[i] + end,
@@ -133,7 +130,6 @@ getCourseEvents = function () {
     "use strict";
     var calendarCourses, courses, course, colors, color;
     colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
-    
     calendarCourses = [];
     courses = JSON.parse(sessionStorage.courses);
     for (course in courses) {
@@ -149,21 +145,21 @@ getCourseEvents = function () {
 
 // Displays general a course search
 displaySearch = function () {
-	"use strict";
-	var temporaryCourses, event, course, data;
-	temporaryCourses = [];
-	data = JSON.parse(sessionStorage.temporaryCourses);
-	if (jQuery.isEmptyObject(data)) {
-		$("#coursePanelDisplay .modal-dialog").html("<div class='modal-content'><div class='modal-header'><h4 class='modal-title'>No replacements found.</h4></div></div>");
-		return;
-	}
-	for (course in data) {
-		if (getCourseFromCache(data) === undefined) {
-			temporaryCourses = temporaryCourses.concat(getCourseEvent(getTemporaryCourse(course), "black"));	
-		}
-	}
-	$("#coursePanelDisplay").modal("hide");
-	$('#calendar').fullCalendar( 'addEventSource', temporaryCourses);
+    "use strict";
+    var temporaryCourses, course, data;
+    temporaryCourses = [];
+    data = JSON.parse(sessionStorage.temporaryCourses);
+    if (jQuery.isEmptyObject(data)) {
+        $("#coursePanelDisplay .modal-dialog").html("<div class='modal-content'><div class='modal-header'><h4 class='modal-title'>No replacements found.</h4></div></div>");
+        return;
+    }
+    for (course in data) {
+        if (getCourseFromCache(data) === undefined) {
+            temporaryCourses = temporaryCourses.concat(getCourseEvent(getTemporaryCourse(course), "black"));
+        }
+    }
+    $("#coursePanelDisplay").modal("hide");
+    $('#calendar').fullCalendar('addEventSource', temporaryCourses);
 };
 
 // Conducts search for CoCourses
@@ -177,7 +173,8 @@ $(document).on("click", ".btn-search", function () {
 
 // Conducts search for replacements
 $(document).on('click', ".btn-search-replacements", function () {
-	var courseCode, course;
+    "use strict";
+    var courseCode, course;
     courseCode = $(this).parent().parent().parent().parent().parent().attr("id");
     course = getCourseFromCache(courseCode);
     course.findCoCourses(course.type, displaySearch);
@@ -186,29 +183,29 @@ $(document).on('click', ".btn-search-replacements", function () {
 // Conducts addition of course to user account
 $(document).on("click", ".btn-add", function () {
     "use strict";
-    var courseCode, modal, temporaryCourse, lBtn, course;
+    var courseCode, modal, lBtn, course;
     courseCode = parseInt($(this).parent().parent().attr('id'), 10);
     modal = $(this).parent().parent().parent().parent();
     lBtn = Ladda.create(this);
-	lBtn.start();
+    lBtn.start();
     lBtn.setProgress('.50');
     Parse.Cloud.run('addCourse', {courseCode: courseCode}).then(function () {
-    	course = getEquivalentCourse(courseCode);
-    	if (course === undefined) {
-	    	return Parse.Promise.as();
-    	}
-    	return getCourseFromCache(course.courseCode).remove();
+        course = getEquivalentCourse(courseCode);
+        if (course === undefined) {
+            return Parse.Promise.as();
+        }
+        return getCourseFromCache(course.courseCode).remove();
     }, function (error) {
-    	lBtn.stop();
+        lBtn.stop();
         console.log(error);
     }).then(function () {
-	    transferCourseFromTemporaryToCache(courseCode);
-		$("#calendar").fullCalendar('destroy');
-		displayCalendar();
-		modal.modal('hide');
-		lBtn.stop();
-		storeCourses();
-		delete sessionStorage.temporaryCourses;
+        transferCourseFromTemporaryToCache(courseCode);
+        $("#calendar").fullCalendar('destroy');
+        displayCalendar();
+        modal.modal('hide');
+        lBtn.stop();
+        storeCourses();
+        delete sessionStorage.temporaryCourses;
     });
 });
 
@@ -220,22 +217,22 @@ $(document).on('click', ".btn-remove", function () {
     lBtn.start();
     lBtn.setProgress('.50');
     courseCode = $(this).parent().parent().parent().attr("id").split("-")[1];
-	if (courseCode === undefined ) {
-		courseCode = $(this).parent().parent().parent().attr("id");
-		modal = $(this).parent().parent().parent().parent().parent();
-	}
+    if (courseCode === undefined) {
+        courseCode = $(this).parent().parent().parent().attr("id");
+        modal = $(this).parent().parent().parent().parent().parent();
+    }
     Parse.Cloud.run("removeCourse", {courseCode: courseCode}).then(function () {
         $("#calendar").fullCalendar('removeEvents', [courseCode]);
     }, function (error) {
         console.log(error);
-		lBtn.stop();
+        lBtn.stop();
     }).then(function () {
         cacheFresh("refresh");
         lBtn.setProgress('1');
         lBtn.stop();
         cacheFresh("refresh");
         if (modal !== undefined) {
-	        modal.modal('hide');
+            modal.modal('hide');
         }
         storeCourses();
     });
@@ -249,8 +246,10 @@ $(document).on("click", ".refresh-data", function () {
     btn.start();
     cacheFresh("refresh");
     retrieveCourses().then(storeCourses).then(function () {
-		$('#calendar').fullCalendar('destroy');
+        $('#calendar').fullCalendar('destroy');
         displayCalendar();
     });
     btn.stop();
 });
+
+$(document).ready(getCalendar);

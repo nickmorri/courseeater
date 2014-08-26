@@ -1,4 +1,5 @@
 /*global CourseView*/
+/*jslint plusplus: true */
 
 var buildCollapsible, buildClass;
 

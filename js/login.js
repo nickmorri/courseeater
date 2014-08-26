@@ -1,10 +1,14 @@
-/*global window */
+/*global window, Parse */
+var initialize;
 
-Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");
-if (Parse.User.current()) {window.location.replace("track"); }
+initialize = function () {
+	"use strict";
+	Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");
+	if (Parse.User.current()) {window.location.replace("track"); }
+};
 
 // Google Analytics Information
-function googleAnalytics() {
+googleAnalytics = function () {
     "use strict";
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -69,3 +73,5 @@ $(document).on("click", ".btn-register", function () {
         }
     });
 });
+
+initialize();

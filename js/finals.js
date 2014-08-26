@@ -1,20 +1,15 @@
-/*global sessionStorage, document, $, storeCourses, Ladda, cacheFresh */
+/*global sessionStorage, document, $, storeCourses, Ladda, cacheFresh, jQuery, retrieveCourses*/
 
-var displayCalendar, getCourseFinals, getCourseFinal;
-
-$(document).ready(function () {
-    "use strict";
-    getCalendar();
-});
+var getCalendar, displayCalendar, getCourseFinal, getCourseFinals;
 
 // Intelligently displays finals calendar. Loads data if needed.
 getCalendar = function () {
-	"use strict";
+    "use strict";
     if (jQuery.isEmptyObject(JSON.parse(sessionStorage.courses))) {
         retrieveCourses().then(storeCourses).then(displayCalendar);
     } else {
         displayCalendar();
-    }	
+    }
 };
 
 // Initializes FullCalendar library with relevant Course finals information
@@ -36,7 +31,7 @@ displayCalendar = function () {
 // Processes data for individual Course
 getCourseFinal = function (course, color) {
     "use strict";
-    var startingDay, finalString, title, color, heldDay, time, start, end, endFront, endBack, event;
+    var startingDay, finalString, title, heldDay, time, start, end, endFront, endBack, event;
 
     startingDay = "2014-12-";
     finalString = course.final;
@@ -44,8 +39,7 @@ getCourseFinal = function (course, color) {
         return undefined;
     }
     // Day processing
-	heldDay = startingDay + finalString.split(", ")[1].split(" ")[1];
-	
+    heldDay = startingDay + finalString.split(", ")[1].split(" ")[1];
     // Title processing
     title = course.courseCode + " " + course.courseIdentifier.toUpperCase() + " - " + course.type.toUpperCase();
     // Time parsing
@@ -53,7 +47,6 @@ getCourseFinal = function (course, color) {
     start = time[0].split(", ")[2];
     start = parseInt(start.split(":")[0], 10);
     end = time[1];
-    
     if (end.indexOf("am") !== -1) {
         end = end.split("am")[0];
         endFront = parseInt(end.split(":")[0], 10);
@@ -78,7 +71,7 @@ getCourseFinal = function (course, color) {
     end = "T" + endFront + ":" + endBack + ":00";
     //Event object creation
     event = {
-    	id: course.courseCode,
+        id: course.courseCode,
         title: title,
         start: heldDay + start,
         end: heldDay + end,
@@ -92,17 +85,15 @@ getCourseFinals = function () {
     "use strict";
     var finals, courses, courseFinal, course, colors, color;
     colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
-    
     finals = [];
     courses = JSON.parse(sessionStorage.courses);
     for (course in courses) {
         if (courses.hasOwnProperty(course)) {
-        	color = colors[parseInt((Math.random() * 5), 10)];
-			colors.splice(colors.indexOf(color), 1);
+            color = colors[parseInt((Math.random() * 5), 10)];
+            colors.splice(colors.indexOf(color), 1);
             courseFinal = getCourseFinal(courses[course], color);
-            
             if (courseFinal !== undefined) {
-            	finals.push(courseFinal);
+                finals.push(courseFinal);
             }
         }
     }
@@ -122,3 +113,5 @@ $(document).on("click", ".refresh-data", function () {
     });
     btn.stop();
 });
+
+$(document).ready(getCalendar);

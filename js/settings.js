@@ -1,13 +1,15 @@
-/*global setTimeout, logout, window */
+/*global setTimeout, logout, window, $, document, Parse, console, sessionStorage */
 
-$(document).ready(function () {
+var onPageLoad;
+
+onPageLoad = function () {
     "use strict";
     $("#new_email").attr("placeholder", Parse.User.current().get("email"));
-});
+};
 
 $(document).on("keypress", "#new_email", function (event) {
     "use strict";
-    if (event.which == 13) { $("#updateEmail").click(); }
+    if (event.which === 13) { $("#updateEmail").click(); }
 });
 
 $(document).on('click', "#updateEmail", function () {
@@ -24,12 +26,12 @@ $(document).on('click', "#updateEmail", function () {
 
 $(document).on("keypress", "#inputVerifyPassword", function (event) {
     "use strict";
-    if (event.which == 13) { $("#updatePassword").click(); }
+    if (event.which === 13) { $("#updatePassword").click(); }
 });
 
 $(document).on('click', '#updatePassword', function () {
     "use strict";
-    if ($("#inputNewPassword").val() != $("#inputVerifyPassword").val()) {
+    if ($("#inputNewPassword").val() !== $("#inputVerifyPassword").val()) {
         $(".alert-account-password span").text("Passwords do not match.");
         $(".alert-account-password").show();
         $("#inputNewPassword").val("");
@@ -54,7 +56,7 @@ $(document).on('click', '#updatePassword', function () {
 
 $(document).on("keypress", "#password_delete_account", function (event) {
     "use strict";
-    if (event.which == 13) { $("#btn-delete").click(); }
+    if (event.which === 13) { $("#btn-delete").click(); }
 });
 
 $(document).on("click", "#btn-delete", function () {
@@ -77,3 +79,5 @@ $(document).on("click", "#btn-delete", function () {
         }
     });
 });
+
+$(document).ready(onPageLoad);
