@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <title>Track - CourseEater</title>
+    <title>Search - CourseEater</title>
     <link rel="icon" type="image/png" href="favicon.png">
     
     <!-- External JavaScript -->
@@ -16,7 +16,7 @@
 	<script src="js/classes/CourseView.class.js"></script>
     <script src="js/main.js"></script>
     <script src="js/storage.js"></script>
-    <script src="js/track.js"></script>
+	<script src="js/search.js"></script>
     
     <!-- JavaScript Libraries -->
     <script src="js/libraries/spin.min.js"></script>
@@ -48,11 +48,11 @@
 				</div>
 				<div class="collapse navbar-collapse">
 					<ul class="nav navbar-nav">
-						<li class="active"><a href="track"><span class="glyphicon glyphicon-book"></span> Track</a></li>
+						<li><a href="track"><span class="glyphicon glyphicon-book"></span> Track</a></li>
 						<li><a href="schedule"><span class="glyphicon glyphicon-time"></span> Schedule</a></li>
+						<li class="active"><a href="search"><span class="glyphicon glyphicon-search"></span> Search</a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
-						<li><a class="ladda-button refresh-data" data-style="slide-up" data-spinner-color="#000000" href="#"><span class="glyphicon glyphicon-refresh"></span> Refresh</a></li>
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> <span class="user-name-display"></span></a>
 							<ul class="dropdown-menu">
@@ -69,25 +69,15 @@
 	<!-- Course actions container -->
 	<div class="container form-user-management hidden-print">
 		<!-- Adding courses -->
-    	<div class="container add-course-entry">
-			<input id="courseID" type="tel" maxlength="5" class="form-control" placeholder="Enter CourseID" autocomplete="off" required autofocus />
-			<button type="button" data-loading-text="Adding..." class="btn btn-lg btn-primary btn-block btn-add ladda-button"><span class="ladda-label">Add</span></button>
-			<div class="alert alert-danger alert-error" style="display: none;"></div>
+    	<div class="container search-course">
+			<input id="searchField" class="form-control" placeholder="Search for Course" autocomplete="off" required autofocus />
+			<button type="button" data-loading-text="Searching..." class="btn btn-lg btn-primary btn-block btn-search ladda-button"><span class="ladda-label">Search</span></button>
 		</div>
 		<!-- Course display -->
 		<div class="container" >
-			<div id="courseDisplay" class="row"></div>
+			<div id="searchDisplay" class="row"></div>
 		</div>
 	</div>
-	
-	<!-- Additional Courses -->
-	<div class="modal fade" id="courseInformationDisplay" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-lg">
-			<div class="modal-content">
-				<div class="modal-body row"></div>
-			</div>
-		</div>
-	</div><!-- /.modal -->
 	
 </body>
 </html>

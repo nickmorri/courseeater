@@ -19,10 +19,12 @@ getCourses = function () {
 
 displayCourses = function () {
     "use strict";
-    $("#courseDisplay").empty();
-    var courses = JSON.parse(sessionStorage.courses);
+    var courses, target;
+    target = $("#courseDisplay");
+    target.empty();
+    courses = JSON.parse(sessionStorage.courses);
 	if (jQuery.isEmptyObject(courses)) {
-		$("#courseDisplay").html("<div class='container'><h2>Not tracking any courses.</h2></div>");
+		target.html("<div class='container'><h2>Not tracking any courses.</h2></div>");
 	} else {
     	displayCollapsibleClasses(courses);
     }
@@ -49,7 +51,8 @@ classGroups = function (courses) {
 
 displayCollapsibleClasses = function (courses) {
     "use strict";
-    var classes, classView, classGroup, i, j;
+    var target, classes, classView, classGroup, i, j;
+    target = $("#courseDisplay");
     classes = classGroups(courses);
     for (i = 0; i < Object.keys(classes).length; i++) {
         classView = new ClassView();
@@ -57,7 +60,7 @@ displayCollapsibleClasses = function (courses) {
         for (j = 0; j < classGroup.length; j++) {
             classView.addCourse(courses[classGroup[j]]);
         }
-        $("#courseDisplay").append('<div class="col-lg-4 col-md-6">' + classView.buildCollapsible() + '</div>');
+        target.append('<div class="col-lg-4 col-md-6">' + classView.buildCollapsible() + '</div>');
     }
 };
 
@@ -71,38 +74,41 @@ displaySearch = function () {
         $("#courseInformationDisplay").modal("show");
         return;
     }
-    
     $("#courseInformationDisplay .modal-dialog .modal-content").html("<div class='modal-body row'></div>");
     for (course in temporaryCourses) {
-        $("#courseInformationDisplay .modal-dialog .modal-content .modal-body").append('<div class="col-lg-4 col-md-6">' + getTemporaryCourse(course).buildPanel() + '</div>');
+        $("#courseInformationDisplay .modal-dialog .modal-content .modal-body").append('<div class="col-lg-4 col-md-6">' + getTemporaryCourse(course).buildDefaultPanel() + '</div>');
     }
     $("#courseInformationDisplay").modal("show");
 	clearTemporaryCourses();
 };
 
-validateCourseCode = function (courseCode) {
+displayAlertError = function (errorText) {
+	"use strict";
+	var alert;
+	alert = $(".alert-error");
+	alert.html(errorText);
+	alert.show();
+};
+
+// Performs courseCode validations
+validateCourseCode = function (courseCode, errorCallback) {
     "use strict";
-    var courses;
-    if ($("#courseID").val() == "") {
-        $(".alert-invalid-courseid").html("<strong>No courseID entered.</strong>");
-        $(".alert-invalid-courseid").show();
-        $("#courseID").val('');
+    try {
+		if (isNaN(courseCode) || courseCode > 99999) {
+	        throw { name: "Invalid CourseCode Error" };
+	    } else if (getCourseFromCache(courseCode) !== undefined) {
+	        throw { name: "Currently tracked CourseCode Error" };
+	    } else {
+		    return true;
+	    }
+    } catch (exception) {
+	    if (exception.name == "Invalid CourseCode Error") {
+		    errorCallback("Invalid Course ID entered. Valid courseIDs must be 5 exactly 5 nubmers.");
+	    } else if (exception.name == "Currently tracked CourseCode Error") {
+		    errorCallback("<strong>" + courseCode + "</strong> is already being tracked.");
+		}
         return false;
     }
-    if ($("#courseID").val() != courseCode || courseCode > 99999) {
-        $(".alert-invalid-courseid").html("<strong>" + $("#courseID").val() + "</strong> is an invalid Course ID. Valid courseIDs must be 5 exactly 5 nubmers.");
-        $(".alert-invalid-courseid").show();
-        $("#courseID").val('');
-        return false;
-    }
-    courses = JSON.parse(sessionStorage.courses);
-    if (getCourseFromCache(courseCode) !== undefined) {
-        $(".alert-invalid-courseid").html("<strong>" + $("#courseID").val() + "</strong> is already being tracked.");
-        $(".alert-invalid-courseid").show();
-        $("#courseID").val('');
-        return false;
-    }
-    return true;
 };
 
 // Allows enter to submit course by calling #addCourse button click
@@ -120,6 +126,7 @@ $(document).on("click", ".btn-search", function () {
     getCourseFromCache(courseCode).findCoCourses(type, displaySearch);
 });
 
+// Conducts search for equivalent courses
 $(document).on('click', ".btn-search-replacements", function () {
 	var courseCode, course;
     courseCode = $(this).parent().parent().parent().parent().parent().attr("id").split("-")[1];
@@ -127,16 +134,18 @@ $(document).on('click', ".btn-search-replacements", function () {
     course.findCoCourses(course.type, displaySearch);
 });
 
+// Handles adding courses to user's account
 $(document).on("click", ".btn-add", function (event) {
 	"use strict";
 	var courseCode, modal, lBtn;
+	$(".alert-error").hide();
 	if ($(event.target).parent().parent().attr("class") == "panel panel-primary course-list-item") {
 		courseCode = parseInt($(this).parent().parent().attr('id'), 10);
 	    modal = $(this).parent().parent().parent().parent().parent().parent().parent();
 	} else {
 		courseCode = parseInt($("#courseID").val(), 10);
-		$(".alert-invalid-courseid").hide();
-	    if (!validateCourseCode(courseCode)) {
+		$("#courseID").val('');
+	    if (!validateCourseCode(courseCode, displayAlertError)) {
 	        return;
 	    }
 	}
@@ -144,12 +153,10 @@ $(document).on("click", ".btn-add", function (event) {
 	lBtn.start();
     lBtn.setProgress('.50');
 	Parse.Cloud.run('addCourse', {courseCode: courseCode}).then(function () {
-        $("#courseID").val('');
     }, function (error) {
         if (error.code == 141) {
-        	 lBtn.stop();
-            $(".alert-invalid-courseid").html("Course <strong>" + $("#courseID").val() + "</strong> does not exist.");
-            $(".alert-invalid-courseid").show();
+			lBtn.stop();
+			displayAlertError("Course <strong>" + $("#courseID").val() + "</strong> does not exist.");
         } else {
             console.log(error);
         }
@@ -179,8 +186,7 @@ $(document).on('click', ".btn-remove", function () {
 		displayCourses();
     }, function(error) {
 	    console.log(error);
-        $(".alert-invalid-courseid").html("Whoops something went wrong.");
-        $(".alert-invalid-courseid").show();
+		displayAlertError("Whoops something went wrong.");
         displayCourses();
         lBtn.stop();
     }).then(function () {
@@ -188,7 +194,7 @@ $(document).on('click', ".btn-remove", function () {
         if (modal !== undefined) {
 	        modal.modal('hide');
         }
-        storeCourses();
+        retrieveCourses().then(storeCourses);
     });
 });
 
@@ -201,6 +207,6 @@ $(document).on("click", ".refresh-data", function () {
     $("#courseDisplay").empty();
     cacheFresh("refresh");
     getCourses();
-    $(".alert").hide();
+    $(".alert-error").hide();
     btn.stop();
 });
