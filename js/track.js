@@ -92,19 +92,12 @@ displayAlertError = function (errorText) {
 validateCourseCode = function (courseCode, errorCallback) {
     "use strict";
     try {
-        if (isNaN(courseCode) || courseCode > 99999) {
-            throw { name: "Invalid CourseCode Error" };
-        }
-        if (getCourseFromCache(courseCode) !== undefined) {
-            throw { name: "Currently tracked CourseCode Error" };
-        }
+        if (isNaN(courseCode) || courseCode > 99999) throw { name: "Invalid CourseCode Error" };
+        if (getCourseFromCache(courseCode) !== undefined) throw { name: "Currently tracked CourseCode Error" };
         return true;
     } catch (exception) {
-        if (exception.name === "Invalid CourseCode Error") {
-            errorCallback("Invalid Course ID entered. Valid courseIDs must be 5 exactly 5 nubmers.");
-        } else if (exception.name === "Currently tracked CourseCode Error") {
-            errorCallback("<strong>" + courseCode + "</strong> is already being tracked.");
-        }
+        if (exception.name === "Invalid CourseCode Error") errorCallback("Invalid Course ID entered. Valid courseIDs must be 5 exactly 5 nubmers.");
+		if (exception.name === "Currently tracked CourseCode Error") errorCallback("<strong>" + courseCode + "</strong> is already being tracked.");
         return false;
     }
 };
@@ -112,7 +105,7 @@ validateCourseCode = function (courseCode, errorCallback) {
 // Allows enter to submit course by calling #addCourse button click
 $(document).on("keypress", "#courseID", function (event) {
     "use strict";
-    if (event.which === 13) { $(".btn-add.btn-primary.btn-block").click(); }
+    if (event.which === 13) $(".btn-add.btn-primary.btn-block").click();
 });
 
 // Conducts search for CoCourses

@@ -6,7 +6,7 @@ var initialize, onPageLoad, buildBetaContent, toTitleCase, logoutUser, googleAna
 initialize = function () {
     "use strict";
     Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");
-    if (!Parse.User.current()) {window.location.replace("/"); }
+    if (!Parse.User.current()) window.location.replace("/");
 };
 
 // Performs actions after DOM is ready
@@ -21,9 +21,7 @@ onPageLoad = function () {
 // Beta content injector
 buildBetaContent = function () {
     "use strict";
-    if (Parse.User.current().get("username") !== "nick") {
-        window.location.replace("/");
-    }
+    if (Parse.User.current().get("username") !== "nick") window.location.replace("/");
     if (window.location.pathname !== "/search") {
         var testString = '<li><a href="search"><span class="glyphicon glyphicon-search"></span> Search</a></li>';
         $(".nav.navbar-nav").first().append(testString);

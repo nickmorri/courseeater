@@ -111,6 +111,7 @@ getCourseEvent = function (course, color) {
     start = "T" + startFront + ":" + startBack + ":00";
     end = "T" + endFront + ":" + endBack + ":00";
     calendarCourses = [];
+    
     // Event object creation
     for (i = 0; i < heldDays.length; i++) {
         event = {
@@ -128,14 +129,15 @@ getCourseEvent = function (course, color) {
 // Retrieves courses information from local datastore
 getCourseEvents = function () {
     "use strict";
-    var calendarCourses, courses, course, colors, color;
+    var calendarCourses, courses, course, colors, color, hash;
     colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
     calendarCourses = [];
     courses = JSON.parse(sessionStorage.courses);
     for (course in courses) {
         if (courses.hasOwnProperty(course)) {
             // Random color
-            color = colors[parseInt((Math.random() * 5), 10)];
+            hash = Math.abs(courses[course].courseName.hashCode()) % colors.length;
+            color = colors[hash];
             colors.splice(colors.indexOf(color), 1);
             calendarCourses = calendarCourses.concat(getCourseEvent(courses[course], color));
         }
@@ -161,6 +163,17 @@ displaySearch = function () {
     $("#coursePanelDisplay").modal("hide");
     $('#calendar').fullCalendar('addEventSource', temporaryCourses);
 };
+
+String.prototype.hashCode = function(){
+	var hash = 0;
+	if (this.length == 0) return hash;
+	for (i = 0; i < this.length; i++) {
+		char = this.charCodeAt(i);
+		hash = ((hash<<5)-hash)+char;
+		hash = hash & hash; // Convert to 32bit integer
+	}
+	return hash;
+}
 
 // Conducts search for CoCourses
 $(document).on("click", ".btn-search", function () {
