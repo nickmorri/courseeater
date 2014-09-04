@@ -1,8 +1,22 @@
 body { background-color: #eee; }
 
+/* Prevents body from scrolling while modal is open */
+body.modal-open {
+    overflow: hidden;
+}
+
 /* Setting margin values for a clear interface */
 .navbar { margin-bottom: 15px; }
 .add-course-entry { margin-top: -10px; }
+
+#courseID, .btn-primary.btn-add, .alert-error {
+	/*
+-webkit-box-shadow: 0px 5px 5px 0px rgba(50, 50, 50, 0.75);
+	-moz-box-shadow:    0px 5px 5px 0px rgba(50, 50, 50, 0.75);
+	box-shadow:         0px 5px 5px 0px rgba(50, 50, 50, 0.75);
+*/
+}
+
 .search-course { margin-top: -10px; }
 .button-add { margin-top: -1px; }
 .form-control.update-info { margin-bottom: 10px; }

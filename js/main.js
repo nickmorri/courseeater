@@ -5,6 +5,7 @@ var initialize, onPageLoad, buildBetaContent, toTitleCase, logoutUser, googleAna
 // Performs functions immediately (before DOM is ready)
 initialize = function () {
     "use strict";
+    document.title = window.location.pathname.substr(1).toTitleCase() + " - CourseEater";
     Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");
     if (!Parse.User.current()) window.location.replace("/");
 };
@@ -29,9 +30,14 @@ buildBetaContent = function () {
 };
 
 // Transforms a string to Title Case
+String.prototype.toTitleCase = function () {
+    return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+};
+
+// Transforms a string to Title Case - DEPRECATED
 toTitleCase = function (str) {
     "use strict";
-    return str.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
+    return str.toTitleCase();
 };
 
 // Performs User logout

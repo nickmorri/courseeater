@@ -240,14 +240,13 @@ $(document).on('click', ".btn-remove", function () {
         console.log(error);
         lBtn.stop();
     }).then(function () {
-        cacheFresh("refresh");
         lBtn.setProgress('1');
         lBtn.stop();
         cacheFresh("refresh");
         if (modal !== undefined) {
             modal.modal('hide');
         }
-        storeCourses();
+        retrieveCourses().then(storeCourses);
     });
 });
 
