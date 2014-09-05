@@ -28,18 +28,21 @@ $(document).on("keypress", ".form-control-password.login-password", function (ev
 // Login processing
 $(document).on('click', '.btn-login', function () {
     "use strict";
-    var bBtn = $(this);
+    var username, password, bBtn;
+    username = $(".form-control-username").val();
+    password = $(".form-control-password.login-password").val();
+    bBtn = $(this);
     bBtn.button("loading");
-    Parse.User.logIn($(".form-control-username").val(), $(".form-control-password.login-password").val()).then(function () {
+    Parse.User.logIn(username, password).then(function () {
 	    window.location.replace("track");
     }, function (error) {
-            if (error.code == 101) {
-                bBtn.button("reset");
-                $(".alert-login").show();
-                $("#loginForm").trigger("reset");
-                $("#loginForm .form-control-username.login-username").focus();
-            }
-            console.log(error);
+        if (error.code == 101) {
+            bBtn.button("reset");
+            $(".alert-login").show();
+            $("#loginForm").trigger("reset");
+            $("#loginForm .form-control-username.login-username").focus();
+        }
+        console.log(error);
     });
 });
 
@@ -50,13 +53,14 @@ $(document).on("keypress", ".form-control-password.registration-password", funct
 
 $(document).on("click", ".btn-register", function () {
     "use strict";
-    var username, email, user;
+    var username, email, password, user;
     username = $(".form-control-username.registration-username").val();
     email = $(".form-control-email.registration-email").val();
+    password = $(".form-control-password.registration-password").val();
     user = new Parse.User();
     user.set("username", username);
     user.set("email", email);
-    user.set("password", $(".form-control-password.registration-password").val());
+    user.set("password", password);
     user.signUp(null, {
         success: function () {
             window.location.replace("index");

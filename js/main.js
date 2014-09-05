@@ -5,7 +5,7 @@ var initialize, onPageLoad, buildBetaContent, toTitleCase, logoutUser, googleAna
 // Performs functions immediately (before DOM is ready)
 initialize = function () {
     "use strict";
-    document.title = window.location.pathname.substr(1).toTitleCase() + " - CourseEater";
+    document.title = window.location.pathname.substr(1).toTitleCase() + " | CourseEater";
     Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");
     if (!Parse.User.current()) window.location.replace("/");
 };
@@ -15,7 +15,7 @@ onPageLoad = function () {
     "use strict";
     $(".user-name-display").text(Parse.User.current().get("username"));
     cacheFresh();
-    googleAnalytics();
+    /* googleAnalytics(); */
     buildBetaContent();
 };
 
@@ -48,7 +48,7 @@ logoutUser = function () {
     window.location.replace("/");
 };
 
-// Google Analytics Information
+// Google Analytics
 googleAnalytics = function () {
     "use strict";
     (function (i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function (){

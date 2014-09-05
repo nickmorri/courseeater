@@ -23,6 +23,21 @@ function CourseView(course) {
     this.updatedAt = course.updatedAt;
 }
 
+CourseView.prototype.isEmpty = function () {
+    "use strict";
+    return this.enrolled === 0;
+};
+
+CourseView.prototype.isFull = function () {
+    "use strict";
+    return this.remaining <= 0;
+};
+
+CourseView.prototype.isWaitlist = function () {
+    "use strict";
+    return this.waitlist > 0;
+};
+
 CourseView.prototype.getCourseHeader = function () {
     "use strict";
     var infoString, typeString;
@@ -102,22 +117,7 @@ CourseView.prototype.getCourseLocation = function () {
     return locationString;
 };
 
-CourseView.prototype.isEmpty = function () {
-    "use strict";
-    return this.enrolled === 0;
-};
-
-CourseView.prototype.isFull = function () {
-    "use strict";
-    return this.remaining <= 0;
-};
-
-CourseView.prototype.isWaitlist = function () {
-    "use strict";
-    return this.waitlist > 0;
-};
-
-CourseView.prototype.percentFull = function () {
+CourseView.prototype.getPercentFull = function () {
     "use strict";
     return this.enrolled / this.max * 100;
 };
@@ -136,7 +136,7 @@ CourseView.prototype.getCourseProgress = function () {
         progressString += '<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%;">';
         progressString += 'Class full!';
     } else {
-        progressString += '<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="' + this.percentFull() + '" aria-valuemin="0" aria-valuemax="100" style="width:' + this.percentFull() + '%;">';
+        progressString += '<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="' + this.getPercentFull() + '" aria-valuemin="0" aria-valuemax="100" style="width:' + this.getPercentFull() + '%;">';
         progressString += this.remaining + ' spots left of ' + this.max;
     }
     progressString += '</div></div>';
@@ -177,7 +177,7 @@ CourseView.prototype.getCourseActions = function () {
     }
     var actionString;
     actionString = '<div class="btn-group btn-block dropup">';
-    actionString += '<button type="button" class="btn col-xs-10 btn-danger btn-remove ladda-button" data-loading-text="Removing...">Remove</button>';
+    actionString += '<button type="button" class="btn col-xs-10 btn-default btn-remove ladda-button" data-loading-text="Removing...">Remove</button>';
     actionString += '<button type="button" class="btn col-xs-2 btn-default dropdown-toggle" data-toggle="dropdown">';
     actionString += '<span class="caret"></span>';
     actionString += '<span class="sr-only">Toggle Dropdown</span>';
@@ -215,17 +215,23 @@ CourseView.prototype.buildPanelBody = function () {
 
 CourseView.prototype.buildDefaultPanel = function () {
     "use strict";
-    var courseString;
+    var courseString, colorString;
     courseString = "<div id='" + this.courseCode + "' class='panel panel-primary course-list-item'>";
-    courseString += '<div class="panel-heading"';
+    
     if (this.type === "LEC") {
-		courseString += ' style="background-color:#F0AD4E!important;"';
+		colorString = '#F0AD4E';
     } else if (this.type === "DIS") {
-		courseString += ' style="background-color:#5BC0DE!important;"';
+		colorString = '#5BC0DE';
     } else if (this.type === "LAB") {
-		courseString += ' style="background-color:#D9534F!important;"';
+		colorString = '#D9534F';
     }
-    courseString += '>';
+    
+    if (colorString) {
+	    courseString += '<div class="panel-heading" style="background-color: ' + colorString + '!important;">';
+    } else {
+	    courseString += '<div class="panel-heading>"';
+    }
+
     courseString += '<h3 class="panel-title">' + this.getCourseHeader() + '</h3></div>';
     courseString += this.buildPanelBody();
     courseString += '<div class="panel-footer">';
@@ -237,17 +243,23 @@ CourseView.prototype.buildDefaultPanel = function () {
 
 CourseView.prototype.buildCollapsiblePanel = function (num, mainCourseCode) {
     "use strict";
-    var courseString;
+    var courseString, colorString;
     courseString = '<div class="panel panel-primary">';
-    courseString += '<div class="panel-heading"';
-    if (this.type === "LEC") {
-		courseString += ' style="background-color:#F0AD4E!important;"';
+
+	if (this.type === "LEC") {
+		colorString = '#F0AD4E';
     } else if (this.type === "DIS") {
-		courseString += ' style="background-color:#5BC0DE!important;"';
+		colorString = '#5BC0DE';
     } else if (this.type === "LAB") {
-		courseString += ' style="background-color:#D9534F!important;"';
+		colorString = '#D9534F';
     }
-    courseString += '>';
+    
+    if (colorString) {
+	    courseString += '<div class="panel-heading" style="background-color:' + colorString + '!important;">';
+    } else {
+	    courseString += '<div class="panel-heading>"';
+    }
+   
     courseString += '<h4 class="panel-title">';
     courseString += '<a data-toggle="collapse" data-parent="#accordion-' + mainCourseCode + '" href="#collapse' + num + '-' + this.courseCode + '">';
     courseString += this.getCourseHeader();

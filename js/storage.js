@@ -37,6 +37,7 @@ clearTemporaryCourses = function () {
 clearCachedCourses = function () {
     "use strict";
     sessionStorage.courses = JSON.stringify({});
+    return Parse.Promise.as();
 };
 
 addTemporaryCourse = function (course) {
@@ -134,7 +135,23 @@ sameClass = function (course1, course2, courses) {
 retrieveCourses = function () {
     "use strict";
     return Parse.User.current().relation("courses").query().find();
+    /* return getCoursesFromActiveCourseList(); */
 };
+
+// Retrieves courses from active CourseList
+getCoursesFromActiveCourseList = function () {
+	"use strict";
+	var courseListQuery, coursesQuery;
+	courseListQuery = new Parse.Query("CourseList");
+	courseListQuery.equalTo("owner", Parse.User.current());
+	courseListQuery.equalTo("active", true);
+	return courseListQuery.first().then(function (activeList) {
+		activeList.relation("courses").query().find().then(function (list) {
+			storeCourses(list);
+		});
+	});
+};
+
 
 // Stores course information 
 storeCourses = function (remoteCourses) {

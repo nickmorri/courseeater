@@ -1,16 +1,62 @@
 /*global window, CourseView, ClassView, Ladda, jQuery, storeCourses, sameClass, toTitleCase, cacheFresh, $, document, sessionStorage, retrieveCourses, getTemporaryCourse, clearTemporaryCourses, getCourseFromCache, Parse, console */
 /*jslint plusplus: true */
 
-var getCourses, displayCourses, classGroups, displayCollapsibleClasses, displaySearch, displayAlertError, validateCourseCode;
+var initialize, getCourses, displayCourses, classGroups, displayCollapsibleClasses, displaySearch, displayAlertError, validateCourseCode;
+
+initialize = function () {
+	getCourseLists();	
+	getCourses();
+};
 
 // Retrieves course information from Parse
 getCourses = function () {
     "use strict";
     if (jQuery.isEmptyObject(JSON.parse(sessionStorage.courses))) {
         retrieveCourses().then(storeCourses).then(displayCourses);
+        /* retrieveCourses().then(displayCourses); */
     } else {
         displayCourses();
     }
+};
+
+getCourseLists = function () {
+	"use strict";
+	var courseListQuery, i;
+	courseListQuery = new Parse.Query("CourseList");
+	courseListQuery.equalTo("owner", Parse.User.current());
+	courseListQuery.find().then(function (courseLists) {
+		for (i = 0; i < courseLists.length; i++) {
+			if (courseLists[i].attributes.active) {
+				$("#courseListDisplay").prepend("<li class='active'><a href='#'>" + courseLists[i].attributes.title + "</a></li>");	
+			} else {
+				$("#courseListDisplay").prepend("<li><a href='#'>" + courseLists[i].attributes.title + "</a></li>");	
+			}
+		}
+	});
+};
+
+$(document).on("click", "#courseListDisplay li", function () {
+	var courseListTitle, eventThis;
+	courseListTitle = $(this).children("a").text();
+	eventThis = $(this);
+	if (eventThis.children("a").attr("id") == "createCourseList") {
+		// Launch object to collect title.
+		return;
+	}
+	Parse.Cloud.run("changeActiveCourseList", {title: courseListTitle}).then(function () {
+		eventThis.parent().children(".active").removeClass("active");
+		eventThis.addClass("active");
+		/* clearCachedCourses().then(getCourses); */
+	});
+});
+
+createCourseList = function () {
+	var eventThis;
+	eventThis = $(this);
+	Parse.Cloud.run("createCourseList", {title: courseListTitle}).then(function () {
+		eventThis.parent().children(".active").removeClass("active");
+		$("#courseListDisplay").prepend("<li class='active'><a href='#'>" + courseListTitle + "</a></li>");	
+	});
 };
 
 // Dispatches to approriate display function
@@ -72,7 +118,7 @@ displaySearch = function () {
         $("#courseInformationDisplay").modal("show");
         return;
     }
-    $("#courseInformationDisplay .modal-dialog .modal-content").html("<div class='modal-body row'></div>");
+    $("#courseInformationDisplay .modal-dialog .modal-content").html("<div class='modal-header'><button type='button' class='close' data-dismiss='modal'><span aria-hidden='true'>&times;</span><span class='sr-only'>Close</span></button><h4 class='modal-title'>Results</h4></div><div class='modal-body row'></div>");
     for (course in temporaryCourses) {
         $("#courseInformationDisplay .modal-dialog .modal-content .modal-body").append('<div class="col-lg-4 col-md-6">' + getTemporaryCourse(course).buildDefaultPanel() + '</div>');
     }
@@ -196,10 +242,9 @@ $(document).on("click", ".refresh-data", function () {
     btn = Ladda.create(this);
     btn.start();
     $("#courseDisplay").empty();
-    cacheFresh("refresh");
-    getCourses();
+    clearCachedCourses().then(getCourses);
     $(".alert-error").hide();
     btn.stop();
 });
 
-$(document).ready(getCourses);
+$(document).ready(initialize);

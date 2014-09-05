@@ -1,12 +1,13 @@
 body {
+	margin-top: 70px;
 	background: url('../resources/background.jpg');
 	-webkit-background-size: cover;
 	-moz-background-size: cover;
 	-o-background-size: cover;
-	background-size: cover;  
+	background-size: cover;
 }
 .jumbotron {
-	background-color: rgba(255, 255, 255, 0.7);	
+	background-color: rgba(255, 255, 255, 0.7);
 }
 .alert { 
 	margin-top: 10px;
