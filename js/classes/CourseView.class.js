@@ -20,7 +20,7 @@ function CourseView(course) {
     this.time = course.time;
     this.days = course.days;
     this.type = course.type.toUpperCase();
-    this.updatedAt = course.updatedAt;
+    this.updatedAt = new Date(course.updatedAt);
 }
 
 CourseView.prototype.isEmpty = function () {
@@ -261,7 +261,7 @@ CourseView.prototype.buildCollapsiblePanel = function (num, mainCourseCode) {
     }
    
     courseString += '<h4 class="panel-title">';
-    courseString += '<a data-toggle="collapse" data-parent="#accordion-' + mainCourseCode + '" href="#collapse' + num + '-' + this.courseCode + '">';
+    courseString += '<a data-toggle="collapse" data-parent="#accordion-' + mainCourseCode + '" href="#collapse' + num + '-' + this.courseCode + '" title="Updated: ' + this.updatedAt.toString() + '" >';
     courseString += this.getCourseHeader();
     courseString += '</a>';
     courseString += '</h4>';
