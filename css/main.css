@@ -7,6 +7,9 @@ body.modal-open {
 
 /* Setting margin values for a clear interface */
 .navbar { margin-bottom: 15px; }
+.course-list-item-title {
+	cursor: pointer;
+}
 .add-course-entry { margin-top: -10px; }
 
 #courseID, .btn-primary.btn-add, .alert-error {

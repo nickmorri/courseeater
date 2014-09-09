@@ -7,7 +7,7 @@ var getCalendar, handleCourseClick, displayCalendar, getCourseEvent, getCourseEv
 getCalendar = function () {
     "use strict";
     if (jQuery.isEmptyObject(JSON.parse(sessionStorage.courses))) {
-        retrieveCourses().then(storeCourses).then(displayCalendar);
+        retrieveCourses(displayCalendar);
     } else {
         displayCalendar();
     }
@@ -31,6 +31,7 @@ handleCourseClick = function (calEvent) {
 // Initializes FullCalendar library with relevant Course information.
 displayCalendar = function () {
     "use strict";
+    $('#calendar').fullCalendar('destroy');
     $('#calendar').fullCalendar({
         eventClick: handleCourseClick,
         header: "",
@@ -136,7 +137,7 @@ getCourseEvents = function () {
     for (course in courses) {
         if (courses.hasOwnProperty(course)) {
             // Random color
-            hash = Math.abs(courses[course].courseName.hashCode()) % colors.length;
+            hash = Math.abs(courses[course].courseName.hash()) % colors.length;
             color = colors[hash];
             colors.splice(colors.indexOf(color), 1);
             calendarCourses = calendarCourses.concat(getCourseEvent(courses[course], color));
@@ -164,7 +165,7 @@ displaySearch = function () {
     $('#calendar').fullCalendar('addEventSource', temporaryCourses);
 };
 
-String.prototype.hashCode = function(){
+String.prototype.hash = function(){
 	var hash = 0;
 	if (this.length == 0) return hash;
 	for (i = 0; i < this.length; i++) {
@@ -257,10 +258,7 @@ $(document).on("click", ".refresh-data", function () {
     btn = Ladda.create(this);
     btn.start();
     cacheFresh("refresh");
-    retrieveCourses().then(storeCourses).then(function () {
-        $('#calendar').fullCalendar('destroy');
-        displayCalendar();
-    });
+    retrieveCourses(displayCalendar);
     btn.stop();
 });
 

@@ -24,6 +24,7 @@
 	<!-- Initial Stylesheets -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/loading.css">
     <link rel="stylesheet" href="css/CourseView.css">
     <link rel="stylesheet" href="css/libraries/ladda.min.css">
     <link rel="stylesheet" href="css/libraries/prism.css">
@@ -49,7 +50,7 @@
 						<li class="dropdown active">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-book"></span> Track</a>
 							<ul class="dropdown-menu" role="menu" id="courseListDisplay">
-								<li><a id="createCourseList" href="#"><span class="glyphicon glyphicon-plus"></span> New List</a></li>
+								<li><a id="createCourseList" href="#">New List <span class="glyphicon glyphicon-plus pull-right"></span></a></li>
 							</ul>
 						</li>
 						<li><a href="schedule"><span class="glyphicon glyphicon-time"></span> Schedule</a></li>
@@ -80,13 +81,31 @@
 		<!-- Course display -->
 		<div class="container" >
 			<div id="courseDisplay" class="row"></div>
+			<div class="spinner"></div>
 		</div>
 	</div>
 	
-	<!-- Additional Courses -->
-	<div class="modal fade" id="courseInformationDisplay" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<!-- Additional Course Modal -->
+	<div class="modal fade" id="courseInformationDisplay" tabindex="-1" role="dialog" aria-hidden="true">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content"></div>
+		</div>
+	</div>
+	<!-- /.modal -->
+	
+	<!-- CourseList Settings Modal -->
+	<div class="modal fade" id="courseListSettings" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title"><input type="text" class="form-control" placeholder="Name"></h4>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger btn-delete-courselist pull-left" data-dismiss="modal">Erase</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary btn-save-courselist">Save</button>
+				</div>
+			</div>
 		</div>
 	</div>
 	<!-- /.modal -->

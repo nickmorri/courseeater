@@ -132,14 +132,13 @@ sameClass = function (course1, course2, courses) {
 };
 
 // Retrieves course information from Parse
-retrieveCourses = function () {
+retrieveCoursesOld = function () {
     "use strict";
     return Parse.User.current().relation("courses").query().find();
-    /* return getCoursesFromActiveCourseList(); */
 };
 
 // Retrieves courses from active CourseList
-getCoursesFromActiveCourseList = function () {
+retrieveCourses = function (callback) {
 	"use strict";
 	var courseListQuery, coursesQuery;
 	courseListQuery = new Parse.Query("CourseList");
@@ -147,22 +146,26 @@ getCoursesFromActiveCourseList = function () {
 	courseListQuery.equalTo("active", true);
 	return courseListQuery.first().then(function (activeList) {
 		activeList.relation("courses").query().find().then(function (list) {
-			storeCourses(list);
+			storeCourses(list, callback);
 		});
 	});
 };
 
 
 // Stores course information 
-storeCourses = function (remoteCourses) {
+storeCourses = function (remoteCourses, callback) {
     "use strict";
     var courses, i;
     courses = {};
-    for (i = 0; i < remoteCourses.length; i++) {
-        courses[remoteCourses[i].attributes.courseCode] = remoteCourses[i];
+    if (remoteCourses !== undefined) {
+		for (i = 0; i < remoteCourses.length; i++) {
+	        courses[remoteCourses[i].attributes.courseCode] = remoteCourses[i];
+	    }
     }
     sessionStorage.courses = JSON.stringify(courses);
-    return new Parse.Promise.as();
+    if (callback) {
+		callback();    
+    }
 };
 
 // Determines cache's freshness
