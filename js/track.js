@@ -4,15 +4,21 @@
 var initialize, getCourses, displayCourses, classGroups, displayCollapsibleClasses, displaySearch, displayAlertError, validateCourseCode;
 
 initialize = function () {
+	"use strict";
 	getCourseLists();	
 	getCourses();
+	var intercom = Intercom.getInstance();
+    intercom.on('notice', function (notice) {
+		if (notice.code === 300) {
+			displayCourses();
+		}
+	});
 };
 
 // Retrieves course information from Parse
 getCourses = function () {
     "use strict";
-    if (jQuery.isEmptyObject(JSON.parse(sessionStorage.courses))) {
-        /* retrieveCoursesOld().then(storeCourses).then(displayCourses); */
+    if (jQuery.isEmptyObject(getStoredCourses())) {
         retrieveCourses(displayCourses);
     } else {
         displayCourses();
@@ -157,7 +163,7 @@ displayCourses = function () {
     var courses, target;
     target = $("#courseDisplay");
     target.empty();
-    courses = JSON.parse(sessionStorage.courses);
+    courses = getStoredCourses();
     if (jQuery.isEmptyObject(courses)) {
         target.html("<div class='container'><h2>Not tracking any courses.</h2></div>");
     } else {
@@ -206,7 +212,7 @@ displayCollapsibleClasses = function (courses) {
 displaySearch = function () {
     "use strict";
     var temporaryCourses, course;
-    temporaryCourses = JSON.parse(sessionStorage.temporaryCourses);
+    temporaryCourses = getTemporaryCourses();
     if (jQuery.isEmptyObject(temporaryCourses)) {
         $("#courseInformationDisplay .modal-dialog .modal-content").html("<div class='modal-header'><h4 class='modal-title'>No results</h4></div>");
         $("#courseInformationDisplay").modal("show");

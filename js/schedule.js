@@ -1,23 +1,28 @@
-/*global storeCourses, Ladda, cacheFresh, $, document, jQuery, sessionStorage, retrieveCourses, getCourseFromCache, getTemporaryCourse, Parse, getEquivalentCourse, console, transferCourseFromTemporaryToCache */
+/*global storeCourses, Ladda, cacheFresh, $, document, jQuery, localStorage, retrieveCourses, getCourseFromCache, getTemporaryCourse, Parse, getEquivalentCourse, console, transferCourseFromTemporaryToCache */
 /*jslint plusplus: true */
 
 var getCalendar, handleCourseClick, displayCalendar, getCourseEvent, getCourseEvents, displaySearch;
 
+initialize = function () {
+	"use strict";
+	getCalendar();
+	var intercom = Intercom.getInstance();
+	intercom.on('notice', function (notice) {
+		console.log(notice);
+		if (notice.code === 300) {
+			displayCalendar();
+		}
+	});	
+};
+
 // Intelligently displays calendar. Loads data if needed.
 getCalendar = function () {
     "use strict";
-    if (jQuery.isEmptyObject(JSON.parse(sessionStorage.courses))) {
+    if (jQuery.isEmptyObject(getStoredCourses())) {
         retrieveCourses(displayCalendar);
     } else {
         displayCalendar();
     }
-    var intercom = Intercom.getInstance();
-    intercom.on('notice', function (notice) {
-		if (notice.code === 300) {
-			displayCalendar();
-			console.log(JSON.parse(sessionStorage.courses));
-		}
-	});
 };
 
 // Handles Modal launching and creation when Course calendar instance is selected.
@@ -148,7 +153,7 @@ getCourseEvents = function () {
     var calendarCourses, courses, course, colors, color, hash;
     colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
     calendarCourses = [];
-    courses = JSON.parse(sessionStorage.courses);
+    courses = getStoredCourses();
     for (course in courses) {
         if (courses.hasOwnProperty(course)) {
             // Random color
@@ -166,7 +171,7 @@ displaySearch = function () {
     "use strict";
     var temporaryCourses, course, data;
     temporaryCourses = [];
-    data = JSON.parse(sessionStorage.temporaryCourses);
+    data = getTemporaryCourses();
     if (jQuery.isEmptyObject(data)) {
         $("#coursePanelDisplay .modal-dialog").html("<div class='modal-content'><div class='modal-header'><h4 class='modal-title'>No replacements found.</h4></div></div>");
         return;
@@ -266,7 +271,7 @@ $(document).on('click', ".btn-remove", function () {
     });
 });
 
-// Clears any sessionStorage data and reloads data from Parse
+// Clears any localStorage data and reloads data from Parse
 $(document).on("click", ".refresh-data", function () {
     "use strict";
     var btn;
@@ -277,4 +282,4 @@ $(document).on("click", ".refresh-data", function () {
     btn.stop();
 });
 
-$(document).ready(getCalendar);
+$(document).ready(initialize);

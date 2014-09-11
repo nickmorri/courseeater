@@ -18,7 +18,7 @@ initializeTemporaryCourses = function () {
 
 initializeCachedCourses = function () {
     "use strict";
-    if (sessionStorage.courses === undefined) {
+    if (localStorage.courses === undefined) {
         clearCachedCourses();
     }
 };
@@ -36,7 +36,7 @@ clearTemporaryCourses = function () {
 
 clearCachedCourses = function () {
     "use strict";
-    sessionStorage.courses = JSON.stringify({});
+    localStorage.courses = JSON.stringify({});
     return Parse.Promise.as();
 };
 
@@ -74,38 +74,50 @@ transferCourseFromTemporaryToCache = function (courseCode) {
     "use strict";
     var course, courses;
     course = JSON.parse(sessionStorage.temporaryCourses)[courseCode];
-    courses = JSON.parse(sessionStorage.courses);
+    courses = JSON.parse(localStorage.courses);
     courses[courseCode] = course;
-    sessionStorage.courses = JSON.stringify(courses);
+    localStorage.courses = JSON.stringify(courses);
 };
 
 addCourseToCache = function (course) {
     "use strict";
     var courses, promise;
     promise = new Parse.Promise();
-    courses = JSON.parse(sessionStorage.courses);
+    courses = JSON.parse(localStorage.courses);
     courses[course.attributes.courseCode] = course;
-    sessionStorage.courses = JSON.stringify(courses);
+    localStorage.courses = JSON.stringify(courses);
     return promise.resolve();
 };
 
 removeCourseFromCache = function (courseCode) {
     "use strict";
     var courses;
-    courses = JSON.parse(sessionStorage.courses);
+    courses = JSON.parse(localStorage.courses);
     if (courses[courseCode] === undefined) {
         return false;
     }
     delete courses[courseCode];
-    sessionStorage.courses = JSON.stringify(courses);
+    localStorage.courses = JSON.stringify(courses);
     return true;
+};
+
+// Returns array of courses from localStorage
+getStoredCourses = function () {
+	"use strict";
+	return JSON.parse(localStorage.courses);	
+};
+
+// Returns array of temporary courses from sessionStorage
+getTemporaryCourses = function () {
+	return JSON.parse(sessionStorage.temporaryCourses);
+	"use strict";
 };
 
 // Returns cached CourseView object
 getCourseFromCache = function (courseCode) {
     "use strict";
     var course;
-    course = JSON.parse(sessionStorage.courses)[courseCode];
+    course = JSON.parse(localStorage.courses)[courseCode];
     if (course !== undefined) {
         return new CourseView(course);
     }
@@ -115,7 +127,7 @@ getCourseFromCache = function (courseCode) {
 getEquivalentCourse = function (courseCode) {
     "use strict";
     var course, courses, initalCourse;
-    courses = JSON.parse(sessionStorage.courses);
+    courses = JSON.parse(localStorage.courses);
     initalCourse = JSON.parse(sessionStorage.temporaryCourses)[courseCode];
     for (course in courses) {
         if (courses[course].courseIdentifier === initalCourse.courseIdentifier && courses[course].courseName === initalCourse.courseName && courses[course].type === initalCourse.type) {
@@ -162,7 +174,7 @@ storeCourses = function (remoteCourses, callback) {
 	        courses[remoteCourses[i].attributes.courseCode] = remoteCourses[i];
 	    }
     }
-    sessionStorage.courses = JSON.stringify(courses);
+    localStorage.courses = JSON.stringify(courses);
     if (callback) {
 		callback();    
     }
