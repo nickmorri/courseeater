@@ -166,6 +166,8 @@ storeCourses = function (remoteCourses, callback) {
     if (callback) {
 		callback();    
     }
+    var intercom = Intercom.getInstance();
+	intercom.emit('notice', {message: 'Data updated!', code: 300});
 };
 
 // Determines cache's freshness

@@ -11,6 +11,13 @@ getCalendar = function () {
     } else {
         displayCalendar();
     }
+    var intercom = Intercom.getInstance();
+    intercom.on('notice', function (notice) {
+		if (notice.code === 300) {
+			displayCalendar();
+			console.log(JSON.parse(sessionStorage.courses));
+		}
+	});
 };
 
 // Handles Modal launching and creation when Course calendar instance is selected.
@@ -31,12 +38,12 @@ handleCourseClick = function (calEvent) {
 // Initializes FullCalendar library with relevant Course information.
 displayCalendar = function () {
     "use strict";
+    var googleCalendar;
     $('#calendar').fullCalendar('destroy');
     $('#calendar').fullCalendar({
         eventClick: handleCourseClick,
         header: "",
         defaultView: "agendaWeek",
-        defaultDate: "2014-07-14",
         minTime: "08:00:00",
         maxTime: "22:00:00",
         aspectRatio: '.25',
@@ -46,13 +53,22 @@ displayCalendar = function () {
         allDaySlot: false,
         events: getCourseEvents()
     });
+    googleCalendar = Parse.User.current().get("externalCalendar");
+    if (googleCalendar !== undefined || googleCalendar !== "") {
+		$('#calendar').fullCalendar('addEventSource', googleCalendar);
+    }
+};
+
+getWeekday = function (day) {
+	var date = new Date();
+	date.setDate(date.getDate() - date.getDay() + day);
+	return date.toISOString().split("T")[0];
 };
 
 // Processes data for individual Course
 getCourseEvent = function (course, color) {
     "use strict";
-    var startingDay, calendarCourses, title, days, heldDays, time, start, end, event, i, endFront, endBack, startFront, startBack;
-    startingDay = "2014-07-";
+    var calendarCourses, title, days, heldDays, time, start, end, event, i, endFront, endBack, startFront, startBack;
     if (course.time.indexOf("TBA") !== -1) {
         return [];
     }
@@ -62,19 +78,19 @@ getCourseEvent = function (course, color) {
     days = course.days;
     heldDays = [];
     if (days.indexOf("M") > -1) {
-        heldDays.push(startingDay + "14");
+        heldDays.push(getWeekday(0));
     }
     if (days.indexOf("Tu") > -1) {
-        heldDays.push(startingDay + "15");
+        heldDays.push(getWeekday(1));
     }
     if (days.indexOf("W") > -1) {
-        heldDays.push(startingDay + "16");
+        heldDays.push(getWeekday(2));
     }
     if (days.indexOf("Th") > -1) {
-        heldDays.push(startingDay + "17");
+        heldDays.push(getWeekday(3));
     }
     if (days.indexOf("F") > -1) {
-        heldDays.push(startingDay + "18");
+        heldDays.push(getWeekday(4));
     }
     // Time parsing
     time = course.time.split(" to ");
@@ -112,7 +128,6 @@ getCourseEvent = function (course, color) {
     start = "T" + startFront + ":" + startBack + ":00";
     end = "T" + endFront + ":" + endBack + ":00";
     calendarCourses = [];
-    
     // Event object creation
     for (i = 0; i < heldDays.length; i++) {
         event = {

@@ -4,8 +4,35 @@ var onPageLoad;
 
 onPageLoad = function () {
     "use strict";
+    var calendar;
+    calendar = Parse.User.current().get("externalCalendar");
     $("#new_email").attr("placeholder", Parse.User.current().get("email"));
+    if (calendar !== undefined && calendar !== "") {
+		$("#new_calendar").attr("placeholder", calendar);
+    } else {
+	    $("#new_calendar").attr("placeholder", "Google Calendar XML address");
+    }
+    
+    
 };
+
+$(document).on("keypress", "#new_calendar", function (event) {
+    "use strict";
+    if (event.which === 13) { $("#updateCalendar").click(); }
+});
+
+$(document).on('click', "#updateCalendar", function () {
+    "use strict";
+    var newCalendar;
+    newCalendar = $("#new_calendar").val();
+    Parse.User.current().set("externalCalendar", newCalendar);
+    Parse.User.current().save();
+    Parse.User.current().fetch();
+    $(".alert-account-calendar span").text("Calendar updated.");
+    $(".alert-account-calendar").show();
+    $("#new_calendar").attr("placeholder", newCalendar);
+    $("#new_calendar").val("");
+});
 
 $(document).on("keypress", "#new_email", function (event) {
     "use strict";

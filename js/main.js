@@ -1,13 +1,13 @@
 /*global window, Parse, $, document, sessionStorage, cacheFresh */
 
-var initialize, onPageLoad, buildBetaContent, toTitleCase, logoutUser, googleAnalytics;
+var initialize, onPageLoad, buildBetaContent, buildSearch, toTitleCase, logoutUser, googleAnalytics;
 
 // Performs functions immediately (before DOM is ready)
 initialize = function () {
     "use strict";
     document.title = window.location.pathname.substr(1).toTitleCase() + " | CourseEater";
     Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");
-    if (!Parse.User.current()) window.location.replace("/");
+    if (!Parse.User.current()) window.location = "/";
 };
 
 // Performs actions after DOM is ready
@@ -16,17 +16,33 @@ onPageLoad = function () {
     $(".user-name-display").text(Parse.User.current().get("username"));
     cacheFresh();
     /* googleAnalytics(); */
-    buildBetaContent();
+    /* buildBetaContent(); */
+};
+
+buildSearch = function () {
+	"use strict";
+	if (window.location.pathname !== "/search") {
+        var searchString = '<li><a href="search"><span class="glyphicon glyphicon-search"></span> Search</a></li>';
+        $(".nav.navbar-nav").first().append(searchString);
+    }
+};
+
+buildAdmin = function () {
+	"use strict";
+	if (window.location.pathname !== "/admin") {
+		var adminString = '<li><a href="admin"><span class="glyphicon glyphicon-wrench"></span> Admin</a></li>';
+        $(".nav.navbar-nav").first().append(adminString);
+	}
 };
 
 // Beta content injector
 buildBetaContent = function () {
     "use strict";
-    if (Parse.User.current().get("username") !== "nick") window.location.replace("/");
-    if (window.location.pathname !== "/search") {
-        var testString = '<li><a href="search"><span class="glyphicon glyphicon-search"></span> Search</a></li>';
-        $(".nav.navbar-nav").first().append(testString);
-    }
+    var userID = Parse.User.current().id;
+    Parse.Cloud.run("checkBeta", {user: userID}).then(function () {
+		buildSearch();
+		buildAdmin();    
+    });
 };
 
 // Transforms a string to Title Case

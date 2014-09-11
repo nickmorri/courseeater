@@ -4,7 +4,7 @@ var initialize;
 initialize = function () {
 	"use strict";
 	Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");
-	if (Parse.User.current()) {window.location.replace("track"); }
+	if (Parse.User.current()) {window.location = "track"; }
 };
 
 // Google Analytics Information
@@ -57,25 +57,29 @@ $(document).on("click", ".btn-register", function () {
     username = $(".form-control-username.registration-username").val();
     email = $(".form-control-email.registration-email").val();
     password = $(".form-control-password.registration-password").val();
-    user = new Parse.User();
-    user.set("username", username);
-    user.set("email", email);
-    user.set("password", password);
-    user.signUp(null, {
-        success: function () {
-            window.location.replace("index");
-        },
-        error: function (error) {
-            // Show the error message somewhere and let the user try again.
-            if (error.code == 125) {
-                $(".alert-register").html("<strong>Whoops!</strong> " + email + " is not a valid email address. Please follow the format: name@email.com");
-            } else if (error.code == 202) {
-                $(".alert-register").html("<strong>Whoops!</strong> " + username + " has already been registered. Please try another username.");
-            }
-            $(".alert-register").show();
-            console.log(error);
-        }
+    Parse.Cloud.run("checkAuthorized", {email: email}).then(function () {
+		user = new Parse.User();
+	    user.set("username", username);
+	    user.set("email", email);
+	    user.set("password", password);
+	    user.signUp().then(function() {
+	            window.location.replace("index");
+	    }, function (error) {
+	        // Show the error message somewhere and let the user try again.
+	        if (error.code === 125) {
+	            $(".alert-register").html("<strong>Whoops!</strong> " + email + " is not a valid email address. Please follow the format: name@email.com");
+	        } else if (error.code === 202) {
+	            $(".alert-register").html("<strong>" + username + "</strong> has already been registered. Please try another username.");
+	        } else {
+	        	console.log(error);    
+	        }
+	        $(".alert-register").show();
+		});    
+    }, function (error) {
+	    $(".alert-register").html("<strong>" + email + "</strong> is not currently allowed to register.");
+	    $(".alert-register").show();
     });
+    
 });
 
 initialize();
