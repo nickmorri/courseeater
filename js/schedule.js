@@ -11,6 +11,7 @@ initialize = function () {
 		console.log(notice);
 		if (notice.code === 300) {
 			displayCalendar();
+			$("#calendar").fullCalendar('refetchEvents');
 		}
 	});	
 };
