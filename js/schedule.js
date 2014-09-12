@@ -7,16 +7,15 @@ initialize = function () {
 	"use strict";
 	getCalendar();
 	var intercom = Intercom.getInstance();
-	intercom.on('notice', function (notice) {
-		console.log(notice);
-		if (notice.code === 300) {
-			displayCalendar();
-			$("#calendar").fullCalendar('refetchEvents');
-		}
-	});	
+	intercom.on('notice', handleNotice);	
 };
 
-// Intelligently displays calendar. Loads data if needed.
+// Handles messages from other tabs
+handleNotice = function (notice) {
+	if (notice.code === 300 && notice.page !== window.location.pathname.substr(1)) displayCalendar();
+};
+
+// Initializes calendar. Loads data if needed.
 getCalendar = function () {
     "use strict";
     if (jQuery.isEmptyObject(getStoredCourses())) {
@@ -65,6 +64,8 @@ displayCalendar = function () {
     }
 };
 
+// BUG: Acting kinda funky
+// Returns the Date object for the Monday of the current week
 getWeekday = function (day) {
 	var date = new Date();
 	date.setDate(date.getDate() - date.getDay() + day);
@@ -75,61 +76,35 @@ getWeekday = function (day) {
 getCourseEvent = function (course, color) {
     "use strict";
     var calendarCourses, title, days, heldDays, time, start, end, event, i, endFront, endBack, startFront, startBack;
-    if (course.time.indexOf("TBA") !== -1) {
-        return [];
-    }
+    if (course.time.indexOf("TBA") !== -1) return [];
     // Title processing
     title = course.courseIdentifier.toUpperCase() + " - " + course.type.toUpperCase();
     //Day parsing
     days = course.days;
     heldDays = [];
-    if (days.indexOf("M") > -1) {
-        heldDays.push(getWeekday(0));
-    }
-    if (days.indexOf("Tu") > -1) {
-        heldDays.push(getWeekday(1));
-    }
-    if (days.indexOf("W") > -1) {
-        heldDays.push(getWeekday(2));
-    }
-    if (days.indexOf("Th") > -1) {
-        heldDays.push(getWeekday(3));
-    }
-    if (days.indexOf("F") > -1) {
-        heldDays.push(getWeekday(4));
-    }
+    if (days.indexOf("M") > -1) heldDays.push(getWeekday(0));
+    if (days.indexOf("Tu") > -1) heldDays.push(getWeekday(1));
+    if (days.indexOf("W") > -1) heldDays.push(getWeekday(2));
+    if (days.indexOf("Th") > -1) heldDays.push(getWeekday(3));
+    if (days.indexOf("F") > -1) heldDays.push(getWeekday(4));
     // Time parsing
     time = course.time.split(" to ");
     start = time[0];
     end = time[1];
     // Removing spaces
-    if (time[0][0] === " ") {
-        start = start.slice(1);
-    }
-    if (time[1][0] === " ") {
-        end = end.slice(1);
-    }
+    if (time[0][0] === " ") start = start.slice(1);
+    if (time[1][0] === " ") end = end.slice(1);
     // Further breaking things down into 4 distinct parts.
     startFront = parseInt(start.split(":")[0], 10);
     startBack = start.split(":")[1].slice(0, 2);
     endFront = parseInt(end.split(":")[0], 10);
     endBack = end.split(":")[1].slice(0, 2);
     // Processing of these parts
-    if (end.indexOf("PM") !== -1 && endFront !== 12) {
-        endFront += 12;
-    }
-    if (start.indexOf("PM") !== -1 && startFront !== 12) {
-        startFront += 12;
-    }
-    if (endFront > 12 && startFront !== 12) {
-        startFront += 12;
-    }
-    if (startFront < 10) {
-        startFront = "0" + startFront;
-    }
-    if (endFront < 10) {
-        endFront = "0" + endFront;
-    }
+    if (end.indexOf("PM") !== -1 && endFront !== 12) endFront += 12;
+    if (start.indexOf("PM") !== -1 && startFront !== 12) startFront += 12;
+    if (endFront > 12 && startFront !== 12) startFront += 12;
+    if (startFront < 10) startFront = "0" + startFront;
+    if (endFront < 10) endFront = "0" + endFront;
     // Formatting these four parts for the FullCalendar library
     start = "T" + startFront + ":" + startBack + ":00";
     end = "T" + endFront + ":" + endBack + ":00";
@@ -188,10 +163,10 @@ displaySearch = function () {
 
 String.prototype.hash = function(){
 	var hash = 0;
-	if (this.length == 0) return hash;
+	if (this.length === 0) return hash;
 	for (i = 0; i < this.length; i++) {
 		char = this.charCodeAt(i);
-		hash = ((hash<<5)-hash)+char;
+		hash = ((hash << 5) - hash) + char;
 		hash = hash & hash; // Convert to 32bit integer
 	}
 	return hash;
@@ -226,9 +201,7 @@ $(document).on("click", ".btn-add", function () {
     lBtn.setProgress('.50');
     Parse.Cloud.run('addCourse', {courseCode: courseCode}).then(function () {
         course = getEquivalentCourse(courseCode);
-        if (course === undefined) {
-            return Parse.Promise.as();
-        }
+        if (course === undefined) return Parse.Promise.as();
         return getCourseFromCache(course.courseCode).remove();
     }, function (error) {
         lBtn.stop();
@@ -265,9 +238,7 @@ $(document).on('click', ".btn-remove", function () {
         lBtn.setProgress('1');
         lBtn.stop();
         cacheFresh("refresh");
-        if (modal !== undefined) {
-            modal.modal('hide');
-        }
+        if (modal !== undefined) modal.modal('hide');
         retrieveCourses().then(storeCourses);
     });
 });

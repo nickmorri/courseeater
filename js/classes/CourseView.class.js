@@ -243,7 +243,7 @@ CourseView.prototype.buildDefaultPanel = function () {
 
 CourseView.prototype.buildCollapsiblePanel = function (num, mainCourseCode) {
     "use strict";
-    var courseString, colorString;
+    var courseString, colorString, hours, title;
     courseString = '<div class="panel panel-primary">';
 
 	if (this.type === "LEC") {
@@ -259,9 +259,15 @@ CourseView.prototype.buildCollapsiblePanel = function (num, mainCourseCode) {
     } else {
 	    courseString += '<div class="panel-heading>"';
     }
-   
+	hours = Math.round(Math.abs(new Date - this.updatedAt) / 36e5);
+	title = "Updated about " + hours;
+	if (hours > 1) {
+		title += " hours ago"
+	} else {
+		title += " hour ago"
+	}
     courseString += '<h4 class="panel-title">';
-    courseString += '<a data-toggle="collapse" data-parent="#accordion-' + mainCourseCode + '" href="#collapse' + num + '-' + this.courseCode + '" title="Updated: ' + this.updatedAt.toString() + '" >';
+    courseString += '<a data-toggle="collapse" data-parent="#accordion-' + mainCourseCode + '" href="#collapse' + num + '-' + this.courseCode + '" title="' + title + '" >';
     courseString += this.getCourseHeader();
     courseString += '</a>';
     courseString += '</h4>';

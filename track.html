@@ -74,7 +74,7 @@
 	<div class="container form-user-management">
 		<!-- Adding courses -->
     	<div class="container add-course-entry">
-			<input id="courseID" type="tel" maxlength="5" class="form-control" placeholder="Enter CourseID" autocomplete="off" required autofocus />
+			<input id="courseID" type="tel" maxlength="5" class="form-control" placeholder="Enter Course Code" autocomplete="off" required autofocus />
 			<button type="button" data-loading-text="Adding..." class="btn btn-lg btn-primary btn-block btn-add ladda-button"><span class="ladda-label">Add</span></button>
 			<div class="alert alert-danger alert-error" style="display: none;"></div>
 		</div>
@@ -99,6 +99,20 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<h4 class="modal-title"><input type="text" class="form-control" placeholder="Name" maxlength="12"></h4>
+				</div>
+				<div class="modal-body">
+					<div class="radio">
+						<label>
+							<input type="radio" name="listPrivacy" value="private" checked>
+							Private
+						</label>
+					</div>
+					<div class="radio">
+						<label>
+							<input type="radio" name="listPrivacy" value="shared">
+							Shared
+						</label>
+					</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-danger btn-delete-courselist pull-left" data-dismiss="modal">Erase</button>

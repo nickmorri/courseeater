@@ -11,16 +11,12 @@ initializeStorage = function () {
 
 initializeTemporaryCourses = function () {
     "use strict";
-    if (sessionStorage.temporaryCourses === undefined) {
-        clearTemporaryCourses();
-    }
+    if (sessionStorage.temporaryCourses === undefined) clearTemporaryCourses();
 };
 
 initializeCachedCourses = function () {
     "use strict";
-    if (localStorage.courses === undefined) {
-        clearCachedCourses();
-    }
+    if (localStorage.courses === undefined) clearCachedCourses();
 };
 
 clearStorage = function () {
@@ -65,9 +61,7 @@ getTemporaryCourse = function (courseCode) {
     "use strict";
     var course;
     course = JSON.parse(sessionStorage.temporaryCourses)[courseCode];
-    if (course !== undefined) {
-        return new CourseView(course);
-    }
+    if (course !== undefined) return new CourseView(course);
 };
 
 transferCourseFromTemporaryToCache = function (courseCode) {
@@ -93,9 +87,7 @@ removeCourseFromCache = function (courseCode) {
     "use strict";
     var courses;
     courses = JSON.parse(localStorage.courses);
-    if (courses[courseCode] === undefined) {
-        return false;
-    }
+    if (courses[courseCode] === undefined) return false;
     delete courses[courseCode];
     localStorage.courses = JSON.stringify(courses);
     return true;
@@ -118,9 +110,7 @@ getCourseFromCache = function (courseCode) {
     "use strict";
     var course;
     course = JSON.parse(localStorage.courses)[courseCode];
-    if (course !== undefined) {
-        return new CourseView(course);
-    }
+    if (course !== undefined) return new CourseView(course);
 };
 
 // Determines if two courses are equivalent 
@@ -143,12 +133,6 @@ sameClass = function (course1, course2, courses) {
     return courses[course1].courseIdentifier === courses[course2].courseIdentifier && courses[course1].courseName === courses[course2].courseName;
 };
 
-// Retrieves course information from Parse
-retrieveCoursesOld = function () {
-    "use strict";
-    return Parse.User.current().relation("courses").query().find();
-};
-
 // Retrieves courses from active CourseList
 retrieveCourses = function (callback) {
 	"use strict";
@@ -163,11 +147,20 @@ retrieveCourses = function (callback) {
 	});
 };
 
+// Send message to browser windows
+sendNotice = function (message, code) {
+	var intercom = Intercom.getInstance();
+	intercom.emit('notice', {
+		message: message,
+		code: code,
+		page: window.location.pathname.substr(1)
+	});
+};
 
 // Stores course information 
 storeCourses = function (remoteCourses, callback) {
     "use strict";
-    var courses, i;
+    var courses, i, pageTitle;
     courses = {};
     if (remoteCourses !== undefined) {
 		for (i = 0; i < remoteCourses.length; i++) {
@@ -175,11 +168,8 @@ storeCourses = function (remoteCourses, callback) {
 	    }
     }
     localStorage.courses = JSON.stringify(courses);
-    if (callback) {
-		callback();    
-    }
-    var intercom = Intercom.getInstance();
-	intercom.emit('notice', {message: 'Data updated!', code: 300});
+    sendNotice('Cache updated.', 300);
+    if (callback) callback();
 };
 
 // Determines cache's freshness

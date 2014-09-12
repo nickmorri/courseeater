@@ -15,7 +15,7 @@ onPageLoad = function () {
     "use strict";
     $(".user-name-display").text(Parse.User.current().get("username"));
     cacheFresh();
-    /* googleAnalytics(); */
+    googleAnalytics();
     /* buildBetaContent(); */
 };
 
@@ -59,8 +59,9 @@ toTitleCase = function (str) {
 // Performs User logout
 logoutUser = function () {
     "use strict";
-    Parse.User.logOut();
-    sessionStorage.clear();
+    Parse.User.logOut();	
+	localStorage.clear();
+	sessionStorage.clear();
     window.location.replace("/");
 };
 

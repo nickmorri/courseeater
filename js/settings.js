@@ -12,8 +12,15 @@ onPageLoad = function () {
     } else {
 	    $("#new_calendar").attr("placeholder", "Google Calendar XML address");
     }
-    
-    
+    $("#new_calendar").focus(function () {
+    	if ($("#new_calendar").attr("placeholder") === "Google Calendar XML address") {
+	    	$('#new_calendar').popover({
+	    		html: true,
+			    content: "For more information on how to acquire the XML address please reference this guide: <a href='https://support.google.com/calendar/answer/34578' target='_blank'>Google Calendar</a>",
+			    placement: "top"
+		    });	
+    	}
+    });  
 };
 
 $(document).on("keypress", "#new_calendar", function (event) {
@@ -59,10 +66,13 @@ $(document).on("keypress", "#inputVerifyPassword", function (event) {
 $(document).on('click', '#updatePassword', function () {
     "use strict";
     if ($("#inputNewPassword").val() !== $("#inputVerifyPassword").val()) {
+    	$(".alert-account-password").removeClass("alert-success");
+    	$(".alert-account-password").addClass("alert-danger");
         $(".alert-account-password span").text("Passwords do not match.");
         $(".alert-account-password").show();
         $("#inputNewPassword").val("");
         $("#inputVerifyPassword").val("");
+        return;
     }
     Parse.User.logIn(Parse.User.current().get("username"), $("#inputCurrentPassword").val(), {
         success: function () {
@@ -75,8 +85,11 @@ $(document).on('click', '#updatePassword', function () {
             $("#inputCurrentPassword").val("");
         },
         error: function () {
-            console.log("Password entered incorrectly");
-            setTimeout(logout, 5000);
+        	$(".alert-account-password").removeClass("alert-success");
+			$(".alert-account-password").addClass("alert-danger");
+        	$(".alert-account-password span").text("Password entered incorrectly");
+            $(".alert-account-password").show();
+            setTimeout(logoutUser, 5000);
         }
     });
 });
