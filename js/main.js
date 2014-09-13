@@ -1,4 +1,4 @@
-/*global window, Parse, $, document, sessionStorage, cacheFresh */
+/*global window, Parse, $, document, cacheFresh */
 
 var initialize, onPageLoad, buildBetaContent, buildSearch, toTitleCase, logoutUser, googleAnalytics;
 
@@ -9,6 +9,13 @@ initialize = function () {
     Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");
     if (!Parse.User.current()) window.location = "/";
 };
+
+// Updates page if other tab alters storage
+$(window).bind('storage', function (e) {
+	var sourceWindow = e.originalEvent.url.split("/")[3]; 
+	var currentWindow = window.location.pathname.substr(1);
+	if (sourceWindow !== currentWindow) loadPage();
+});
 
 // Performs actions after DOM is ready
 onPageLoad = function () {
@@ -60,8 +67,7 @@ toTitleCase = function (str) {
 logoutUser = function () {
     "use strict";
     Parse.User.logOut();	
-	localStorage.clear();
-	sessionStorage.clear();
+	clearStorage();
     window.location.replace("/");
 };
 
@@ -75,6 +81,18 @@ googleAnalytics = function () {
     ga('create', 'UA-9939990-3', 'courseeater.com');
     ga('send', 'pageview');
 };
+
+// Clears any cached data and reloads data from Parse
+$(document).on("click", ".refresh-data", function () {
+    "use strict";
+    var btn;
+    btn = Ladda.create(this);
+    btn.start();
+    cacheFresh().then(retrieveCourses);
+    loadPage();
+    $(".alert-error").hide();
+    btn.stop();
+});
 
 initialize();
 $(document).ready(onPageLoad);

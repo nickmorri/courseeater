@@ -3,16 +3,9 @@
 
 var getCalendar, handleCourseClick, displayCalendar, getCourseEvent, getCourseEvents, displaySearch;
 
-initialize = function () {
+loadPage = function () {
 	"use strict";
 	getCalendar();
-	var intercom = Intercom.getInstance();
-	intercom.on('notice', handleNotice);	
-};
-
-// Handles messages from other tabs
-handleNotice = function (notice) {
-	if (notice.code === 300 && notice.page !== window.location.pathname.substr(1)) displayCalendar();
 };
 
 // Initializes calendar. Loads data if needed.
@@ -46,6 +39,7 @@ displayCalendar = function () {
     var googleCalendar;
     $('#calendar').fullCalendar('destroy');
     $('#calendar').fullCalendar({
+    	defaultDate: getWeekday(0),
         eventClick: handleCourseClick,
         header: "",
         defaultView: "agendaWeek",
@@ -64,12 +58,17 @@ displayCalendar = function () {
     }
 };
 
-// BUG: Acting kinda funky
 // Returns the Date object for the Monday of the current week
 getWeekday = function (day) {
-	var date = new Date();
-	date.setDate(date.getDate() - date.getDay() + day);
-	return date.toISOString().split("T")[0];
+	var date, dayOfMonth, dayOfWeek, thisMonday;
+	date = new Date();
+	// Setting time to midnight for consistent Datetime parsing
+	date.setHours(0,0,0,0);
+	dayOfMonth = date.getDate();
+	dayOfWeek = date.getDay();
+	thisMonday = (dayOfMonth - dayOfWeek) + 1;
+	date.setDate(thisMonday + day);
+	return date.toISOString().split("T")[0];;
 };
 
 // Processes data for individual Course
@@ -79,7 +78,7 @@ getCourseEvent = function (course, color) {
     if (course.time.indexOf("TBA") !== -1) return [];
     // Title processing
     title = course.courseIdentifier.toUpperCase() + " - " + course.type.toUpperCase();
-    //Day parsing
+    // Day parsing
     days = course.days;
     heldDays = [];
     if (days.indexOf("M") > -1) heldDays.push(getWeekday(0));
@@ -213,7 +212,7 @@ $(document).on("click", ".btn-add", function () {
         modal.modal('hide');
         lBtn.stop();
         storeCourses();
-        delete sessionStorage.temporaryCourses;
+        clearTemporaryCourses();
     });
 });
 
@@ -254,4 +253,4 @@ $(document).on("click", ".refresh-data", function () {
     btn.stop();
 });
 
-$(document).ready(initialize);
+$(document).ready(loadPage);

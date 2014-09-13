@@ -1,19 +1,12 @@
-/*global window, CourseView, ClassView, Ladda, jQuery, storeCourses, sameClass, toTitleCase, cacheFresh, $, document, sessionStorage, retrieveCourses, getTemporaryCourse, clearTemporaryCourses, getCourseFromCache, Parse, console */
+/*global window, CourseView, ClassView, Ladda, jQuery, storeCourses, sameClass, toTitleCase, cacheFresh, $, document, retrieveCourses, getTemporaryCourse, clearTemporaryCourses, getCourseFromCache, Parse, console */
 /*jslint plusplus: true */
 
-var initialize, getCourses, displayCourses, classGroups, displayCollapsibleClasses, displaySearch, displayAlertError, validateCourseCode;
+var loadPage, getCourses, displayCourses, classGroups, displayCollapsibleClasses, displaySearch, displayAlertError, validateCourseCode;
 
-initialize = function () {
+loadPage = function () {
 	"use strict";
 	getCourseLists();	
 	getCourses();
-	var intercom = Intercom.getInstance();
-	intercom.on('notice', handleNotice);
-};
-
-// Handles messages from other tabs
-handleNotice = function (notice) {
-	if (notice.code === 300 && notice.page !== window.location.pathname.substr(1)) displayCourses();
 };
 
 // Initializes calendar. Loads data if needed.
@@ -29,8 +22,8 @@ getCourses = function () {
 // Prepares HTML for a single CourseList
 getCourseListHTML = function(list) {
 	"use strict";
-	if (list.active) return "<li class='active'><a class='course-list-item-title'>" + list.title + " <span class='glyphicon glyphicon-cog pull-right'></span></a><span class='hidden'>" + list.shared + "</span></li>";
-	return "<li><a class='course-list-item-title'>" + list.title + " </a><span class='hidden'>" + list.shared + "</span></li>";
+	if (list.attributes.active) return "<li class='active'><a class='course-list-item-title'>" + list.attributes.title + " <span class='glyphicon glyphicon-cog pull-right'></span></a><span class='hidden'>" + list.attributes.shared + "</span></li>";
+	return "<li><a class='course-list-item-title'>" + list.attributes.title + " </a><span class='hidden'>" + list.attributes.shared + "</span></li>";
 };
 
 // Retrieves and displays CourseLists
@@ -42,24 +35,9 @@ getCourseLists = function () {
 	courseListQuery = new Parse.Query("CourseList");
 	courseListQuery.equalTo("owner", Parse.User.current());
 	courseListQuery.each(function(list) {
-		display.prepend(getCourseListHTML(list.attributes));
+		display.prepend(getCourseListHTML(list));
 	});
 };
-
-/*
-$(document).on("click", ".btn-duplicate-courselist", function () {
-	var courseListTitle;
-	courseListTitle = $(this).parent().parent().children(".modal-header").children(".modal-title").children("input").val().trim();
-	$(".spinner").show();
-	$("#courseDisplay").hide();
-	Parse.Cloud.run("duplicateCourseList", {title: courseListTitle}).then(function () {
-		getCourseLists();
-		clearCachedCourses().then(getCourses);
-	}, function (error) {
-		console.log(error);
-	});
-});
-*/
 
 // Collapses Navbar
 closeNavbarDropdown = function () {
@@ -81,9 +59,9 @@ openCourseListSettings = function (newList, courseListTitle, placeholder) {
 	} else {
 		// Sharing settings
 		if ($(event.target).parent().parent().children(".hidden").text() == "true") {
-			$('#courseListSettings .modal-dialog .modal-content .modal-body .radio input[name=listPrivacy]').filter('[value="shared"]').attr('checked', true);
+			$(":radio[value='shared']").prop("checked", true);
 		} else {
-			$('#courseListSettings .modal-dialog .modal-content .modal-body .radio input[name=listPrivacy]').filter('[value="private"]').attr('checked', true);
+			$(":radio[value='private']").prop("checked", true);
 		}
 	}
 	// Saving show modal method for end so view is built before display
@@ -94,12 +72,11 @@ openCourseListSettings = function (newList, courseListTitle, placeholder) {
 // Dispatches to approriate display function
 displayCourses = function () {
     "use strict";
-    var courses, target;
-    target = $("#courseDisplay");
-    target.empty();
+    var courses;
+    $("#courseDisplay").empty();
     courses = getStoredCourses();
     if (jQuery.isEmptyObject(courses)) {
-        target.html("<div class='container'><h2>Not tracking any courses.</h2></div>");
+        $("#courseDisplay").html("<div class='container'><h2>Not tracking any courses.</h2></div>");
     } else {
         displayCollapsibleClasses(courses);
     }
@@ -107,21 +84,20 @@ displayCourses = function () {
     $("#courseDisplay").show();
 };
 
-// Groups courses by class
 classGroups = function (courses) {
     "use strict";
     var courseIDs, lastCourse, classGroups, i;
     courseIDs = Object.keys(courses);
     lastCourse = courseIDs[0];
     classGroups = {};
-    classGroups[lastCourse] = [lastCourse];
+    classGroups[lastCourse] = new ClassView();
+    classGroups[lastCourse].addCourse(courses[lastCourse]);
     for (i = 1; i < Object.keys(courses).length; i++) {
-        if (sameClass(courseIDs[i], lastCourse, courses)) {
-            classGroups[lastCourse].push(courseIDs[i]);
-        } else {
+        if (!sameClass(courseIDs[i], lastCourse, courses)) {
             lastCourse = courseIDs[i];
-            classGroups[lastCourse] = [lastCourse];
+            classGroups[lastCourse] = new ClassView();
         }
+        classGroups[lastCourse].addCourse(courses[courseIDs[i]]);
     }
     return classGroups;
 };
@@ -129,23 +105,17 @@ classGroups = function (courses) {
 // Creates ClassViews with CourseViews
 displayCollapsibleClasses = function (courses) {
     "use strict";
-    var target, classes, classView, classGroup, i, j;
-    target = $("#courseDisplay");
+    var classes, classItem;
     classes = classGroups(courses);
-    for (i = 0; i < Object.keys(classes).length; i++) {
-        classView = new ClassView();
-        classGroup = classes[Object.keys(classes)[i]];
-        for (j = 0; j < classGroup.length; j++) {
-            classView.addCourse(courses[classGroup[j]]);
-        }
-        target.append('<div class="col-lg-4 col-md-6">' + classView.buildCollapsible() + '</div>');
+    for (classItem in classes) {
+        $("#courseDisplay").append(classes[classItem].buildCollapsible());
     }
 };
 
 // Displays a search in a modal view
 displaySearch = function () {
     "use strict";
-    var temporaryCourses, course;
+    var temporaryCourses, course, view;
     temporaryCourses = getTemporaryCourses();
     if (jQuery.isEmptyObject(temporaryCourses)) {
         $("#courseInformationDisplay .modal-dialog .modal-content").html("<div class='modal-header'><h4 class='modal-title'>No results</h4></div>");
@@ -154,7 +124,8 @@ displaySearch = function () {
     }
     $("#courseInformationDisplay .modal-dialog .modal-content").html("<div class='modal-header'><button type='button' class='close' data-dismiss='modal'><span aria-hidden='true'>&times;</span><span class='sr-only'>Close</span></button><h4 class='modal-title'>Results</h4></div><div class='modal-body row'></div>");
     for (course in temporaryCourses) {
-        $("#courseInformationDisplay .modal-dialog .modal-content .modal-body").append('<div class="col-lg-4 col-md-6">' + getTemporaryCourse(course).buildDefaultPanel() + '</div>');
+		view = new CourseView(temporaryCourses[course]);
+        $("#courseInformationDisplay .modal-dialog .modal-content .modal-body").append('<div class="col-lg-4 col-md-6">' + view.buildDefaultPanel() + '</div>');
     }
     $("#courseInformationDisplay").modal("show");
     clearTemporaryCourses();
@@ -163,10 +134,8 @@ displaySearch = function () {
 // Displays error text in a controlled location
 displayAlertError = function (errorText) {
     "use strict";
-    var alert;
-    alert = $(".alert-error");
-    alert.html(errorText);
-    alert.show();
+    $(".alert-error").html(errorText);
+    $(".alert-error").show();
 };
 
 // Performs courseCode validations
@@ -188,14 +157,17 @@ $(document).on("hidden.bs.modal", "#courseListSettings", function (e) {
 	$("#courseListSettings").children(".modal-dialog").children(".modal-content").children(".modal-footer").children(".btn-delete-courselist").show();
 	$("#courseListSettings").children(".modal-dialog").children(".modal-content").children(".modal-header").children(".modal-title").children("input").attr("placeholder", "");
 	$("#courseListSettings").children(".modal-dialog").children(".modal-content").children(".modal-footer").children(".btn-save-courselist").text("Save");
+	$(":radio[value='private']").prop("checked", true);
 });
 
 // Saves CourseList
 $(document).on("click", ".btn-save-courselist", function () {
-	var courseListTitle, oldTitle;
+	var courseListTitle, oldTitle, privacyState, shared;
 	courseListTitle = $("#courseListSettings .modal-dialog .modal-content .modal-header .modal-title input").val().trim();
+	privacyState = $('#courseListSettings .modal-dialog .modal-content .modal-body .radio input[name=listPrivacy]:checked').val();
+	shared = privacyState === "shared";
 	if ($("#courseListSettings .modal-dialog .modal-content .modal-header .modal-title input").attr("placeholder") == "Enter new list title") {
-		Parse.Cloud.run("createCourseList", {title: courseListTitle}).then(function () {
+		Parse.Cloud.run("createCourseList", {title: courseListTitle, shared: shared}).then(function () {
 			$("#courseListDisplay").children(".active").children("a").children("span").remove();
 			$("#courseListDisplay").children(".active").removeClass("active");	
 			$("#courseListDisplay").prepend("<li class='active'><a href='#' class='course-list-item-title'>" + courseListTitle + "<span class='glyphicon glyphicon-cog pull-right'></a></li>");
@@ -205,16 +177,12 @@ $(document).on("click", ".btn-save-courselist", function () {
 			clearCachedCourses().then(getCourses);
 		});
 	} else {
-		privacyState = $('#courseListSettings .modal-dialog .modal-content .modal-body .radio input[name=listPrivacy]:checked').val();
 		oldTitle = $("#courseListDisplay").children(".active").children("a").text().trim();
-		Parse.Cloud.run("updateCourseList", {oldTitle: oldTitle, newTitle: courseListTitle, shared: privacyState}).then(function () {
+		Parse.Cloud.run("updateCourseList", {oldTitle: oldTitle, newTitle: courseListTitle, shared: shared}).then(function () {
 			$("#courseListDisplay").children(".active").children("a").html(courseListTitle + "<span class='glyphicon glyphicon-cog pull-right'>");
 			$("#courseListSettings").modal("hide");
 		});
 	}
-	if ($('.navbar-header .navbar-toggle').css('display') !='none'){
-        $(".navbar-header .navbar-toggle").trigger( "click" );
-    }
 });
 
 // Deletes CourseList
@@ -231,13 +199,26 @@ $(document).on("click", ".btn-delete-courselist", function () {
 			displayAlertError(error.message);
 			$(".spinner").hide();
 			$("#courseDisplay").show();
-			closeNavbarDropdown();
 		} else {
 			console.log(error);
 		}
-		
 	});
 });
+
+/*
+$(document).on("click", ".btn-duplicate-courselist", function () {
+	var courseListTitle;
+	courseListTitle = $(this).parent().parent().children(".modal-header").children(".modal-title").children("input").val().trim();
+	$(".spinner").show();
+	$("#courseDisplay").hide();
+	Parse.Cloud.run("duplicateCourseList", {title: courseListTitle}).then(function () {
+		getCourseLists();
+		clearCachedCourses().then(getCourses);
+	}, function (error) {
+		console.log(error);
+	});
+});
+*/
 
 // Handles user interactions on courseListDisplay
 $(document).on("click", "#courseListDisplay li", function (event) {
@@ -246,9 +227,11 @@ $(document).on("click", "#courseListDisplay li", function (event) {
 	eventThis = $(this);
 	if (eventThis.children("a").attr("id") == "createCourseList") {
 		openCourseListSettings(true, "", "Enter new list title");
+		closeNavbarDropdown();
 		return;
 	} else if ($(event.target).attr("class") == "glyphicon glyphicon-cog pull-right") {
 		openCourseListSettings(false, courseListTitle, "");
+		closeNavbarDropdown();
 		return;
 	} else if ($(event.target).parent().attr("class") == "active") {
 		event.stopPropagation();
@@ -351,15 +334,4 @@ $(document).on('click', ".btn-remove", function () {
     });
 });
 
-// Clears any sessionStorage data and reloads data from Parse
-$(document).on("click", ".refresh-data", function () {
-    "use strict";
-    var btn;
-    btn = Ladda.create(this);
-    btn.start();
-    clearCachedCourses().then(getCourses);
-    $(".alert-error").hide();
-    btn.stop();
-});
-
-$(document).ready(initialize);
+$(document).ready(loadPage);

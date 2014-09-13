@@ -3,39 +3,60 @@
 
 var initializeStorage, initializeTemporaryCourses, initializeCachedCourses, clearStorage, clearTemporaryCourses, clearCachedCourses, addTemporaryCourse, removeTemporaryCourse, getTemporaryCourse, transferCourseFromTemporaryToCache, addCourseToCache, removeCourseFromCache, getCourseFromCache, getEquivalentCourse, sameClass, retrieveCourses, storeCourses, cacheFresh;
 
+// Initializes localStorage and sessionStorage
 initializeStorage = function () {
     "use strict";
     initializeCachedCourses();
     initializeTemporaryCourses();
 };
 
+// Initializes sessionStorage
 initializeTemporaryCourses = function () {
     "use strict";
     if (sessionStorage.temporaryCourses === undefined) clearTemporaryCourses();
 };
-
+// Initializes localStorage
 initializeCachedCourses = function () {
     "use strict";
     if (localStorage.courses === undefined) clearCachedCourses();
 };
 
+// Clears both localStorage and sessionStorage
 clearStorage = function () {
     "use strict";
     clearCachedCourses();
     clearTemporaryCourses();
+    return Parse.Promise.as();
 };
 
+// Sets sessionStorage to empty JavaScript Object
 clearTemporaryCourses = function () {
     "use strict";
     sessionStorage.temporaryCourses = JSON.stringify({});
+    return Parse.Promise.as();
 };
 
+// Sets localStorage to empty JavaScript Object
 clearCachedCourses = function () {
     "use strict";
     localStorage.courses = JSON.stringify({});
     return Parse.Promise.as();
 };
 
+// Adds course to sessionStorage
+addTemporaryCourses = function (courses) {
+    "use strict";
+    var temporaryCourses;
+    temporaryCourses = {};
+    for (var i = 0; i < courses.length; i++) {
+    	console.log(courses[i]);
+		temporaryCourses[courses[i].attributes.courseCode] = courses[i].attributes;
+    }
+    sessionStorage.temporaryCourses = JSON.stringify(temporaryCourses);
+    return true;
+};
+
+// Adds course to sessionStorage
 addTemporaryCourse = function (course) {
     "use strict";
     var temporaryCourses;
@@ -45,6 +66,7 @@ addTemporaryCourse = function (course) {
     return true;
 };
 
+// Removes course from sessionStorage
 removeTemporaryCourse = function (courseCode) {
     "use strict";
     var temporaryCourses;
@@ -57,6 +79,7 @@ removeTemporaryCourse = function (courseCode) {
     }
 };
 
+// Retreives course from sessionStorage
 getTemporaryCourse = function (courseCode) {
     "use strict";
     var course;
@@ -64,6 +87,7 @@ getTemporaryCourse = function (courseCode) {
     if (course !== undefined) return new CourseView(course);
 };
 
+// Transfers course from sessionStorage to localStorage
 transferCourseFromTemporaryToCache = function (courseCode) {
     "use strict";
     var course, courses;
@@ -73,6 +97,7 @@ transferCourseFromTemporaryToCache = function (courseCode) {
     localStorage.courses = JSON.stringify(courses);
 };
 
+// Adds course to localStorage
 addCourseToCache = function (course) {
     "use strict";
     var courses, promise;
@@ -83,6 +108,7 @@ addCourseToCache = function (course) {
     return promise.resolve();
 };
 
+// Removes course from localStorage
 removeCourseFromCache = function (courseCode) {
     "use strict";
     var courses;
@@ -147,16 +173,6 @@ retrieveCourses = function (callback) {
 	});
 };
 
-// Send message to browser windows
-sendNotice = function (message, code) {
-	var intercom = Intercom.getInstance();
-	intercom.emit('notice', {
-		message: message,
-		code: code,
-		page: window.location.pathname.substr(1)
-	});
-};
-
 // Stores course information 
 storeCourses = function (remoteCourses, callback) {
     "use strict";
@@ -168,7 +184,6 @@ storeCourses = function (remoteCourses, callback) {
 	    }
     }
     localStorage.courses = JSON.stringify(courses);
-    sendNotice('Cache updated.', 300);
     if (callback) callback();
 };
 
@@ -176,7 +191,7 @@ storeCourses = function (remoteCourses, callback) {
 cacheFresh = function (reason) {
     "use strict";
     var expiration, currentTime, freshness, cacheTime;
-    expiration = 1;
+    expiration = 15;
     currentTime = new Date();
     freshness = true;
     if (reason === "refresh") {
@@ -191,6 +206,8 @@ cacheFresh = function (reason) {
     }
     if (freshness === false) {
         clearStorage();
+        Parse.User.current().fetch();
         sessionStorage.cacheAge = currentTime;
     }
+    return Parse.Promise.as();
 };

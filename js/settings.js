@@ -34,7 +34,6 @@ $(document).on('click', "#updateCalendar", function () {
     newCalendar = $("#new_calendar").val();
     Parse.User.current().set("externalCalendar", newCalendar);
     Parse.User.current().save();
-    Parse.User.current().fetch();
     $(".alert-account-calendar span").text("Calendar updated.");
     $(".alert-account-calendar").show();
     $("#new_calendar").attr("placeholder", newCalendar);

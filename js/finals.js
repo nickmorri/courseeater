@@ -1,11 +1,16 @@
-/*global sessionStorage, document, $, storeCourses, Ladda, cacheFresh, jQuery, retrieveCourses*/
+/*global document, $, storeCourses, Ladda, cacheFresh, jQuery, retrieveCourses*/
 
-var getCalendar, displayCalendar, getCourseFinal, getCourseFinals;
+var loadPage, getCalendar, displayCalendar, getCourseFinal, getCourseFinals;
+
+loadPage = function () {
+	"use strict";
+	getCalendar();
+};
 
 // Intelligently displays finals calendar. Loads data if needed.
 getCalendar = function () {
     "use strict";
-    if (jQuery.isEmptyObject(JSON.parse(sessionStorage.courses))) {
+    if (jQuery.isEmptyObject(getStoredCourses())) {
         retrieveCourses().then(storeCourses).then(displayCalendar);
     } else {
         displayCalendar();
@@ -86,7 +91,7 @@ getCourseFinals = function () {
     var finals, courses, courseFinal, course, colors, color;
     colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
     finals = [];
-    courses = JSON.parse(sessionStorage.courses);
+    courses = getStoredCourses();
     for (course in courses) {
         if (courses.hasOwnProperty(course)) {
             color = colors[parseInt((Math.random() * 5), 10)];
@@ -100,18 +105,4 @@ getCourseFinals = function () {
     return finals;
 };
 
-// Clears any sessionStorage data and reloads data from Parse
-$(document).on("click", ".refresh-data", function () {
-    "use strict";
-    var btn;
-    btn = Ladda.create(this);
-    btn.start();
-    cacheFresh("refresh");
-    storeCourses().then(function () {
-        $('#calendar').fullCalendar('destroy');
-        displayCalendar();
-    });
-    btn.stop();
-});
-
-$(document).ready(getCalendar);
+$(document).ready(loadPage);

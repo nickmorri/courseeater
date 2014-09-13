@@ -8,7 +8,7 @@ function CourseView(course) {
     "use strict";
     this.instructor = course.instructor;
     this.courseName = course.courseName;
-    this.courseIdentifier = course.courseIdentifier.toUpperCase().replace(/ /g, '');
+    this.courseIdentifier = course.courseIdentifier;
     this.courseCode = course.courseCode;
     this.max = course.max;
     this.enrolled = course.totalEnr;
@@ -52,7 +52,7 @@ CourseView.prototype.getCourseHeader = function () {
     	typeString = 'label-primary';
     }
     infoString += typeString + '">' + this.type + '</span>';
-    infoString += '<span class="label panel-label label-identifier' + typeString + '">' + this.courseIdentifier + '</span>';
+    infoString += '<span class="label panel-label label-identifier' + typeString + '">' + this.courseIdentifier.toUpperCase().replace(/ /g, '') + '</span>';
     infoString += ' <span class="label panel-label label-course-code label-default">' + this.courseCode + '</span>';
     return infoString;
 };
@@ -288,26 +288,13 @@ CourseView.prototype.buildCollapsiblePanel = function (num, mainCourseCode) {
 
 CourseView.prototype.findCoCourses = function (type, callback) {
     "use strict";
-    var Course, courseQuery, courseName, courseIdentifier, coCourseQuery, i;
+    var courseQuery;
     clearTemporaryCourses();
-    Course = Parse.Object.extend("Course");
-    courseQuery = new Parse.Query(Course);
-    courseQuery.equalTo("courseCode", parseInt(this.courseCode, 10));
-    courseQuery.first().then(function (course) {
-        courseName = course.get("courseName");
-        courseIdentifier = course.get("courseIdentifier");
-        coCourseQuery = new Parse.Query(Course);
-        coCourseQuery.equalTo("courseName", courseName);
-        coCourseQuery.equalTo("courseIdentifier", courseIdentifier);
-        coCourseQuery.equalTo("type", toTitleCase(type));
-        return coCourseQuery.find();
-    }).then(function (results) {
-        for (i = 0; i < results.length; i++) {
-            if (getCourseFromCache(results[i].attributes.courseCode) === undefined) {
-                addTemporaryCourse(results[i].attributes);
-            }
-        }
-    }).then(callback);
+    courseQuery = new Parse.Query("Course");
+    courseQuery.equalTo("courseName", this.courseName);
+    courseQuery.equalTo("courseIdentifier", this.courseIdentifier);
+    courseQuery.equalTo("type", type.toTitleCase());
+	courseQuery.find().then(addTemporaryCourses).then(callback);
 };
 
 CourseView.prototype.remove = function () {
