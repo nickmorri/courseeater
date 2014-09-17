@@ -5,7 +5,7 @@ var loadPage, getCourses, displayCourses, classGroups, displayCollapsibleClasses
 
 loadPage = function () {
 	"use strict";
-	getCourseLists();	
+	getCourseLists();
 	getCourses();
 };
 
@@ -29,20 +29,14 @@ getCourseListHTML = function(list) {
 // Retrieves and displays CourseLists
 getCourseLists = function () {
 	"use strict";
-	var courseListQuery, display;
-	display = $("#courseListDisplay");
-	display.html('<li class="divider"></li><li><a id="createCourseList" href="#">New <span class="glyphicon glyphicon-plus pull-right"></span></a></li>');
+	var courseListQuery;
+	$("#courseListDisplay").html('<li class="divider"></li><li><a id="createCourseList" href="#">New <span class="glyphicon glyphicon-plus pull-right"></span></a></li>');
 	courseListQuery = new Parse.Query("CourseList");
 	courseListQuery.equalTo("owner", Parse.User.current());
 	courseListQuery.each(function(list) {
-		display.prepend(getCourseListHTML(list));
+		$("#courseListDisplay").prepend(getCourseListHTML(list));
 	});
-};
-
-// Collapses Navbar
-closeNavbarDropdown = function () {
-	"use strict"
-	if ($(".navbar-header .navbar-toggle").css("display") != "none") $(".navbar-header .navbar-toggle").trigger("click");
+	console.log($("#courseListDisplay").children().remove());
 };
 
 // Handles courseListSettings modal
@@ -125,7 +119,7 @@ displaySearch = function () {
     $("#courseInformationDisplay .modal-dialog .modal-content").html("<div class='modal-header'><button type='button' class='close' data-dismiss='modal'><span aria-hidden='true'>&times;</span><span class='sr-only'>Close</span></button><h4 class='modal-title'>Results</h4></div><div class='modal-body row'></div>");
     for (course in temporaryCourses) {
 		view = new CourseView(temporaryCourses[course]);
-        $("#courseInformationDisplay .modal-dialog .modal-content .modal-body").append('<div class="col-lg-4 col-md-6">' + view.buildDefaultPanel() + '</div>');
+        $("#courseInformationDisplay .modal-dialog .modal-content .modal-body").append('<div class="col-lg-4 col-md-6 search-result-column">' + view.buildDefaultPanel() + '</div>');
     }
     $("#courseInformationDisplay").modal("show");
     clearTemporaryCourses();

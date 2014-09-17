@@ -1,7 +1,7 @@
 /*global storeCourses, Ladda, cacheFresh, $, document, jQuery, localStorage, retrieveCourses, getCourseFromCache, getTemporaryCourse, Parse, getEquivalentCourse, console, transferCourseFromTemporaryToCache */
 /*jslint plusplus: true */
 
-var getCalendar, handleCourseClick, displayCalendar, getCourseEvent, getCourseEvents, displaySearch;
+var getCalendar, handleCourseClick, makeScheduleImage, displayCalendar, getCourseEvent, getCourseEvents, displaySearch;
 
 loadPage = function () {
 	"use strict";
@@ -21,6 +21,8 @@ getCalendar = function () {
 // Handles Modal launching and creation when Course calendar instance is selected.
 handleCourseClick = function (calEvent) {
     "use strict";
+    // Prevent Google Calendar launch
+    if (calEvent.url) return false;
     var courseObject, courseCode, coursePanel;
     courseCode = calEvent.id;
     if (getCourseFromCache(courseCode) !== undefined) {
@@ -31,6 +33,38 @@ handleCourseClick = function (calEvent) {
     coursePanel = courseObject.buildDefaultPanel();
     $("#coursePanelDisplay .modal-dialog").html(coursePanel);
     $("#coursePanelDisplay").modal("show");
+};
+
+// Generates png image of schedule
+makeScheduleImage = function (event) {
+	html2canvas($("#calendar"), {
+		onrendered: function(canvas) {
+			var destinationCanvas, destinationContext, today, link;
+		
+			destinationCanvas = document.createElement('canvas');
+			destinationCanvas.width = canvas.width;
+			destinationCanvas.height = canvas.height;
+			
+			destinationContext = destinationCanvas.getContext("2d");
+			destinationContext.rect(0, 0, canvas.width, canvas.height);
+			destinationContext.fillStyle = "white";
+			destinationContext.fill();
+
+			destinationContext.drawImage(canvas, 0, 0, canvas.width, canvas.height);
+			
+			destinationContext.font = '10pt Helvetica';
+			destinationContext.fillStyle = "black";
+			destinationContext.fillText("http://courseeater.com", canvas.width - 140, canvas.height - 8);
+			
+			today = new Date();
+			
+			link = document.createElement("a");
+			link.download = "Schedule - CourseEater - " + today.toLocaleDateString("en-US") + ".png";
+			link.href = destinationCanvas.toDataURL();
+			link.click();
+	    }
+	});
+	closeNavbarDropdown();
 };
 
 // Initializes FullCalendar library with relevant Course information.
@@ -169,7 +203,9 @@ String.prototype.hash = function(){
 		hash = hash & hash; // Convert to 32bit integer
 	}
 	return hash;
-}
+};
+
+$(document).on("click", "#calendarImage", makeScheduleImage);
 
 // Conducts search for CoCourses
 $(document).on("click", ".btn-search", function () {
@@ -253,4 +289,5 @@ $(document).on("click", ".refresh-data", function () {
     btn.stop();
 });
 
-$(document).ready(loadPage);
+// Have to use on window load, more traditional on document ready has issues with fullCalendar library and rendering
+$(window).load(loadPage);

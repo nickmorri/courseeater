@@ -82,6 +82,12 @@ googleAnalytics = function () {
     ga('send', 'pageview');
 };
 
+// Collapses Navbar
+closeNavbarDropdown = function () {
+	"use strict"
+	if ($(".navbar-header .navbar-toggle").css("display") != "none") $(".navbar-header .navbar-toggle").trigger("click");
+};
+
 // Clears any cached data and reloads data from Parse
 $(document).on("click", ".refresh-data", function () {
     "use strict";
@@ -92,6 +98,7 @@ $(document).on("click", ".refresh-data", function () {
     loadPage();
     $(".alert-error").hide();
     btn.stop();
+    closeNavbarDropdown();
 });
 
 initialize();

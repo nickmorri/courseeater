@@ -1,6 +1,7 @@
 /* Calendar page */
 #calendar {
 	margin-top: -32px;
+	background: "#fff"
 }
 .fc-event {
 	border: 0px;
