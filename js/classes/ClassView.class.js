@@ -29,5 +29,5 @@ ClassView.prototype.buildCollapsible = function () {
         collapsible += courseView.buildCollapsiblePanel(i, this.mainCourseCode);
     }
     collapsible += '</div>';
-    return '<div class="col-lg-4 col-md-6">' + collapsible + '</div>';
+    return '<div class="col col-lg-4 col-md-4 col-sm-6 col-xs-12">' + collapsible + '</div>';
 };

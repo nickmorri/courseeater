@@ -109,11 +109,25 @@ CourseView.prototype.getCourseDays = function () {
 CourseView.prototype.getCourseLocation = function () {
     "use strict";
     var locationString;
+    
+    var roomfinderURL = "http://www.classrooms.uci.edu/GAC/";
+    
     locationString = '<span class="glyphicon glyphicon-flag list-detail-glyphicon"></span> ';
     if (this.placeBuilding.indexOf("TBA") !== -1) {
         return locationString + this.placeBuilding;
     }
     locationString += '<a href="' + this.placeURL + '" target="_blank">' + this.placeBuilding + '</a>';
+    
+    var building = "";
+    for (var charIndex = 0; charIndex < this.placeBuilding.length; charIndex++) {
+        if (isNaN(this.placeBuilding[charIndex])) {
+            building += this.placeBuilding[charIndex];
+        }
+    }
+    
+    return "<span class='glyphicon glyphicon-flag list-detail-glyphicon'></span> <a href='" + roomfinderURL + building + ".html' target='blank'>" + this.placeBuilding + "</a>";
+    
+    
     return locationString;
 };
 
@@ -158,13 +172,13 @@ CourseView.prototype.getCourseInstructor = function () {
     if (this.instructor.indexOf("STAFF") !== -1) {
         return instructorString + this.instructor;
     }
-    instructorString += ' <a href="http://www.ratemyprofessors.com/SelectTeacher.jsp?searchName=';
+    instructorString += ' <a href="http://www.ratemyprofessors.com/search.jsp?queryBy=teacherName&queryoption=HEADER&query=';
     if (this.instructor.indexOf(", ") !== -1) {
         instructorString += this.instructor.split(", ")[0];
     } else {
         instructorString += this.instructor;
     }
-    instructorString += '&search_submit1=Search&sid=1074" target="_blank">';
+    instructorString += '&queryBy=schoolDetails&schoolName=University+of+California+Irvine&dept=" target="_blank">';
     instructorString += this.instructor;
     instructorString += '</a>';
     return instructorString;
@@ -299,11 +313,5 @@ CourseView.prototype.findCoCourses = function (type, callback) {
 
 CourseView.prototype.remove = function () {
     "use strict";
-    var courseCode;
-    courseCode = this.courseCode;
-    return Parse.Cloud.run("removeCourse", {courseCode: courseCode}).then(function () {
-        removeCourseFromCache(courseCode);
-    }, function (error) {
-        console.log(error);
-    });
+    return Parse.Cloud.run("removeCourse", {courseCode: this.courseCode});
 };

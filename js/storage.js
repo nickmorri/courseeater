@@ -116,7 +116,7 @@ removeCourseFromCache = function (courseCode) {
     if (courses[courseCode] === undefined) return false;
     delete courses[courseCode];
     localStorage.courses = JSON.stringify(courses);
-    return true;
+    return Parse.Promise.as();
 };
 
 // Returns array of courses from localStorage

@@ -48,7 +48,7 @@ buildBetaContent = function () {
     var userID = Parse.User.current().id;
     Parse.Cloud.run("checkBeta", {user: userID}).then(function () {
 		buildSearch();
-		buildAdmin();    
+		/* buildAdmin();     */
     });
 };
 

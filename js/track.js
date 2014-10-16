@@ -36,7 +36,6 @@ getCourseLists = function () {
 	courseListQuery.each(function(list) {
 		$("#courseListDisplay").prepend(getCourseListHTML(list));
 	});
-	console.log($("#courseListDisplay").children().remove());
 };
 
 // Handles courseListSettings modal
@@ -314,18 +313,25 @@ $(document).on('click', ".btn-remove", function () {
         courseCode = $(this).parent().parent().parent().attr("id");
         modal = $(this).parent().parent().parent().parent().parent().parent().parent().parent();
     }
-    getCourseFromCache(courseCode).remove().then(function () {
-        displayCourses();
-    }, function (error) {
-        console.log(error);
-        displayAlertError("Whoops something went wrong.");
-        displayCourses();
-        lBtn.stop();
-    }).then(function () {
-        cacheFresh("refresh");
-        if (modal !== undefined) modal.modal('hide');
-        retrieveCourses().then(storeCourses);
-    });
+    try {
+	    getCourseFromCache(courseCode).remove().then(function () {
+	        removeCourseFromCache(courseCode).then(displayCourses);
+	    }, function (error) {
+	        console.log(error);
+	        displayAlertError("Whoops something went wrong.");
+	        displayCourses();
+	        lBtn.stop();
+	    }).then(function () {
+	        cacheFresh("refresh");
+	        if (modal !== undefined) modal.modal('hide');
+	        retrieveCourses().then(storeCourses);
+	    });
+    }
+    catch (error) {
+	    console.log(error);
+		displayAlertError("Whoops something went wrong.");
+    }
+    
 });
 
 $(document).ready(loadPage);

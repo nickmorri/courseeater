@@ -1,24 +1,11 @@
 body { background-color: #eee; }
-
 /* Prevents body from scrolling while modal is open */
-body.modal-open {
-    overflow: hidden;
-}
-
+body.modal-open { overflow: hidden; }
 /* Setting margin values for a clear interface */
 .navbar { margin-bottom: 15px; }
 .refresh-data { cursor: pointer; }
 .course-list-item-title { cursor: pointer; }
 .add-course-entry { margin-top: -10px; }
-
-#courseID, .btn-primary.btn-add, .alert-error {
-	/*
--webkit-box-shadow: 0px 5px 5px 0px rgba(50, 50, 50, 0.75);
-	-moz-box-shadow:    0px 5px 5px 0px rgba(50, 50, 50, 0.75);
-	box-shadow:         0px 5px 5px 0px rgba(50, 50, 50, 0.75);
-*/
-}
-
 .search-course { margin-top: -10px; }
 .button-add { margin-top: -1px; }
 .form-control.update-info { margin-bottom: 10px; }
@@ -43,6 +30,7 @@ body.modal-open {
 	display: block;
 	max-width: 800px;
 	padding-top: 10px;
+	/* padding-bottom: 0px; */
 	margin-left: auto;
 	margin-right: auto;
 	border-radius: 0 !important;
