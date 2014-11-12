@@ -60,7 +60,8 @@ CourseView.prototype.getCourseHeader = function () {
 CourseView.prototype.getCourseName = function () {
     "use strict";
     var courseName;
-    courseName = '<span class="glyphicon glyphicon-pencil list-detail-glyphicon"></span> ' + this.courseName;
+    var splitName = this.courseName.split("&nbsp;");
+    courseName = '<span class="glyphicon glyphicon-pencil list-detail-glyphicon"></span> ' + splitName[0];
     return courseName;
 };
 
