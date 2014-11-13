@@ -51,13 +51,45 @@ $(document).on("keypress", ".form-control-password.registration-password", funct
     if (event.which == 13) { $(".btn-register").click(); }
 });
 
+$(document).on("keypress", ".form-control-registration-code.registration-code", function (event) {
+    "use strict";
+    if (event.which == 13) { $(".btn-register").click(); }
+});
+
 $(document).on("click", ".btn-register", function () {
     "use strict";
-    var username, email, password, user;
+    var username, email, password, user, registrationCode;
     username = $(".form-control-username.registration-username").val();
     email = $(".form-control-email.registration-email").val();
     password = $(".form-control-password.registration-password").val();
-    Parse.Cloud.run("checkAuthorized", {email: email}).then(function () {
+    registrationCode = $(".form-control-registration-code.registration-code").val();
+    
+    Parse.Cloud.run("checkRegistrationCode", {registrationCode: registrationCode}).then(function (response) {
+        user = new Parse.User();
+	    user.set("username", username);
+	    user.set("email", email);
+	    user.set("password", password);
+	    user.signUp().then(function() {
+            window.location.replace("index");
+        }, function (error) {
+            // Show the error message somewhere and let the user try again.
+            if (error.code === 125) {
+            $(".alert-register").html("<strong>Whoops!</strong> " + email + " is not a valid email address. Please follow the format: name@email.com");
+            } else if (error.code === 202) {
+            $(".alert-register").html("<strong>" + username + "</strong> has already been registered. Please try another username.");
+            } else {
+            console.log(error);  
+            }
+            $(".alert-register").show();
+        });    
+    }, function (error) {
+        console.log(error);
+        $(".alert-register").html(JSON.parse(error.message).message);
+        $(".alert-register").show();
+    });
+    
+    /*
+Parse.Cloud.run("checkAuthorized", {email: email}).then(function () {
 		user = new Parse.User();
 	    user.set("username", username);
 	    user.set("email", email);
@@ -79,6 +111,7 @@ $(document).on("click", ".btn-register", function () {
 	    $(".alert-register").html("<strong>" + email + "</strong> is not currently allowed to register.");
 	    $(".alert-register").show();
     });
+*/
     
 });
 

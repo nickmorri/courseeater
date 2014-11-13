@@ -284,7 +284,9 @@ $(document).on("click", ".btn-add", function (event) {
         $("#courseID").val('');
         if (!validateCourseCode(courseCode, displayAlertError)) return;
     }
-    var previousCourse = getEquivalentCourse(courseCode);
+    if (modal !== undefined) {
+        var previousCourse = getEquivalentCourse(courseCode);    
+    }
     if (previousCourse !== undefined) {
         removeCourseFromCache(previousCourse.courseCode);
         previousCourse.remove();

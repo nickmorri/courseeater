@@ -20,6 +20,7 @@ function CourseView(course) {
     this.time = course.time;
     this.days = course.days;
     this.type = course.type.toUpperCase();
+    this.sec = course.sec;
     this.updatedAt = new Date(course.updatedAt);
 }
 
@@ -309,6 +310,10 @@ CourseView.prototype.findCoCourses = function (type, callback) {
     courseQuery.equalTo("courseName", this.courseName);
     courseQuery.equalTo("courseIdentifier", this.courseIdentifier);
     courseQuery.equalTo("type", type.toTitleCase());
+    if (isNaN(this.sec) && this.type != "LEC") {
+        console.log(this.sec[0]);
+        courseQuery.startsWith("sec", this.sec[0]);
+    }
 	courseQuery.find().then(addTemporaryCourses).then(callback);
 };
 

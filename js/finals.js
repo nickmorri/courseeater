@@ -38,12 +38,13 @@ getCourseFinal = function (course, color) {
     "use strict";
     var startingDay, finalString, title, heldDay, time, start, end, endFront, endBack, event;
 
-    startingDay = "2014-12-";
+    startingDay = "2015-12-";
     finalString = course.final;
-    if (finalString === "NONE") {
+    if (finalString === "NONE" || finalString == "TBA") {
         return undefined;
     }
     // Day processing
+    debugger;
     heldDay = startingDay + finalString.split(", ")[1].split(" ")[1];
     // Title processing
     title = course.courseCode + " " + course.courseIdentifier.toUpperCase() + " - " + course.type.toUpperCase();
