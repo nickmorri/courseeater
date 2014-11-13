@@ -240,7 +240,7 @@ CourseView.prototype.buildDefaultPanel = function () {
 		colorString = '#5BC0DE';
     } else if (this.type === "LAB") {
 		colorString = '#D9534F';
-    }
+    } 
     
     if (colorString) {
 	    courseString += '<div class="panel-heading" style="background-color: ' + colorString + '!important;">';
@@ -273,7 +273,7 @@ CourseView.prototype.buildCollapsiblePanel = function (num, mainCourseCode) {
     if (colorString) {
 	    courseString += '<div class="panel-heading" style="background-color:' + colorString + '!important;">';
     } else {
-	    courseString += '<div class="panel-heading>"';
+	    courseString += '<div class="panel-heading">';
     }
 	hours = Math.round(Math.abs(new Date - this.updatedAt) / 36e5);
 	title = "Updated about " + hours;
