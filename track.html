@@ -3,8 +3,10 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="theme-color" content="#F0AD4E">
+	
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <link rel="icon" type="image/png" href="resources/favicon.png">
+    <link rel="icon" sizes="192x192" href="resources/favicon.png">
     
     <!-- External JavaScript -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
@@ -73,9 +75,13 @@
 	<div class="container form-user-management hidden-print">
 		<!-- Adding courses -->
     	<div class="container add-course-entry">
-			<input id="courseID" type="tel" maxlength="5" class="form-control" placeholder="Enter Course Code" autocomplete="off" required/>
-			<button type="button" data-loading-text="Adding..." class="btn btn-lg btn-primary btn-block btn-add ladda-button"><span class="ladda-label">Add</span></button>
-			<div class="alert alert-danger alert-error" style="display: none;"></div>
+    	    <div class="input-group">
+              <input id="courseID" type="tel" maxlength="5" class="form-control" placeholder="Enter Course Code" autocomplete="off" required/>
+              <span class="input-group-btn">
+                <button type="button" data-loading-text="Adding..." class="btn btn-lg btn-primary btn-block btn-add ladda-button"><span class="ladda-label">Add</span></button>
+              </span>
+            </div><!-- /input-group -->
+            <div class="alert alert-danger alert-error" style="display: none;"></div>
 		</div>
 		<!-- Course display -->
 		<div class="container" >

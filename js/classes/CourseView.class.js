@@ -188,6 +188,39 @@ CourseView.prototype.getCourseInstructor = function () {
 
 CourseView.prototype.getCourseActions = function () {
     "use strict";
+    return this.getCourseActionsOriginal();
+};
+
+CourseView.prototype.getCourseActionsNew = function () {
+    "use strict";
+    if (getCourseFromCache(this.courseCode) === undefined) {
+        return '<button type="button" class="btn btn-block btn-success btn-add ladda-button" data-loading-text="Adding...">Add</button>';
+    }
+    var actionString;
+    actionString = '<div class="btn-group btn-block dropup">';
+    actionString += '<button type="button" class="btn btn-default dropdown-toggle btn-block" data-toggle="dropdown" aria-expanded="false"><span class="glyphicon glyphicon-cog"></span></button>';
+    actionString += '<span class="sr-only">Toggle Dropdown</span>';
+    actionString += '</button>';
+    actionString += '<ul class="dropdown-menu col-md-12" role="menu">';
+    actionString += '<li><a class="btn-remove" href="#">Remove</a></li>'
+    actionString += '<li class="divider"></li>';
+    actionString += '<li><a class="btn-search-replacements" href="#">Search for replacements</a></li>';
+    if (this.type !== "LEC") {
+        actionString += '<li><a class="btn-search search-Lec" href="#">Search for lectures</a></li>';
+    }
+    if (this.type !== "DIS") {
+        actionString += '<li><a class="btn-search search-Dis" href="#">Search for discussions</a></li>';
+    }
+    if (this.type !== "LAB") {
+        actionString += '<li><a class="btn-search search-Lab" href="#">Search for labs</a></li>';
+    }
+    actionString += '</ul>';
+    actionString += '</div>';
+    return actionString;
+};
+
+CourseView.prototype.getCourseActionsOriginal = function () {
+    "use strict";
     if (getCourseFromCache(this.courseCode) === undefined) {
         return '<button type="button" class="btn btn-block btn-success btn-add ladda-button" data-loading-text="Adding...">Add</button>';
     }
