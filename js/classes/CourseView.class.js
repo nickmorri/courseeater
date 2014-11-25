@@ -257,7 +257,7 @@ CourseView.prototype.buildPanelBody = function () {
     bodyString += '<li class="list-group-item">' + this.getCourseDays() + '</li>';
     bodyString += '<li class="list-group-item">' + this.getCourseTime() + '</li>';
     bodyString += '<li class="list-group-item">' + this.getCourseLocation() + '</li>';
-    bodyString += '<li class="list-group-item">' + this.getCourseProgress() + '</li>';
+    /* bodyString += '<li class="list-group-item">' + this.getCourseProgress() + '</li>'; */
     bodyString += '</ul>';
     return bodyString;
 };
@@ -344,7 +344,6 @@ CourseView.prototype.findCoCourses = function (type, callback) {
     courseQuery.equalTo("courseIdentifier", this.courseIdentifier);
     courseQuery.equalTo("type", type.toTitleCase());
     if (isNaN(this.sec) && this.type != "LEC") {
-        console.log(this.sec[0]);
         courseQuery.startsWith("sec", this.sec[0]);
     }
 	courseQuery.find().then(addTemporaryCourses).then(callback);

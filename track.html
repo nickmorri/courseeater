@@ -73,8 +73,13 @@
 	
 	<!-- Course actions container -->
 	<div class="container form-user-management hidden-print">
+	
 		<!-- Adding courses -->
     	<div class="container add-course-entry">
+    	    <div class="alert alert-info" role="alert">
+                An issue with the database occurred and some course data was lost. It should have been recovered now but you may have to re-add courses if they have disappeared. Sorry for the inconvenience. 
+            </div>
+    	
     	    <div class="input-group">
               <input id="courseID" type="tel" maxlength="5" class="form-control" placeholder="Enter Course Code" autocomplete="off" required/>
               <span class="input-group-btn">
