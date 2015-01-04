@@ -1,0 +1,20 @@
+<div class="container">
+    <ul class="nav nav-pills event-nav">
+        <li ng-click="newEventModal()">
+            <a href>
+                <span class="glyphicon glyphicon-plus"></span>
+                New
+            </a>
+        </li>
+    </ul>
+</div>
+<div class="container" ng-show="hasEvents()">
+    <event-view ng-repeat="event in downEventStore.future_events"></event-view>
+</div>
+<div class="container" ng-hide="hasEvents()">
+    <div class="jumbotron">
+        <p>
+            You're not going to anything :(
+        </p>
+    </div>
+</div>

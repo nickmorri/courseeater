@@ -1,0 +1,31 @@
+<div class="container">
+    <ul class="nav nav-pills event-nav">
+        <li ng-click="showAddFriendDialog()" ng-hide="showingAddFriendDialog">
+            <a href>
+                <span class="glyphicon glyphicon-plus"></span>
+                Add
+            </a>
+        </li>
+        <li ng-show="showingAddFriendDialog">
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <button ng-click="sendFriendInvite()" class="btn btn-primary" type="button"><span class="glyphicon glyphicon-plus"></span> Add</button>
+                    <button ng-click="hideAddFriendDialog()" class="btn btn-default" type="button">Cancel</button>
+                </span>
+                <input type="text" ng-model="selectedUser" placeholder="Search for a friend" typeahead="friend for friend in getFriends($viewValue)" class="form-control">
+            </div>
+        </li>
+    </ul>
+</div>
+<div class="container" ng-show="hasFriends()">
+    <div class="row">
+        <friend-view ng-repeat="friend in friendStore._collection"></friend-view>
+    </div>
+</div>
+<div class="container" ng-hide="hasFriends()">
+    <div class="jumbotron">
+        <p>
+            You don't have any friends :(
+        </p>
+    </div>
+</div>

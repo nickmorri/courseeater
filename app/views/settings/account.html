@@ -1,0 +1,66 @@
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">Change email preferences</h4>
+        </div>
+        <div class="panel-body">
+            <div class="form-horizontal">
+    			<div class="form-group">
+					<label for="new_email" class="col-sm-2 control-label">Email</label>
+					<div class="col-sm-10">
+						<input type="email" class="form-control" placeholder="{{authService.currentUser.attributes.email}}" ng-model="newEmail">
+					</div>
+    			</div>
+    		</div>
+        </div>
+        <div class="panel-footer">
+            <button type="button" class="btn btn-lg btn-primary btn-block button-spaced" ng-click="updateEmail()">Update Email</button>
+        </div>
+    </div>
+    
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">Change password preferences</h4>
+        </div>
+        <div class="panel-body">
+            <div class="form-horizontal">
+    			<div class="form-group">
+					<label for="inputCurrentPassword" class="col-sm-2 control-label">Current password</label>
+					<div class="col-sm-10">
+						<input type="password" class="form-control update-info" placeholder="Current password" ng-model="currentPassword">
+					</div>
+					<label for="inputNewPassword" class="col-sm-2 control-label">New password</label>
+					<div class="col-sm-10">
+						<input type="password" class="form-control update-info" placeholder="New password" ng-model="newPassword">
+					</div>
+					<label for="inputVerifyPassword" class="col-sm-2 control-label">Verify password</label>
+					<div class="col-sm-10">
+						<input type="password" class="form-control update-info" placeholder="Verify password" ng-model="verifiedPassword">
+					</div>
+    			</div>
+    		</div>
+        </div>
+        <div class="panel-footer">
+            <button type="button" class="btn btn-lg btn-primary btn-block button-spaced" ng-click="updatePassword()">Update Password</button>
+        </div>
+    </div>
+    
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">Delete account permanently</h4>
+        </div>
+        <div class="panel-body">
+            <div id="deleteAccount" class="form-horizontal">
+    			<div class="form-group">
+    				<label for="password_delete_account" class="col-sm-2 control-label">Current password</label>
+    				<div class="col-sm-10">
+    					<input type="password" class="form-control update-info" placeholder="Current password" ng-model="accountDeletionPassword">
+    				</div>
+    			</div>
+    		</div>
+        </div>
+        <div class="panel-footer">
+            <button type="button" class="btn btn-lg btn-primary btn-block button-spaced">Delete Account</button>
+        </div>
+    </div>
+</div>

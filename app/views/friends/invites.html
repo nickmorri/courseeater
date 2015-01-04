@@ -1,0 +1,10 @@
+<div class="container" ng-show="hasFriendInvites()">
+    <friend-invite-view ng-repeat="invite in friendInviteStore._collection"></friend-invite-view>
+</div>
+<div class="container" ng-hide="hasFriendInvites()">
+    <div class="jumbotron">
+        <p>
+            You don't have any friend invites :(
+        </p>
+    </div>
+</div>

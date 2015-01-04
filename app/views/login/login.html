@@ -1,0 +1,22 @@
+<div class="container">
+
+    <div class="page-header">
+        <h1>Down <small>Login</small></h1>
+    </div>
+    
+    <form class="form-signin" ng-controller="LoginController" ng-submit="login()">		
+    	<h2 class="form-signin-heading">Sign in</h2>
+    		
+    		<input type="text" class="form-control form-control-username" placeholder="Username" ng-model="username" required autofocus />
+    		
+    		<input type="password" class="form-control form-control-password" placeholder="Password" ng-model="password" required />
+    		
+    		<input type="submit" class="btn btn-lg btn-primary btn-block form-control-submit" value="Login" />	
+    			
+    		<div class="alert alert-danger alert-login" ng-show="error">
+        		<strong>Whoops!</strong> Either your username or password were incorrect. Please try again or <a href="#" class="alert-link">try resetting your password.</a>
+        	</div>
+    		
+    </form>
+
+</div>

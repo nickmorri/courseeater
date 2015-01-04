@@ -1,0 +1,192 @@
+/* Profile Picture DropZone */
+.dragover {
+    cursor: copy;
+}
+.dragover-err {
+    border-width: 5px;
+    border-color: red;
+}
+.image-container {
+    width: 300px;
+    height: 300px;
+}
+
+.image-container img {
+   max-width: 100%;   
+}
+
+.file-name {
+   font-family: Arial;   
+}
+
+.friend-view-thumbnail {
+    margin: -15px;
+    width: 100%;
+}
+.edit-group-member {
+    cursor: hand;
+}
+/* AngularJS Bootstrap routing fix */
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+
+.currentUserProfileThumbnail {
+    margin-top: -10px;
+    margin-bottom: -10px;
+}
+/* Square-ifying things */
+.panel {
+	border-radius: 0px;
+}
+.panel-heading {
+	border-radius: 0px;
+}
+.panel-footer {
+	border-radius: 0px;
+}
+.btn {
+	border-radius: 0px;
+}
+.nav.nav-pills > li > a {
+	border-radius: 0px;
+}
+.navbar {
+	border-radius: 0px;
+}
+.dropdown-menu {
+	border-radius: 0px;
+}
+.friend-list-item.jumbotron {
+	border-radius: 0px;
+}
+.jumbotron.groups {
+	border-radius: 0px;
+}
+.modal-content {
+	border-radius: 0px;
+}
+.alert {
+	border-radius: 0px;
+}
+/* End of square business */
+body {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.alert-login {
+	margin-top: 10px;
+}
+.navbar {
+	margin-bottom: 10px;
+}
+.friend-nav {
+	margin-bottom: 10px;
+}
+.event-nav {
+	margin-bottom: 10px;
+}
+.friends {
+	margin-bottom: 10px;
+}
+#friendInvitationModal .modal-body {
+	padding-top: 0px;
+}
+.overlay {
+	background: transparent; 
+	position: relative; 
+	width: inherit;
+	height: 300px;
+	top: 300px;
+	margin-top: -300px;
+}
+.well {
+	padding: 1px;
+}
+map {
+	width: inherit;
+	height: 350px;
+	margin-top: -10px;
+	margin-bottom: -10px;
+	margin-left: -15px;
+	margin-right: -15px;
+}
+.btn-group {
+	margin-top: 10px;
+	max-width: 100%;
+}
+.event-list-item:hover {
+	background-color: #f5f8fa;
+}
+.mini-friend-view:hover {
+	cursor: hand;
+	background-color: #f5f8fa;
+}
+.user-collector {
+	padding-top: 5px;
+}
+.modal-body {
+	padding-bottom: 0px;
+}
+.modal-footer button {
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+.event-creation-details {
+	border-radius: 0;
+}
+.datepicker {
+	z-index: 1151 !important;
+}
+.pac-container { 
+	z-index: 1151 !important;
+}
+.input-group-addon {
+	border-radius: 0;
+}
+.input-group {
+	margin: 10px;
+}
+.form-control {
+	border-radius: 0px;
+}
+.form-signin {
+  max-width: 330px;
+  padding: 15px;
+  margin: 0 auto;
+}
+.form-signin .form-signin-heading .form-signin .checkbox {
+  margin-bottom: 10px;
+}
+.form-signin .checkbox {
+  font-weight: normal;
+}
+.form-signin .form-control {
+  position: relative;
+  height: auto;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-user-management .form-control {
+    position: relative;
+    height: auto;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 10px;
+    font-size: 16px;
+}
+.form-signin .form-control:focus {
+  z-index: 2;
+}
+.form-control-username {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.form-control-password {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}

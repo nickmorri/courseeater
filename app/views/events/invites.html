@@ -1,0 +1,10 @@
+<div class="container" ng-show="hasInvites()">
+    <event-invite-view ng-repeat="invite in downEventInviteStore.invites"></event-invite-view>
+</div>
+<div class="container" ng-hide="hasInvites()">
+    <div class="jumbotron">
+        <p>
+            You haven't been invited to anything :(
+        </p>
+    </div>
+</div>

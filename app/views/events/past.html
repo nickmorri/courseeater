@@ -1,0 +1,10 @@
+<div class="container" ng-show="hasEvents()">
+    <event-view ng-repeat="event in events"></event-view>
+</div>
+<div class="container" ng-hide="hasEvents()">
+    <div class="jumbotron">
+        <p>
+            You haven't gone to anything :(
+        </p>
+    </div>
+</div>

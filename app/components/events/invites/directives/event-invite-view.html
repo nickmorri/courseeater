@@ -1,0 +1,39 @@
+<div class="panel" ng-class="invite.event.eventPast() ? 'panel-success' : 'panel-warning' ">
+    
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            {{invite.event.title}}
+            <span class="pull-right">
+            {{invite.event.startDate.calendar()}}
+            </span>
+        </h3>
+    </div>
+        
+    <ul class="list-group">
+        <li class="list-group-item" ng-hide="invite.event.note == ''">
+            <span class="glyphicon glyphicon-info-sign"></span>
+            <b>Note:</b> {{invite.event.note}}
+        </li>
+        <li class="list-group-item" ng-hide="invite.event.goingUsers.length === 0">
+            <going-view info="invite.event"></going-view>
+        </li>
+        <li class="list-group-item" ng-hide="invite.event.invitedUsers.length === 0">
+            <invited-view info="invite.event"></invited-view>
+        </li>
+        <li class="list-group-item" ng-hide="!invite.event.hasLocation">
+            <map-view info="invite.event"></map-view>
+        </li>
+    </ul>
+        
+    <div class="panel-footer">
+        <div class="btn-group btn-block dropup">
+            <button type="button" class="btn col-xs-6 btn-default" ng-click="acceptInvitation(invite)">
+                <span class="glyphicon glyphicon-hand-down"></span> Accept
+            </button>
+            <button type="button" class="btn col-xs-6 btn-default" ng-click="declineInvitation(invite)">
+                <span class="glyphicon glyphicon-ban-circle"></span> Decline
+            </button>
+        </div>
+    </div>
+    
+</div>

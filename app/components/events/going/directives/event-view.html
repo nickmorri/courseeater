@@ -1,0 +1,54 @@
+<div class="panel" ng-class="event.eventPast() ? 'panel-success' : 'panel-warning' ">
+    
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            {{event.title}}
+            <span class="pull-right">
+            {{event.startDate.calendar()}}
+            </span>
+        </h3>
+    </div>
+        
+    <ul class="list-group">
+        <li class="list-group-item" ng-hide="event.note == ''">
+            <span class="glyphicon glyphicon-info-sign"></span>
+            <b>Note:</b> {{event.note}}
+        </li>
+        <li class="list-group-item" ng-hide="event.goingUsers.length === 0">
+            <going-view info="event"></going-view>
+        </li>
+        <li class="list-group-item" ng-hide="event.invitedUsers.length === 0">
+            <invited-view info="event"></invited-view>
+        </li>
+        <li class="list-group-item" ng-hide="!event.hasLocation">
+            <map-view info="event"></map-view>
+        </li>
+    </ul>
+        
+    <div class="panel-footer" ng-show="event.eventPast()">
+        <div class="btn-group btn-block dropup">
+            <button type="button" class="btn col-xs-11 btn-default" ng-click="openInviteModal(event)">
+                <span class="glyphicon glyphicon-send"></span> Invite friends
+            </button>
+            <button type="button" class="btn col-xs-1 btn-default dropdown-toggle" data-toggle="dropdown">
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu col-md-12" role="menu">
+                <li ng-click="leaveEvent(event)">
+                    <a href>
+                        <span class="glyphicon glyphicon-remove-circle"></span> 
+                        <span ng-show="event.creator.id === authService.currentUser.id"> End event</span>
+                        <span ng-show="event.creator.id !== authService.currentUser.id"> Leave</span>
+                    </a>
+                </li>
+                <li class="divider" ng-show="event.creator.id === authService.currentUser.id"></li>
+                <li ng-click="event.edit()" ng-show="event.creator.id === authService.currentUser.id">
+                    <a href>
+                        <span class="glyphicon glyphicon-wrench"></span> Edit
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+</div>

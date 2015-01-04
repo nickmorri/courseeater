@@ -1,0 +1,33 @@
+<div class="panel panel-default">
+
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            {{group.groupName}}
+        </h4>
+    </div>
+  
+    <ul class="list-group">
+        <li class="list-group-item" ng-repeat="friend in group.friends">
+            <span ng-if="group.isEditing()" class="glyphicon glyphicon-minus edit-group-member" ng-click="removeFriendFromGroup(friend, group)"></span> 
+            <mini-friend-view info="friendStore.getFriend(friend)"></mini-friend-view>
+        </li>
+        <li class="list-group-item" ng-repeat="friend in friendStore._collection | nonMember : group" ng-if="group.isEditing()">
+            <span class="glyphicon glyphicon-plus edit-group-member" ng-click="addFriendToGroup(friend, group)"></span> 
+            <mini-friend-view info="friend"></mini-friend-view>
+        </li>
+    </ul>
+  
+    <div class="panel-footer">
+        <div class="btn-group btn-block dropup">
+            <button type="button" class="btn col-xs-6 btn-default" ng-click="toggleEditing(group)">
+                <span class="glyphicon glyphicon-pencil"></span> 
+                <span ng-if="group.isEditing()"> Done Editing</span>
+                <span ng-if="!group.isEditing()"> Edit</span>
+            </button>
+            <button type="button" class="btn col-xs-6 btn-default" ng-click="deleteGroup(group)">
+                <span class="glyphicon glyphicon-ban-circle"></span> Delete
+            </button>
+        </div>
+    </div>
+  
+</div>

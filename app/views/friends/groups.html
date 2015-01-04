@@ -1,0 +1,54 @@
+<div class="container" ng-hide="composingNewGroup">
+    <ul class="nav nav-pills event-nav">
+        <li ng-click="composeNewGroup()">
+            <a href>
+                <span class="glyphicon glyphicon-plus"></span>
+                Add
+            </a>
+        </li>
+    </ul>
+</div>
+<div class="container" ng-show="composingNewGroup">
+    <div class="panel panel-default">
+
+        <div class="panel-heading">
+            <input class="form-control" ng-model="newGroupName" placeholder="New group name">
+        </div>
+      
+        <ul class="list-group">
+            <li class="list-group-item" ng-repeat="member in newGroupMemberIDs">
+                <span class="glyphicon glyphicon-minus edit-group-member" ng-click="removeFriendFromNewGroup(member)"></span> 
+                <mini-friend-view info="friendStore.getFriend(member)"></mini-friend-view>
+            </li>
+            <li class="list-group-item" ng-repeat="friend in friendStore._collection | nonNewMember: newGroupMemberIDs">
+                <span class="glyphicon glyphicon-plus edit-group-member" ng-click="addFriendToNewGroup(friend)"></span> 
+                <mini-friend-view info="friend"></mini-friend-view>
+            </li>
+        </ul>
+      
+        <div class="panel-footer">
+            <div class="btn-group btn-block dropup">
+                <button type="button" class="btn col-xs-6 btn-default" ng-click="createNewGroup()">
+                    <span class="glyphicon glyphicon-pencil"></span> Done
+                </button>
+                <button type="button" class="btn col-xs-6 btn-default" ng-click="discardNewGroup()">
+                    <span class="glyphicon glyphicon-pencil"></span> Cancel
+                </button>
+            </div>
+        </div>
+      
+    </div>
+</div>
+
+<div class="container" ng-show="hasGroups()">
+    <div class="list-group">
+        <group-view ng-repeat="group in groupStore._collection"></group-view>
+    </div>
+</div>
+<div class="container" ng-hide="hasGroups()">
+    <div class="jumbotron">
+        <p>
+            You don't have any groups :(
+        </p>
+    </div>
+</div>
