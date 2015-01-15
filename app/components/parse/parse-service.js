@@ -1,5 +1,5 @@
 var parse_service = angular.module("parse.service", ['parse-angular']);
 
 parse_service.run(function () {
-    Parse.initialize("soM1zL3RJadJVqxeK4kONzJllLf4idpFzFfPlRIq", "vn9eOES9KzEyaTca2qGJB7iFSNwEn0BNTtxuLmrX");
+    Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");
 });

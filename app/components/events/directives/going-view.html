@@ -1,7 +1,0 @@
-<div class="friend-list">
-    <span class="glyphicon glyphicon-ok"></span>
-    <b>Going:</b>
-    <span ng-repeat="friend in event.goingUsers">
-        <mini-friend-view info="friend"></mini-friend-view> <span class="glyphicon glyphicon-star" ng-if="event.creator.id == friend.id" tooltip="{{friend.getName()}} created {{event.title}}"></span>
-    </span>
-</div>

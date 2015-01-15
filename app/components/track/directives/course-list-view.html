@@ -1,0 +1,11 @@
+<ul class="dropdown-menu">
+	<li ng-repeat="list in courseListStore._collection" ng-class="{'active': list.active}">
+	    <a class="course-list-item-title" ng-click="editList(list)">
+		    {{list.title}} <span class="glyphicon glyphicon-cog pull-right"></span>
+	    </a>
+    </li>
+	<li class="divider"></li>
+	<li ng-click="createList()">
+	    <a href>New <span class="glyphicon glyphicon-plus pull-right"></span></a>
+    </li>
+</ul>

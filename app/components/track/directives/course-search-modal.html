@@ -1,0 +1,10 @@
+<div class="modal-header">
+    <h4 class="modal-title" ng-show="resultCourses.length">{{courseIdentifier}}</h4>
+    <h4 class="model-title" ng-hide="resultCourses.length">No results</h4>
+</div>
+<div class="modal-body" ng-show="resultCourses.length">
+    <course-search-view ng-repeat="course in resultCourses"></course-search-view>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="$close()">Close</button>
+</div>

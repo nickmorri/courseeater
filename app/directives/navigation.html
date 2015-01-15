@@ -1,44 +1,68 @@
-<div class="container">
-    <div class="navbar navbar-default" role="navigation">
-		<div class="container-fluid">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" ui-sref="events.going">Down</a>
-			</div>
-			<div class="navbar-collapse collapse">
-				<ul class="nav navbar-nav">
-    				
-					<li ui-sref-active="active">
-					    <a ui-sref="events.going">
-    					    <span class="glyphicon glyphicon-calendar"></span>
-    					    Events
-                        </a>
-					</li>
-					<li ui-sref-active="active">
-					    <a ui-sref="friends.list">
-    					    <span class="glyphicon glyphicon-user"></span>
-    					    Friends
-                        </a>
-					</li>
-					
-				</ul>
-				<ul class="nav navbar-nav navbar-right">
-					<li class="dropdown">
-						<a href class="dropdown-toggle" data-toggle="dropdown"> 
-    						<img width="20" height="20" ng-if="authService.currentUser.attributes.profileThumbnail._url" ng-src="{{authService.currentUser.attributes.profileThumbnail._url}}" class="img-circle currentUserProfileThumbnail">
-    						<span ng-if="!authService.currentUser.attributes.profileThumbnail._url" class="glyphicon glyphicon-user"></span>
-    						{{authService.currentUser.attributes.firstName + " " + authService.currentUser.attributes.lastName}}</a>
-						<ul class="dropdown-menu">
-    						<li ui-sref-active="active"><a ui-sref="settings.profile"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
-							<li ng-click="authService.logout()"><a href><span class="glyphicon glyphicon-log-out"></span> Sign out</a></li>
-						</ul>
-					</li>
-				</ul>
-			</div>
+<div class="navbar navbar-default navbar-static-top" role="navigation">
+ 	<div class="container">
+  		<div class="navbar-header">
+    		<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+            <a class="navbar-brand" href="/">CourseEater</a>
+		</div>
+		<div class="collapse navbar-collapse">
+			<ul class="nav navbar-nav">
+    			
+    			<li ui-sref-active="active">
+				    <a href ui-sref="track">
+    				    <span class="glyphicon glyphicon-book"></span> Track
+    				</a>
+				</li>
+    			
+				<li class="dropdown">
+					<a href class="dropdown-toggle" data-toggle="dropdown">
+    					<span class="caret"></span>
+    				</a>
+					<ul class="dropdown-menu" ng-controller="ListController">
+    					<li ng-repeat="list in courseListStore._collection" ng-class="{'active': list.active}">
+    					    <a class="course-list-item-title" ng-click="setActiveList(list)">
+        					    {{list.title}} 
+        					    <span class="glyphicon glyphicon-cog pull-right" ng-if="courseListStore.activeList == list" ng-click="editList(list)"></span>
+        				    </a>
+                        </li>
+    					<li class="divider"></li>
+    					<li ng-click="createList()">
+    					    <a href>New <span class="glyphicon glyphicon-plus pull-right"></span></a>
+                        </li>
+    				</ul>
+				</li>
+				
+				<li ui-sref-active="active">
+				    <a href ui-sref="schedule">
+    				    <span class="glyphicon glyphicon-time"></span> Schedule
+    				</a>
+				</li>
+				
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+			    <li>
+			        <a href="https://docs.google.com/forms/d/1-V4m2t81fpaSa-PoAK8rL93PkM9xSgA7qyNWtSsSkPQ/viewform?usp=send_form" target="_blank"><span class="glyphicon glyphicon-flag"></span> Report Bug</a>
+                </li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> <span class="user-name-display">nick</span></a>
+					<ul class="dropdown-menu">
+						<li ui-sref-active="active">
+						    <a href ui-sref="settings">
+    						    <span class="glyphicon glyphicon-cog"></span> Settings
+    				        </a>
+						</li>
+						<li>
+						    <a ng-click="logout()" href>
+    						    <span class="glyphicon glyphicon-log-out"></span> Sign out
+                            </a>
+						</li>
+					</ul>
+				</li>		
+			</ul>
 		</div>
 	</div>
 </div>

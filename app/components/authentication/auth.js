@@ -1,4 +1,4 @@
-var authentication = angular.module('down.auth', ['parse-angular', 'parse.service']);
+var authentication = angular.module('courseeater.auth', ['parse-angular', 'parse.service']);
 
 authentication.factory('AuthService', ['$state', function ($state) {
     var authService = {};
@@ -13,7 +13,7 @@ authentication.factory('AuthService', ['$state', function ($state) {
         return Parse.User.logIn(username, password).then(function (response) {
             status = response;
             authService.currentUser = Parse.User.current();
-            $state.go('events.going');
+            $state.go('track');
         }, function (error) {
             status = error;
             authService.currentUser = null;
@@ -37,7 +37,7 @@ authentication.controller('LoginController', ['$scope', 'AuthService', '$state',
     $scope.authService = AuthService;
     
     if ($scope.authService.loggedIn()) {
-        $state.go('events.going');
+        $state.go('track');
     }
     
     $scope.error = false;
