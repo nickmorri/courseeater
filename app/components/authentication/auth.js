@@ -30,6 +30,10 @@ authentication.factory('AuthService', ['$state', function ($state) {
         return authService.currentUser.fetch();
     };
     
+    authService.sendAlert = function (message) {
+        return Parse.Cloud.run("sendAlert", {message : message});
+    };
+    
     return authService;
 }]);
 
