@@ -33,6 +33,10 @@ authentication.factory('AuthService', ['$state', function ($state) {
     return authService;
 }]);
 
+authentication.controller('NavController', ['$scope', 'AuthService', function ($scope, AuthService) {
+    $scope.authService = AuthService;
+}]);
+
 authentication.controller('LoginController', ['$scope', 'AuthService', '$state', function ($scope, AuthService, $state) {
     $scope.authService = AuthService;
     

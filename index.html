@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html ng-app="CourseEaterApp">
     
-    <head>
-        
+    <head ng-controller="HeadController">
+        <base href="/">
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-        <title>{{title}} | CourseEater</title>
-        <link rel="icon" sizes="192x192" href="favicon.png">
-        <meta name="theme-color" content="#3576BE">
+        <title ng-bind="title + ' | CourseEater'">CourseEater</title>
+        <link rel="icon" sizes="192x192" href="highres-transparent.png">
+        <meta name="theme-color" content="#F0AD4E">
         <meta name="mobile-web-app-capable" content="yes">
         
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.min.js"></script>
@@ -20,20 +20,30 @@
         <script src="static_dependencies/parse-angular.js"></script>
         <script src="static_dependencies/calendar/fullcalendar.min.js"></script>
         <script src="static_dependencies/calendar/calendar.js"></script>
+        <script src="static_dependencies/ng-bs-animated-button.js"></script>
+        
+        <script src="app/misc.js"></script>
         
         <script src="app/components/parse/parse-service.js"></script>
         <script src="app/components/authentication/auth.js"></script>
+        <script src="app/components/course/course.js"></script>
+        <script src="app/components/list/list.js"></script>
         <script src="app/components/track/track.js"></script>
         <script src="app/components/schedule/schedule.js"></script>
+        <script src="app/components/settings/settings.js"></script>
+        <script src="app/components/alert/alert.js"></script>
                 
         <script src="app/app.js"></script>
 
         <link text="text/css" rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+        <link text="text/css" rel="stylesheet" href="stylesheets/column-fix.css">
         <link text="text/css" rel="stylesheet" href="stylesheets/fullcalendar.min.css">
+        <link text="text/css" rel="stylesheet" href="stylesheets/ng-bs-animated-button.css">
         <link text="text/css" rel="stylesheet" href="stylesheets/schedule.css">
         <link text="text/css" rel="stylesheet" href="stylesheets/loading.css">
         <link text="text/css" rel="stylesheet" href="stylesheets/main.css">
         <link text="text/css" rel="stylesheet" href="stylesheets/course.css">
+        <link ng-if="state.is('login')" text="text/css" rel="stylesheet" href="stylesheets/login.css">
 
     </head>
     

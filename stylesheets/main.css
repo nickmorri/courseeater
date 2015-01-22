@@ -43,3 +43,7 @@ body.modal-open { overflow: hidden; }
     padding: 10.5px;
     font-size: 16px;
 }
+/* Remove pesky a href underline */
+a:hover, a:visited, a:link, a:active {
+    text-decoration: none;
+}

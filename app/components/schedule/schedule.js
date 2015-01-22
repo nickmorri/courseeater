@@ -1,43 +1,20 @@
-// Returns the Date object for the Monday of the current week
-var getWeekday = function (day) {
-	var date, dayOfMonth, dayOfWeek, thisMonday;
-	date = new Date();
-	// Setting time to midnight for consistent Datetime parsing
-	date.setHours(0,0,0,0);
-	dayOfMonth = date.getDate();
-	dayOfWeek = date.getDay();
-	thisMonday = (dayOfMonth - dayOfWeek) + 1;
-	date.setDate(thisMonday + day);
-	return date.toISOString().split("T")[0];;
-};
+var schedule = angular.module('courseeater.schedule', ['ui.bootstrap', 'courseeater.auth', 'ui.calendar', 'courseeater.course']);
 
-String.prototype.hash = function(){
-	var hash = 0;
-	if (this.length === 0) return hash;
-	for (i = 0; i < this.length; i++) {
-		char = this.charCodeAt(i);
-		hash = ((hash << 5) - hash) + char;
-		hash = hash & hash; // Convert to 32bit integer
-	}
-	return hash;
-};
-
-var schedule = angular.module('courseeater.schedule', ['ui.bootstrap', 'courseeater.auth', 'ui.calendar', 'courseeater.track']);
-
-schedule.controller('ScheduleController', ['$scope', 'AuthService', 'CourseListStore', 'uiCalendarConfig', '$modal', function ($scope, AuthService, CourseListStore, uiCalendarConfig, $modal) {
+schedule.controller('ScheduleController', ['$scope', 'AuthService', 'CourseStore', 'TemporaryStore', 'uiCalendarConfig', '$modal', function ($scope, AuthService, CourseStore, TemporaryStore, uiCalendarConfig, $modal) {
     $scope.authService = AuthService;
-    $scope.courseListStore = CourseListStore;
-    
-    if (!$scope.courseListStore.initialized) {
-        $scope.courseListStore.retrieveCourseLists();
-    }
+    $scope.temporaryStore = TemporaryStore;
+    $scope.courseStore = CourseStore;
     
     $scope.initialized = true;
-    $scope.events = [];
     $scope.eventSource = [];
     
     $scope.courseClick = function (event, jsEvent, view) {
-        var course = $scope.courseListStore.activeList.getCourse(event.id);
+        var course = $scope.courseStore.getCourse(event.id);
+        
+        if (course === undefined) {
+            course = $scope.temporaryStore.getCourse(event.id);
+        }
+        
         var modalInstance = $modal.open({
             templateUrl: 'app/components/schedule/directives/course-schedule-modal.html',
             controller: 'CourseScheduleModalController',
@@ -47,6 +24,7 @@ schedule.controller('ScheduleController', ['$scope', 'AuthService', 'CourseListS
                 }
             }
         });
+        
     };
     
     $scope.uiConfig = {
@@ -65,18 +43,68 @@ schedule.controller('ScheduleController', ['$scope', 'AuthService', 'CourseListS
         }
     };
     
-    $scope.$watch('courseListStore.activeList.eventSource', function (newValue, oldValue) {
-        
+    $scope.$watch('courseStore.events', function (newValue, oldValue) {
         if (newValue !== undefined || newValue !== oldValue) {
-            $scope.eventSource.splice(0, $scope.eventSource.length);
-            $scope.eventSource.push(newValue);    
+            $scope.eventSource.clear();
+            $scope.eventSource.push(newValue);
         }
+    });
+    
+    $scope.$watch('temporaryStore.events', function (newValue, oldValue) {
+        if (newValue !== undefined && newValue != [] && newValue != oldValue) {
+            if ($scope.eventSource.length != 1) $scope.eventSource.pop();
+            $scope.eventSource.push(newValue);
+        }       
     });
     
 }]);
 
-schedule.controller('CourseScheduleModalController', ['$scope', '$modalInstance', 'course', function ($scope, $modalInstance, course) {
+schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$modalInstance', 'CourseStore', 'TemporaryStore', 'ButtonConfiguration', 'course', function ($scope, $modal, $modalInstance, CourseStore, TemporaryStore, ButtonConfiguration, course) {
+    $scope.courseStore = CourseStore;
+    $scope.temporaryStore = TemporaryStore;
     $scope.course = course;
     
-    debugger
+    $scope.buttonConfig = ButtonConfiguration;
+    
+    $scope.addCourse = function (course) {
+        course.isSubmitting = true;
+        $scope.courseStore.addCourse(course.courseCode).then($scope.$close);
+    };
+    
+    $scope.removeCourse = function (course) {
+        course.isSubmitting = true;
+        $scope.courseStore.removeCourse(course.courseCode).then($scope.$close);
+    };
+    
+    $scope.replaceCourse = function (course) {
+        course.isSubmitting = true;
+        var originalCourse = $scope.courseStore.getEquivalentCourse(course);
+        $scope.courseStore.replaceCourse(originalCourse.courseCode, course.courseCode).then($scope.$close);
+    };
+    
+    $scope.searchForCocourses = function (course, type) {
+        var query = new Parse.Query("Course");
+        query.equalTo("courseIdentifier", course.courseIdentifier);
+        query.equalTo("type", type.toTitleCase());
+        query.find().then(function (results) {
+            $scope.displaySearch(results, false)
+        });
+    };
+    
+    $scope.searchForReplacements = function (course, type) {
+        var query = new Parse.Query("Course");
+        query.equalTo("courseIdentifier", course.courseIdentifier);
+        query.notEqualTo("courseCode", course.courseCode);
+        query.equalTo("type", type.toTitleCase());
+        query.find().then(function (results) {
+            $scope.displaySearch(results, true)
+        });
+    };
+    
+    $scope.displaySearch = function (results, replacement) {
+        $scope.temporaryStore.clear();
+        for (var i = 0; i < results.length; i++) $scope.temporaryStore.addCourse(results[i], replacement);
+        $scope.$close();
+    };
+    
 }]);

@@ -1,6 +1,6 @@
 <li class="list-group-item" ng-show="course.tracking">
     <div class="btn-group btn-block dropup">
-        <button type="button" class="btn col-xs-10 btn-default" ng-click="removeCourse(course)">Remove</button>
+        <jp-ng-bs-animated-button is-submitting="course.isSubmitting" result="course.result" options="buttonConfig.removeWithDropdownOptions" ng-click="removeCourse(course)"></jp-ng-bs-animated-button>
         <button type="button" class="btn col-xs-2 btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
         <ul class="dropdown-menu col-md-12" role="menu">
             <li><a class="btn-search-replacements" href ng-click="searchForReplacements(course, course.type)">Search for replacements</a></li>
@@ -13,10 +13,10 @@
 </li>
 <li class="list-group-item" ng-hide="course.tracking">
     <div class="btn-group btn-block dropup" ng-hide="activeList.hasCourse(course.courseCode)">
-        <button type="button" class="btn col-xs-12 btn-default" ng-show="originalCourse !== undefined" ng-click="replaceCourse(course)">Replace</button>
-        <button type="button" class="btn col-xs-12 btn-default" ng-hide="originalCourse !== undefined" ng-click="addCourse(course)">Add</button>
+        <jp-ng-bs-animated-button is-submitting="course.isSubmitting" result="course.result" options="buttonConfig.addOptions" ng-click="addCourse(course)" ng-hide="course.replacement"></jp-ng-bs-animated-button>
+        <jp-ng-bs-animated-button is-submitting="course.isSubmitting" result="course.result" options="buttonConfig.replaceOptions" ng-click="replaceCourse(course)" ng-show="course.replacement"></jp-ng-bs-animated-button>
     </div>
     <div class="btn-group btn-block dropup" ng-show="activeList.hasCourse(course.courseCode)">
-        <button type="button" class="btn col-xs-12 btn-default" ng-click="removeCourse(course)">Remove</button>
+        <jp-ng-bs-animated-button is-submitting="course.isSubmitting" result="course.result" options="buttonConfig.removeOptions" ng-click="removeCourse(course)"></jp-ng-bs-animated-button>
     </div>
 </li>

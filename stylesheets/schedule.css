@@ -13,3 +13,6 @@
 .fc-title {
 	font-weight: bold;	
 }
+.fc-content .fc-time {
+    display: none;
+}

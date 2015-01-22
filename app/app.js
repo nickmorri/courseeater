@@ -1,6 +1,8 @@
-var courseeater_app = angular.module('CourseEaterApp', ['ui.router', 'courseeater.auth', 'courseeater.track', 'courseeater.schedule']);
+var courseeater_app = angular.module('CourseEaterApp', ['ui.router', 'courseeater.auth', 'courseeater.track', 'courseeater.schedule', 'courseeater.list', 'courseeater.alert', 'courseeater.settings']);
 
-courseeater_app.config(function($stateProvider, $urlRouterProvider) {
+courseeater_app.config(['$locationProvider', '$stateProvider', '$urlRouterProvider', function($locationProvider, $stateProvider, $urlRouterProvider) {
+    
+    $locationProvider.html5Mode(true);
     
     $urlRouterProvider.otherwise('/login');
     
@@ -27,7 +29,18 @@ courseeater_app.config(function($stateProvider, $urlRouterProvider) {
             controller: 'ScheduleController',
             data: { pageTitle: 'Schedule'}
         })
-});
+        
+        .state('settings', {
+            url: '/settings',
+            templateUrl: 'app/views/settings/base.html',
+            controller: 'SettingsController',
+            data: { pageTitle: 'Settings'}
+        })
+}]);
+
+courseeater_app.controller('HeadController', ['$scope', '$state', function ($scope, $state) {
+    $scope.state = $state;
+}]);
 
 courseeater_app.directive('navigationView', function () {
     return {
