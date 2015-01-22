@@ -1,4 +1,4 @@
-<div class="navbar navbar-default navbar-static-top" role="navigation">
+<div class="navbar navbar-default navbar-static-top" role="navigation" ng-controller="NavController">
  	<div class="container">
   		<div class="navbar-header">
     		<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -23,43 +23,15 @@
 				</li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
-				<li class="dropdown" ng-controller="ListController">
-                    <a href class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span> {{courseListStore.activeList.title}}</a>
-					<ul class="dropdown-menu">
-    					<li ng-show="temporaryStore.hasCourses()" ng-click="temporaryStore.clear()"><a href>Clear temporary courses <span class="glyphicon glyphicon-remove"></span></a></li>
-    					<li role="presentation" class="dropdown-header">Course Lists</li>
-    					<li ng-repeat="list in courseListStore._collection" ng-class="{'active': list.active}">
-    					    <a class="course-list-item-title" ng-click="setActiveList(list)">
-        					    {{list.title}} 
-        					    <span class="glyphicon glyphicon-cog pull-right" ng-if="courseListStore.activeList == list" ng-click="editList(list)"></span>
-        				    </a>
-                        </li>
-    					<li class="divider"></li>
-    					<li ng-click="createList()">
-    					    <a href>New <span class="glyphicon glyphicon-plus pull-right"></span></a>
-                        </li>
-    				</ul>
+    			<connection-view></connection-view>
+				<li ng-show="isPage('schedule')">
+				    <a href ng-click="makeImage()">
+    				    <span class="glyphicon glyphicon-download"></span>
+    				    Download image
+				    </a>
 				</li>
-				<li class="dropdown" ng-controller="NavController">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> <span class="user-name-display">
-    					{{authService.currentUser.attributes.username}}
-    				</span></a>
-					<ul class="dropdown-menu">
-    					<li>
-    					    <a href="https://docs.google.com/forms/d/1-V4m2t81fpaSa-PoAK8rL93PkM9xSgA7qyNWtSsSkPQ/viewform?usp=send_form" target="_blank"><span class="glyphicon glyphicon-flag"></span> Report Bug</a>
-    					</li>
-						<li ui-sref-active="active">
-						    <a href ui-sref="settings">
-    						    <span class="glyphicon glyphicon-cog"></span> Settings
-    				        </a>
-						</li>
-						<li>
-						    <a ng-click="authService.logout()" href>
-    						    <span class="glyphicon glyphicon-log-out"></span> Sign out
-                            </a>
-						</li>
-					</ul>
-				</li>		
+				<course-list-view></course-list-view>
+				<user-menu></user-menu>	
 			</ul>
 		</div>
 	</div>
