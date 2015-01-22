@@ -23,7 +23,7 @@ displayCalendar = function () {
     $('#calendar').fullCalendar({
         header: "",
         defaultView: "agendaWeek",
-        defaultDate: "2014-12-15",
+        defaultDate: "2015-03-16",
         minTime: "08:00:00",
         maxTime: "22:00:00",
         weekends: false,
@@ -38,13 +38,12 @@ getCourseFinal = function (course, color) {
     "use strict";
     var startingDay, finalString, title, heldDay, time, start, end, endFront, endBack, event;
 
-    startingDay = "2015-12-";
+    startingDay = "2015-03-";
     finalString = course.final;
     if (finalString === "NONE" || finalString == "TBA") {
         return undefined;
     }
     // Day processing
-    debugger;
     heldDay = startingDay + finalString.split(", ")[1].split(" ")[1];
     // Title processing
     title = course.courseCode + " " + course.courseIdentifier.toUpperCase() + " - " + course.type.toUpperCase();
@@ -98,11 +97,10 @@ getCourseFinals = function () {
             color = colors[parseInt((Math.random() * 5), 10)];
             colors.splice(colors.indexOf(color), 1);
             courseFinal = getCourseFinal(courses[course], color);
-            if (courseFinal !== undefined) {
-                finals.push(courseFinal);
-            }
+            if (courseFinal !== undefined) finals.push(courseFinal);
         }
     }
+    debugger;
     return finals;
 };
 

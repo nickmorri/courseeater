@@ -1,4 +1,4 @@
-/*global Parse, cachedCourse, getCourseFromCache, clearTemporaryCourses, toTitleCase, addTemporaryCourse, removeCourseFromCache, console*/
+    /*global Parse, cachedCourse, getCourseFromCache, clearTemporaryCourses, toTitleCase, addTemporaryCourse, removeCourseFromCache, console*/
 /*jslint plusplus: true */
 
 var getCourseHeader, getCourseName, getCourseDays, getCourseLocation, getCourseProgress, getCourseTime, getCourseInstructor, getCourseActions, buildPanel, buildSubPanel, buildCourse;
@@ -62,7 +62,9 @@ CourseView.prototype.getCourseName = function () {
     "use strict";
     var courseName;
     var splitName = this.courseName.split("&nbsp;");
-    courseName = '<span class="glyphicon glyphicon-pencil list-detail-glyphicon"></span> ' + splitName[0];
+    
+    var courseName = "<a class='list-group-item' href='http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=2015-03&ShowFinals=1&ShowComments=1&CourseCodes=" + this.courseCode + "' target='_blank'><span class='glyphicon glyphicon-pencil list-detail-glyphicon'></span> " + splitName[0] + "</a>";
+    // courseName = '<span class="glyphicon glyphicon-pencil list-detail-glyphicon"></span> ' + webSOC_link;
     return courseName;
 };
 
@@ -114,11 +116,10 @@ CourseView.prototype.getCourseLocation = function () {
     
     var roomfinderURL = "http://www.classrooms.uci.edu/GAC/";
     
-    locationString = '<span class="glyphicon glyphicon-flag list-detail-glyphicon"></span> ';
     if (this.placeBuilding.indexOf("TBA") !== -1) {
-        return locationString + this.placeBuilding;
+        return '<span class="glyphicon glyphicon-flag list-detail-glyphicon"></span> ' + this.placeBuilding;
     }
-    locationString += '<a href="' + this.placeURL + '" target="_blank">' + this.placeBuilding + '</a>';
+    locationString = '<a class="list-group-item" href="' + this.placeURL + '" target="_blank"><span class="glyphicon glyphicon-flag list-detail-glyphicon"></span> ' + this.placeBuilding + '</a>';
     
     var building = "";
     for (var charIndex = 0; charIndex < this.placeBuilding.length; charIndex++) {
@@ -127,7 +128,7 @@ CourseView.prototype.getCourseLocation = function () {
         }
     }
     
-    return "<span class='glyphicon glyphicon-flag list-detail-glyphicon'></span> <a href='" + roomfinderURL + building + ".html' target='blank'>" + this.placeBuilding + "</a>";
+    return "<a class='list-group-item' href='" + roomfinderURL + building + ".html' target='blank'><span class='glyphicon glyphicon-flag list-detail-glyphicon'></span> " + this.placeBuilding + "</a>";
     
     
     return locationString;
@@ -170,17 +171,20 @@ CourseView.prototype.getCourseTime = function () {
 CourseView.prototype.getCourseInstructor = function () {
     "use strict";
     var instructorString;
-    instructorString = '<span class="glyphicon glyphicon-user list-detail-glyphicon"></span> ';
     if (this.instructor.indexOf("STAFF") !== -1) {
-        return instructorString + this.instructor;
+        return '<li class="list-group-item"><span class="glyphicon glyphicon-user list-detail-glyphicon"></span>' + this.instructor + '</li>';
     }
-    instructorString += ' <a href="http://www.ratemyprofessors.com/search.jsp?queryBy=teacherName&queryoption=HEADER&query=';
+    
+    
+    
+    
+    instructorString = ' <a class="list-group-item" href="http://www.ratemyprofessors.com/search.jsp?queryoption=HEADER&queryBy=teacherName&schoolName=University+of+California+Irvine&query=';
     if (this.instructor.indexOf(", ") !== -1) {
         instructorString += this.instructor.split(", ")[0];
     } else {
         instructorString += this.instructor;
     }
-    instructorString += '&queryBy=schoolDetails&schoolName=University+of+California+Irvine&dept=" target="_blank">';
+    instructorString += '" target="_blank"><span class="glyphicon glyphicon-user list-detail-glyphicon"></span> ';
     instructorString += this.instructor;
     instructorString += '</a>';
     return instructorString;
@@ -251,14 +255,14 @@ CourseView.prototype.getCourseActionsOriginal = function () {
 CourseView.prototype.buildPanelBody = function () {
     "use strict";
     var bodyString;
-    bodyString = '<ul class="list-group">';
-    bodyString += '<li class="list-group-item">' + this.getCourseName() + '</li>';
-    bodyString += '<li class="list-group-item">' + this.getCourseInstructor() + '</li>';
+    bodyString = '<div class="list-group">';
+    bodyString += this.getCourseName();
+    bodyString += this.getCourseInstructor();
+    bodyString += this.getCourseLocation();
     bodyString += '<li class="list-group-item">' + this.getCourseDays() + '</li>';
     bodyString += '<li class="list-group-item">' + this.getCourseTime() + '</li>';
-    bodyString += '<li class="list-group-item">' + this.getCourseLocation() + '</li>';
-    /* bodyString += '<li class="list-group-item">' + this.getCourseProgress() + '</li>'; */
-    bodyString += '</ul>';
+    // bodyString += '<li class="list-group-item">' + this.getCourseProgress() + '</li>';
+    bodyString += '</div>';
     return bodyString;
 };
 

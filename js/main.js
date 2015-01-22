@@ -6,6 +6,9 @@ var initialize, onPageLoad, buildBetaContent, buildSearch, toTitleCase, logoutUs
 initialize = function () {
     "use strict";
     document.title = window.location.pathname.substr(1).toTitleCase() + " | CourseEater";
+    $('head').append('<link rel="icon" sizes="192x192" href="resources/highres-transparent.png">');
+    $('head').append('<meta name="theme-color" content="#F0AD4E">');
+    $('head').append('<meta name="mobile-web-app-capable" content="yes">');
     Parse.initialize("ZJuxK6cPbOs5u3hy78QuIIojsBLnrDgpPeY9EQNU", "Rncx0sNYiCARajhzNE2m86l4HXdmYxo3yZ2AGJNy");
     if (!Parse.User.current()) window.location = "/";
 };

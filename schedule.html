@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<meta name="theme-color" content="#F0AD4E">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <link rel="icon" type="image/png" href="resources/favicon.png">
     
@@ -41,46 +40,44 @@
 </head>
 <body>
 
-	<header class="navbar navbar-static-top hidden-print" role="banner">
-	 	<nav class="navbar navbar-default navbar-static-top" role="navigation">
-		 	<div class="container">
-          		<div class="navbar-header">
-            		<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-						<span class="sr-only">Toggle navigation</span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-					</button>
-		            <a class="navbar-brand" href="/">CourseEater</a>
-				</div>
-				<div class="collapse navbar-collapse">
-					<ul class="nav navbar-nav">
-						<li><a href="track"><span class="glyphicon glyphicon-book"></span> Track</a></li>
-						<li class="dropdown active">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-time"></span> Schedule</a>
-							<ul class="dropdown-menu" role="menu">
-								<li class="active"><a href="schedule"><span class="glyphicon glyphicon-time"></span> Schedule</a></li>
-								<li class="divider"></li>
-								<li><a href="finals"><span class="glyphicon glyphicon-record"></span> Finals</a></li>
-							</ul>
-						</li>
-					</ul>
-					<ul class="nav navbar-nav navbar-right">
-					    <li><a href="https://docs.google.com/forms/d/1-V4m2t81fpaSa-PoAK8rL93PkM9xSgA7qyNWtSsSkPQ/viewform?usp=send_form" target="_blank"><span class="glyphicon glyphicon-flag"></span> Report Bug</a></li>
-						<li><a id="calendarImage" href="#"><span class="glyphicon glyphicon-download-alt"></span> Download Image</a></li>
-						<li><a class="ladda-button refresh-data" data-style="slide-up" data-spinner-color="#000000"><span class="glyphicon glyphicon-refresh"></span> Refresh</a></li>
-						<li class="dropdown">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> <span class="user-name-display"></span></a>
-							<ul class="dropdown-menu">
-								<li><a href="settings"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
-								<li><a id="logout" href="#"><span class="glyphicon glyphicon-log-out"></span> Sign out</a></li>
-							</ul>
-						</li>		
-					</ul>
-				</div>
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+	 	<div class="container">
+      		<div class="navbar-header">
+        		<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+	            <a class="navbar-brand" href="/">CourseEater</a>
 			</div>
-		</nav>
-	</header>
+			<div class="collapse navbar-collapse">
+				<ul class="nav navbar-nav">
+					<li><a href="track"><span class="glyphicon glyphicon-book"></span> Track</a></li>
+					<li class="dropdown active">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-time"></span> Schedule</a>
+						<ul class="dropdown-menu" role="menu">
+							<li class="active"><a href="schedule"><span class="glyphicon glyphicon-time"></span> Schedule</a></li>
+							<li class="divider"></li>
+							<li><a href="finals"><span class="glyphicon glyphicon-record"></span> Finals</a></li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+				    <li><a href="https://docs.google.com/forms/d/1-V4m2t81fpaSa-PoAK8rL93PkM9xSgA7qyNWtSsSkPQ/viewform?usp=send_form" target="_blank"><span class="glyphicon glyphicon-flag"></span> Report Bug</a></li>
+					<li><a id="calendarImage" href="#"><span class="glyphicon glyphicon-download-alt"></span> Download Image</a></li>
+					<li><a class="ladda-button refresh-data" data-style="slide-up" data-spinner-color="#000000"><span class="glyphicon glyphicon-refresh"></span> Refresh</a></li>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> <span class="user-name-display"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="settings"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+							<li><a id="logout" href="#"><span class="glyphicon glyphicon-log-out"></span> Sign out</a></li>
+						</ul>
+					</li>		
+				</ul>
+			</div>
+		</div>
+	</div>
 		
 	<div id='calendar'></div>
 	

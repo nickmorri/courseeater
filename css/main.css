@@ -2,7 +2,7 @@ body { background-color: #eee; }
 /* Prevents body from scrolling while modal is open */
 body.modal-open { overflow: hidden; }
 /* Setting margin values for a clear interface */
-.navbar { margin-bottom: 15px; }
+.navbar { margin-bottom: 30px; }
 .refresh-data { cursor: pointer; }
 .course-list-item-title { cursor: pointer; }
 .add-course-entry { margin-top: -10px; }
@@ -21,7 +21,6 @@ body.modal-open { overflow: hidden; }
 	margin-top: 10px;
 	margin-bottom: 5px;
 }
-
 /* Removing border-radius for a square look */
 .form-control { border-radius: 0; }
 .alert { border-radius: 0px; }
