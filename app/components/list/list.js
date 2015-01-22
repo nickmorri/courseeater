@@ -14,16 +14,9 @@ list.factory('CourseList', function (CourseStore) {
         };
         
         this.setActive = function () {
-            this.active = true;
-            Parse.Cloud.run("changeActiveCourseList", {title : this.title});
-        };
-        
-        this.setShared = function (status) {
-            var query = new Parse.Query("CourseList");
-            query.equalTo("objectId", this.id);
-            query.find().then(function (list) {
-                list.set("shared", status);
-                list.save();
+            var list = this;
+            Parse.Cloud.run("changeActiveCourseList", {objectId : this.id}).then(function () {
+                list.active = true;
             });
         };
         
@@ -31,7 +24,6 @@ list.factory('CourseList', function (CourseStore) {
 });
 
 list.factory('CourseListStore', ['CourseList', 'AuthService', function (CourseList, AuthService) {
-    
     var CourseListStore = {};
     
     CourseListStore._collection = [];
@@ -42,7 +34,7 @@ list.factory('CourseListStore', ['CourseList', 'AuthService', function (CourseLi
     
     CourseListStore.retrieveCourseLists = function () {
         var query = new Parse.Query("CourseList");
-        query.equalTo("owner", this.authService.currentUser);
+        query.equalTo("owner", CourseListStore.authService.currentUser);
         return query.find().then(function (result) {
             CourseListStore._collection = [];
             var list;
@@ -57,26 +49,25 @@ list.factory('CourseListStore', ['CourseList', 'AuthService', function (CourseLi
     };
     
     CourseListStore.saveList = function (objectId, newTitle) {
-        Parse.Cloud.run('updateCourseList', {
-                objectId: objectId,
-                newTitle: newTitle,
-                shared: false
-            }).then(function () {
-                CourseListStore.retrieveCourseLists();
-        });
+        return Parse.Cloud.run('updateCourseList', {objectId : objectId, newTitle : newTitle}).then(CourseListStore.retrieveCourseLists);
     };
     
     CourseListStore.createNewList = function (title, shared) {
-        Parse.Cloud.run('createCourseList', {title : title, shared : shared}).then(function () {
-            CourseListStore.retrieveCourseLists();
-        });
+        return Parse.Cloud.run('createCourseList', {title : title, shared : shared}).then(CourseListStore.retrieveCourseLists);
+    };
+    
+    CourseListStore.deleteList = function (objectId) {
+        return Parse.Cloud.run('deleteCourseList', {objectId : objectId}).then(CourseListStore.retrieveCourseLists);
     };
     
     CourseListStore.setActiveList = function (list) {
         CourseListStore.activeList.active = false;
         CourseListStore.activeList = list;
-        list.setActive();  
+        CourseListStore.activeList.setActive()
+        
     };
+    
+    if (!CourseListStore.initialized) CourseListStore.retrieveCourseLists();
     
     return CourseListStore;
     
@@ -87,20 +78,11 @@ list.controller('ListController', ['$scope', 'AuthService', 'CourseListStore', '
     $scope.courseListStore = CourseListStore;
     
     $scope.setActiveList = function (list) {
+        
+        if ($scope.courseListStore.activeList == list) return;
+        
         if ($(".navbar-header .navbar-toggle").css("display") != "none") $(".navbar-header .navbar-toggle").trigger("click");
         $scope.courseListStore.setActiveList(list);    
-    };
-    
-    $scope.createList = function () {
-        var modalInstance = $modal.open({
-            templateUrl: 'app/components/list/directives/course-list-modal.html',
-            controller: 'CourseListModalController',
-            resolve: {
-                list: function () {
-                    return undefined;
-                }
-            }
-        });
     };
     
     $scope.editList = function (targetList) {
@@ -115,8 +97,6 @@ list.controller('ListController', ['$scope', 'AuthService', 'CourseListStore', '
         });
     };
     
-    if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
-    
 }]);
 
 list.controller('CourseListModalController', ['$scope', 'CourseListStore', '$modalInstance', 'list', function ($scope, CourseListStore, $modalInstance, list) {
@@ -124,26 +104,32 @@ list.controller('CourseListModalController', ['$scope', 'CourseListStore', '$mod
     
     if (list !== undefined) {
         $scope.list = list;
+        $scope.list.shared = false;
     } else {
         $scope.list = {
             title: undefined,
-            newList: true
+            newList: true,
+            shared: false
         };
     }
     
-    $scope.save = function () {
-        $scope.courseListStore.saveList($scope.list.id, $scope.list.title);
-        $scope.$close();
+    $scope.saveList = function () {
+        $scope.courseListStore.saveList($scope.list.id, $scope.list.title).then($scope.$close);
     };
     
-    $scope.create = function () {
-        $scope.courseListStore.createNewList($scope.list.title, false);
-        $scope.$close();
+    $scope.createList = function () {
+        $scope.courseListStore.createNewList($scope.list.title, $scope.list.shared).then($scope.$close);
     };
+    $scope.deleteList = function () {
+        $scope.courseListStore.deleteList($scope.list.id).then($scope.$close);
+    };
+    
 }]);
 
 course.directive('courseListView', function () {
     return {
+        restrict: 'E',
+        replace: true,
         templateUrl: "app/components/list/directives/course-list-view.html"
     }
 });

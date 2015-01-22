@@ -5,6 +5,7 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" ng-click="$close()">Cancel</button>
-    <button class="btn btn-primary" ng-click="create()" ng-show="list.newList">Create</button>
-    <button class="btn btn-primary" ng-click="save()" ng-hide="list.newList">Save</button>
+    <button class="btn btn-primary" ng-click="createList()" ng-show="list.newList">Create</button>
+    <button class="btn btn-danger" ng-click="deleteList()" ng-hide="list.newList">Delete</button>
+    <button class="btn btn-primary" ng-click="saveList()" ng-hide="list.newList">Save</button>
 </div>
