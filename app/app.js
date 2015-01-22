@@ -42,9 +42,43 @@ courseeater_app.controller('HeadController', ['$scope', '$state', function ($sco
     $scope.state = $state;
 }]);
 
+courseeater_app.controller('NavController',['$scope', '$timeout', '$state', 'AuthService', function ($scope, $timeout, $state, AuthService) {
+    $scope.connected = navigator.onLine;
+    $scope.authService = AuthService;
+    $scope.state = $state;
+    
+    $scope.isPage = function (page) {
+        return $scope.state.is(page);
+    };
+    
+    $scope.checkConnection = function () {
+        $scope.connected = navigator.onLine;
+        $timeout($scope.checkConnection, 5000);    
+    };
+    
+    $timeout($scope.checkConnection, 5000);
+    
+}]);
+
 courseeater_app.directive('navigationView', function () {
     return {
         templateUrl: 'app/directives/navigation.html'
+    }
+});
+
+courseeater_app.directive('connectionView', function () {
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'app/directives/connection-view.html'
+    }
+});
+
+courseeater_app.directive('userMenu', function () {
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'app/directives/user-menu.html'
     }
 });
 
