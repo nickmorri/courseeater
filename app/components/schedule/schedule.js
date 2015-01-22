@@ -1,19 +1,15 @@
-var schedule = angular.module('courseeater.schedule', ['ui.bootstrap', 'courseeater.auth', 'ui.calendar', 'courseeater.course']);
+var schedule = angular.module('courseeater.schedule', ['courseeater.course', 'ui.bootstrap', 'ui.calendar']);
 
-schedule.controller('ScheduleController', ['$scope', 'AuthService', 'CourseStore', 'TemporaryStore', 'uiCalendarConfig', '$modal', function ($scope, AuthService, CourseStore, TemporaryStore, uiCalendarConfig, $modal) {
-    $scope.authService = AuthService;
+schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'TemporaryStore', 'uiCalendarConfig', '$modal', function ($scope, CourseStore, TemporaryStore, uiCalendarConfig, $modal) {
     $scope.temporaryStore = TemporaryStore;
     $scope.courseStore = CourseStore;
     
-    $scope.initialized = true;
     $scope.eventSource = [];
     
     $scope.courseClick = function (event, jsEvent, view) {
         var course = $scope.courseStore.getCourse(event.id);
         
-        if (course === undefined) {
-            course = $scope.temporaryStore.getCourse(event.id);
-        }
+        if (course === undefined) course = $scope.temporaryStore.getCourse(event.id);
         
         var modalInstance = $modal.open({
             templateUrl: 'app/components/schedule/directives/course-schedule-modal.html',

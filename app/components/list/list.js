@@ -1,4 +1,4 @@
-var list = angular.module('courseeater.list', ['courseeater.auth', 'ui.bootstrap']);
+var list = angular.module('courseeater.list', ['ui.bootstrap']);
 
 list.factory('CourseList', function (CourseStore) {
     return function (data) {
