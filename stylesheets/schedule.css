@@ -1,0 +1,18 @@
+/* Calendar page */
+.calendar {
+	margin-top: -32px;
+	background: "#fff"
+}
+.fc-event {
+	border: 0px;
+	border-radius: 0;
+}
+.fc-event:hover {
+	cursor:	pointer;
+}
+.fc-title {
+	font-weight: bold;	
+}
+.fc-content .fc-time {
+    display: none;
+}

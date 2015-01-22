@@ -1,0 +1,8 @@
+<div ng-controller="AlertController">
+    <div ng-repeat="alert in alertStore.messages" class="alert alert-warning" role="alert">
+        <button type="button" class="close" ng-click="alertStore.removeMessage($index)">
+            <span>&times;</span>
+        </button>
+        {{alert.message}}
+    </div>
+</div>

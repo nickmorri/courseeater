@@ -1,0 +1,32 @@
+<div id="loginView">
+    <div class="container form-user-management">
+        <div class="jumbotron">      	
+            <form class="form-signin" ng-controller="LoginController" ng-submit="login()" autocomplete="on">		
+                <h2 class="form-signin-heading">Sign in</h2>
+            		<input type="text" class="form-control form-control-username login-username" placeholder="Username" ng-model="username" required autofocus />
+            		<input type="password" class="form-control form-control-password login-password" placeholder="Password" ng-model="password" required />
+            		<input type="submit" class="btn btn-lg btn-primary btn-block form-control-submit" value="Login" />	
+            		<div class="alert alert-danger alert-login" ng-show="error">
+                		<strong>Whoops!</strong> Either your username or password were incorrect. Please try again or 
+                		<a href="#" class="alert-link">try resetting your password.</a>
+                	</div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="container form-user-management">
+    	<div class="jumbotron">
+            <h3>Signup</h3>
+    		<form id="registrationForm">
+    			<input class="form-control form-control-username registration-username" type="text" placeholder="Username" required />
+    			<input class="form-control form-control-email registration-email" type="email" placeholder="Email" required />
+    			<input class="form-control form-control-password registration-password" type="password" placeholder="Password" required autocomplete="off" />
+    			<input class="form-control form-control-registration-code registration-code" type="text" placeholder="Registration Code (Optional)" />
+    			<button type="button" class="btn btn-lg btn-primary btn-block btn-register" >Register</button>
+    		</form>
+    		<div class="alert alert-danger alert-register" style="display: none;">
+                <span class="alert-register-message"><strong>Whoops!</strong> Something went wrong. Please try registering again.</span>
+    		</div>	
+    	</div>
+    </div>
+</div>

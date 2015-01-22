@@ -1,0 +1,8 @@
+<div class="modal-header">
+    <button type="button" class="close" ng-click="$close()"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title" ng-show="temporaryStore.hasCourses()">Results</h4>
+    <h4 class="model-title" ng-hide="temporaryStore.hasCourses()">No results</h4>
+</div>
+<div class="modal-body" ng-show="temporaryStore.hasCourses()">
+    <course-search-view class="course-search-view" ng-repeat="course in temporaryStore.courses"></course-search-view>
+</div>

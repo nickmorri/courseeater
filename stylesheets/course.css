@@ -1,0 +1,72 @@
+.panel-heading { border-bottom: 0px; }
+.panel-LEC .panel-heading { background-color: #F0AD4E!important; }
+.panel-DIS .panel-heading { background-color: #5BC0DE!important; }
+.panel-LAB .panel-heading { background-color: #5BC0DE!important; }
+
+/* CourseView */
+.panel-heading {
+    border-radius: 0px;
+}
+.panel-label {
+	display: inline-block;
+	padding-top: 15px;
+	padding-bottom: 14px;
+	margin-top: -10px;
+	margin-bottom: -10px;
+	border-radius: 0px;
+}
+.label-type {
+	margin-left: -15px;
+	width: 60px;
+}
+.label-identifier {
+	margin-left: -5px;
+	margin-right: -5px;
+	width: 100px;
+}
+.label-course-code {
+	margin-right: -15px;
+	float: right;
+}
+.label-day { 
+    border-radius: 0px; 
+    margin-right: -5px;
+}
+.dropdown-menu {
+	border-radius: 0px;
+}
+
+/* Collapsible */
+
+.accordion-inner { border-top: 0 none; }
+.panel-group {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+.panel-group.panel {
+    margin-bottom: -2px;
+}
+.panel {
+    border: 0px;
+	border-radius: 0;
+	margin-bottom: -20px;
+}
+.panel-collapse .list-group {
+	margin-top: -16px;
+	margin-left: -15px;
+	margin-right: -15px;
+	margin-bottom: -15px;
+}
+.list-detail-glyphicon {
+    padding-right: 20px;
+}
+.list-group .list-group-item {
+	border-radius: 0px;
+}
+.panel.panel-primary {
+	border-radius: 0px;
+	margin-bottom: -6px;
+}
+.course-search-view .panel {
+    margin-bottom: 0px;
+}

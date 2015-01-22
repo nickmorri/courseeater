@@ -1,0 +1,23 @@
+<div class="list-group">
+    <a class="list-group-item" href="http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=2015-03&amp;ShowFinals=1&amp;ShowComments=1&amp;CourseCodes={{course.courseCode}}" target="_blank">
+        <span class="glyphicon glyphicon-pencil list-detail-glyphicon"></span> 
+        {{course.courseName}}
+    </a>
+    <a class="list-group-item" href="http://www.ratemyprofessors.com/search.jsp?queryoption=HEADER&amp;queryBy=teacherName&amp;schoolName=University+of+California+Irvine&amp;query={{course.instructor}}" target="_blank">
+        <span class="glyphicon glyphicon-user list-detail-glyphicon"></span> 
+        {{course.instructor}}
+    </a>
+    <a class="list-group-item" href="http://www.classrooms.uci.edu/GAC/{{course.placeBuilding}}.html" target="blank">
+        <span class="glyphicon glyphicon-flag list-detail-glyphicon"></span> 
+        {{course.placeBuilding}}
+    </a>
+    <li class="list-group-item">
+        <span class="glyphicon glyphicon-calendar list-detail-glyphicon"></span>
+        <course-held-days-view></course-held-days-view>
+    </li>
+    <li class="list-group-item">
+        <span class="glyphicon glyphicon-time list-detail-glyphicon"></span> 
+        {{course.time}}
+    </li>
+    <course-actions-view></course-actions-view>
+</div>
