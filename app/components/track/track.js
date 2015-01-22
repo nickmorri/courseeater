@@ -46,14 +46,15 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
             $scope.newCourseCode = undefined;
         }, function (error) {
             $scope.result = 'error';
-            $scope.alertStore.addMessage(error.message)
+            $scope.alertStore.addMessage(error.message, 'warning')
         });
     };
     
     $scope.removeCourse = function (course) {
         course.isSubmitting = true;
         $scope.courseStore.removeCourse(course.courseCode).then($scope.temporaryStore.clear, function (error) {
-            $scope.alertStore.addMessage(error.message)
+            course.result = 'error';    
+            $scope.alertStore.addMessage(error.message, 'warning')
         });
     };
     
