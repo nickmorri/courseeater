@@ -1,0 +1,24 @@
+<div class="container form-user-management">
+	<div class="jumbotron">
+		<form class="form-signin" ng-submit="register()" autocomplete="on">
+			<input ng-model="username" class="form-control form-control-username registration-username" type="text" placeholder="Username" required autofocus=""/>
+			<input ng-model="email" class="form-control form-control-email registration-email" type="email" placeholder="Email" required />
+			<input ng-model="password" class="form-control form-control-password registration-password" type="password" placeholder="Password" required autocomplete="off" />
+			<input ng-model="registration_code" class="form-control form-control-registration-code registration-code" type="text" placeholder="Registration Code (Optional)" />
+			
+			<input type="submit" class="btn btn-lg btn-primary btn-block btn-register" value="Register">
+			
+			<div class="alert alert-danger alert-register" ng-show="error">
+        		<strong>Whoops!</strong> Something went wrong. Please try registering again.
+        	</div>
+			
+		</form>
+		
+		<div class="jumbotron">
+    		<button type="button" class="btn btn-lg btn-primary btn-block btn-login-state" ui-sref="login.login">
+                Login
+            </button>
+		</div>
+		
+	</div>
+</div>

@@ -10,11 +10,30 @@ courseeater_app.config(['$locationProvider', '$stateProvider', '$urlRouterProvid
     
         .state('login', {
             url: '/login',
-            templateUrl: 'app/views/login/login.html',
-            controller: 'LoginController',
-            data: { pageTitle: 'Login'}
-            
+            templateUrl: 'app/views/login/base.html',
+            abstract: true
         })
+        
+            .state('login.login', {
+                url: '',
+                templateUrl: 'app/views/login/login.html',
+                controller: 'LoginController',
+                data: { pageTitle: 'Login'}
+            })
+            
+            .state('login.registration', {
+                url: '/registration',
+                templateUrl: 'app/views/login/registration.html',
+                controller: 'LoginController',
+                data: { pageTitle: 'Registration'}
+            })
+            
+            .state('login.reset', {
+                url: '/reset',
+                templateUrl: 'app/views/login/reset_password.html',
+                controller: 'LoginController',
+                data: { pageTitle: 'Password Reset'}
+            })
     
         .state('track', {
             url: '/track',

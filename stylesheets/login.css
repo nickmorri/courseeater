@@ -1,12 +1,28 @@
 body {
-	margin-top: 70px;
+	margin-top: 30px;
+	margin-bottom: 100px;
+    margin-left: 10px;
+    margin-right: 10px;
 	background: url('../resources/background.jpg') no-repeat center center fixed;
 	background-size: cover;
+	background-position: left top;
+	overflow: hidden;
 }
-.jumbotron {
+#loginView .container .jumbotron {
 	background-color: rgba(255, 255, 255, 0.7);
+	display: block;
+	max-width: 400px;
+	margin-left: auto;
+	margin-right: auto;
+	border-radius: 0 !important;
 }
-.alert { 
+.logo {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 60px;
+}
+.alert {
 	margin-top: 10px;
 	margin-bottom: -35px; 
 }

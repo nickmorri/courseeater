@@ -5,7 +5,7 @@
         <base href="/">
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
         <title ng-bind="title + ' | CourseEater'">CourseEater</title>
-        <link rel="icon" sizes="192x192" href="highres-transparent.png">
+        <link rel="icon" sizes="192x192" href="resources/highres-transparent.png">
         <meta name="theme-color" content="#F0AD4E">
         <meta name="mobile-web-app-capable" content="yes">
         
@@ -17,11 +17,11 @@
         <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment-with-locales.min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.12.0/ui-bootstrap-tpls.min.js"></script>
 
-        <script src="static_dependencies/parse-angular.js"></script>
-        <script src="static_dependencies/calendar/fullcalendar.min.js"></script>
-        <script src="static_dependencies/calendar/calendar.js"></script>
-        <script src="static_dependencies/ng-bs-animated-button.js"></script>
-        <script src="static_dependencies/html2canvas.js"></script>
+        <script src="dependencies/parse-angular.js"></script>
+        <script src="dependencies/calendar/fullcalendar.min.js"></script>
+        <script src="dependencies/calendar/calendar.js"></script>
+        <script src="dependencies/ng-bs-animated-button.js"></script>
+        <script src="dependencies/html2canvas.js"></script>
         
         <script src="app/misc.js"></script>
         
@@ -44,7 +44,8 @@
         <link text="text/css" rel="stylesheet" href="stylesheets/loading.css">
         <link text="text/css" rel="stylesheet" href="stylesheets/main.css">
         <link text="text/css" rel="stylesheet" href="stylesheets/course.css">
-        <link ng-if="state.is('login')" text="text/css" rel="stylesheet" href="stylesheets/login.css">
+        
+        <link ng-if="state.is('login.login') || state.is('login.registration') || state.is('login.reset')" text="text/css" rel="stylesheet" href="stylesheets/login.css">
 
     </head>
     
