@@ -28,4 +28,13 @@ settings.controller('SettingsController', ['$scope', 'AuthService', function ($s
     $scope.deleteAccount = function () {
         debugger;
     };
+    
+    
+    $scope.message = "";
+    
+    $scope.sendAlert = function () {
+        $scope.authService.sendAlert($scope.message).then(function (response) {
+            console.log(response);
+        });
+    };
 }]);
