@@ -97,6 +97,8 @@ list.controller('ListController', ['$scope', 'AuthService', 'CourseListStore', '
         });
     };
     
+    if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
+    
 }]);
 
 list.controller('CourseListModalController', ['$scope', 'CourseListStore', '$modalInstance', 'list', function ($scope, CourseListStore, $modalInstance, list) {
