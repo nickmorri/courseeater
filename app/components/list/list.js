@@ -67,7 +67,10 @@ list.factory('CourseListStore', ['CourseList', 'AuthService', function (CourseLi
         
     };
     
-    if (!CourseListStore.initialized) CourseListStore.retrieveCourseLists();
+    CourseListStore.clear = function () {
+        CourseListStore._collection = [];
+        CourseListStore.activeList = undefined;
+    };
     
     return CourseListStore;
     
