@@ -1,4 +1,11 @@
-.panel-heading { border-bottom: 0px; }
+/* CourseView */
+
+.panel-heading {
+    border-bottom: 0px;
+    border-radius: 0px;
+}
+
+/* Panel heading theming  */
 
 .panel-TUT .panel-heading { background-color: #8C78F6!important; }
 .panel-TAP .panel-heading { background-color: #8C78F6!important; }
@@ -14,10 +21,6 @@
 .panel-DIS .panel-heading { background-color: #5BC0DE!important; }
 .panel-LAB .panel-heading { background-color: #5BC0DE!important; }
 
-/* CourseView */
-.panel-heading {
-    border-radius: 0px;
-}
 .panel-label {
 	display: inline-block;
 	padding-top: 15px;
@@ -60,7 +63,9 @@
 .panel {
     border: 0px;
 	border-radius: 0;
-	margin-bottom: -20px;
+}
+.panel-search-result {
+    margin-bottom: -20px;
 }
 .panel-collapse .list-group {
 	margin-top: -16px;
