@@ -4,20 +4,11 @@
     <div class="jumbotron">
     	<h3>Account<br><small>Change your basic account settings</small></h3>
     	
-    	
-    	<div class="panel panel-default">
-        	<div class="panel-body">
-            	<input type="text" ng-model="message">
-                <button class="btn btn-default" ng-click="sendAlert()">Send</button>
-        	</div>
-    	</div>
-    	
     	<div class="panel panel-default">
     		<div class="panel-heading">
     			<h3 class="panel-title">Change email preferences</h3>
     		</div>  			
     		<form class="panel-body" ng-submit="updateEmail()">
-    		
     			<div class="form-horizontal">
     				<div class="form-group">
     					<label for="new_email" class="col-sm-2 control-label">Email</label>
@@ -27,7 +18,6 @@
     				</div>
     				<button type="submit" class="btn btn-lg btn-primary btn-block button-spaced">Update Email</button>
     			</div>
-    			
     		</form>
     	</div>
     
@@ -51,11 +41,8 @@
                             <input type="password" class="form-control update-info" ng-model="verifyPassword" placeholder="Verify password" />
     					</div>
     				</div>
-    				<button type="submit" class="btn btn-lg btn-primary btn-block button-spaced">Update Password</button>
+    				<button type="submit" class="btn btn-lg btn-primary btn-block">Update Password</button>
     			</div>
-    			<div class='alert alert-success alert-dismissable alert-account-info alert-account-password' style="display:none">
-    			<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
-    			<span></span>
     		</form>
     	</div>
     
@@ -71,9 +58,10 @@
       					<input type="password" class="form-control update-info" ng-model="deletePassword" placeholder="Current password" />
     					</div>
     				</div>
-    				<button type="button" id="btn-delete" class="btn btn-lg btn-primary btn-block button-spaced">Delete account</button>
+    				<button type="button" id="btn-delete" class="btn btn-lg btn-primary btn-block">Delete account</button>
     			</div>
     		</form>
     	</div>
+    	
     </div>
 </div>
