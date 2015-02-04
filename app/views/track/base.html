@@ -15,7 +15,7 @@
         </form>
     </div>
     
-    <div class="container" ng-show="courseStore.ready">
+    <div class="container" ng-show="courseStore.initialized">
         <div class="container" ng-show="courseStore.empty()">
             <h1>
                 You don't have any courses added :(
@@ -25,7 +25,7 @@
             <class-view class="col-lg-4 col-md-4 col-sm-6 col-xs-12" ng-repeat="class in courseStore._collection"></class-view>    
         </div>
     </div>
-    <div class="container" ng-hide="courseStore.ready">
+    <div class="container" ng-hide="courseStore.initialized">
         <div class="spinner"></div>
     </div>
 

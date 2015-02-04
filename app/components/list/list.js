@@ -23,18 +23,17 @@ list.factory('CourseList', function (CourseStore) {
     };
 });
 
-list.factory('CourseListStore', ['CourseList', 'AuthService', function (CourseList, AuthService) {
+list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', function (CourseList, AuthService, $rootScope) {
     var CourseListStore = {};
     
     CourseListStore._collection = [];
-    CourseListStore.authService = AuthService;
     
-    this.activeList = undefined;
-    this.initialized = false;
+    CourseListStore.activeList = undefined;
+    CourseListStore.initialized = false;
     
     CourseListStore.retrieveCourseLists = function () {
         var query = new Parse.Query("CourseList");
-        query.equalTo("owner", CourseListStore.authService.currentUser);
+        query.equalTo("owner", AuthService.currentUser);
         return query.find().then(function (result) {
             CourseListStore._collection = [];
             var list;
@@ -70,7 +69,10 @@ list.factory('CourseListStore', ['CourseList', 'AuthService', function (CourseLi
     CourseListStore.clear = function () {
         CourseListStore._collection = [];
         CourseListStore.activeList = undefined;
+        CourseListStore.initialized = false;
     };
+    
+    $rootScope.$on('logout', CourseListStore.clear);
     
     return CourseListStore;
     
@@ -99,8 +101,6 @@ list.controller('ListController', ['$scope', 'AuthService', 'CourseListStore', '
             }
         });
     };
-    
-    if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
     
 }]);
 
