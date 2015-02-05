@@ -1,6 +1,6 @@
 var course = angular.module('courseeater.course', ['ui.bootstrap']);
 
-course.factory('Course', function () {
+course.factory('Course', ['$http', function ($http) {
     return function (data, color) {
         this.courseCode = data.attributes.courseCode;
         this.courseIdentifier = data.attributes.courseIdentifier;
@@ -94,8 +94,21 @@ course.factory('Course', function () {
             return this.events;
         };
         
+        var course = this;
+        
+        this.updateCourseData = function (data) {
+            debugger
+        };
+        
+        this.fetchLatestData = function () {
+            return $http({
+                url: 'php/scrape.php',
+                method: "GET",
+                params: {course_code: this.courseCode}
+            });
+        };
     };
-});
+}]);
 
 course.factory('TemporaryStore', ['Course', function (Course) {
     var TemporaryStore = [];
@@ -136,9 +149,10 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     CourseStore._collection = {};
     CourseStore.events = [];
     
-    CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
+    CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
     
     CourseStore.setQuery = function (query) {
+        CourseStore.clear();
         CourseStore.initialized = false;
         CourseStore.query = query;
         CourseStore.fetchCourses();
@@ -171,7 +185,17 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
     
     CourseStore.makeCourse = function (course) {
-        var course = new Course(course, CourseStore.getColor(course.attributes.courseName));
+        var course = new Course(course, CourseStore.getColor(course.attributes.courseIdentifier));
+        
+        /* if (moment(course.updatedAt).fromNow() > 2) */
+        
+        /*
+course.fetchLatestData().then(function (data) {
+            var courseData = data.data;
+            var course = CourseStore.getCourse(parseInt(courseData.courseCode));
+        });
+*/
+        
         CourseStore.events = CourseStore.events.concat(course.makeEvent());
         
         if (CourseStore._collection[course.courseIdentifier] !== undefined) {
@@ -185,12 +209,6 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
             CourseStore._collection[course.courseIdentifier].courses = [course];
             CourseStore._collection[course.courseIdentifier].mainCourse = course;
         }
-    };
-    
-    CourseStore.clear = function () {
-        CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
-        CourseStore._collection = {};
-        CourseStore.events = [];
     };
     
     CourseStore.getEquivalentCourse = function (course) {
@@ -218,15 +236,19 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
         });
     };
                 
-    CourseStore.getColor = function (string) {
+    CourseStore.getColor = function (courseIdentifier) {
+        if (CourseStore._collection[courseIdentifier] !== undefined) {
+            return CourseStore._collection[courseIdentifier].mainCourse.color;
+        }
+        
         // Random color for a class
-        hash = Math.abs(string.hash()) % CourseStore.colors.length;
+        var hash = Math.abs(courseIdentifier.hash()) % CourseStore.colors.length;
         return CourseStore.colors.splice(CourseStore.colors.indexOf(CourseStore.colors[hash]), 1)[0];
     };
     
     CourseStore.clear = function () {
+        CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
         CourseStore.query = undefined;
-    
         CourseStore.initialized = false;
         CourseStore._collection = {};
         CourseStore.events = [];
