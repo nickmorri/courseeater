@@ -43,7 +43,7 @@ list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', func
                 
                 if (list.active) CourseListStore.activeList = list;
             }
-            CourseListStore.initialized = true;
+            CourseListStore.initialized = CourseListStore.activeList !== undefined;
         });
     };
     
