@@ -107,12 +107,6 @@ course.factory('Course', function () {
             return this.events;
         };
         
-        var course = this;
-        
-        this.updateCourseData = function (data) {
-            debugger
-        };
-        
         this.fetchLatestData = function () {
             return $http({
                 url: 'php/scrape.php',
@@ -120,6 +114,10 @@ course.factory('Course', function () {
                 params: {course_code: this.courseCode}
             });
         };
+        
+        this.fetchLatestData().then(function (response) {
+            debugger
+        });
     };
 }]);
 
