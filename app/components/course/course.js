@@ -47,6 +47,7 @@ course.factory('Course', function () {
         this.replacement = false;
         
         // Used for animated button states
+        this.fetchingRemoteData = false;
         this.isSubmitting = null;
         this.result = null;
         
@@ -140,7 +141,7 @@ course.factory('TemporaryStore', ['Course', function (Course) {
     
 }]);
 
-course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootScope) {
+course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course, $rootScope, $http) {
     var CourseStore = {};
     
     CourseStore.query = undefined;
@@ -198,6 +199,33 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
             CourseStore._collection[course.courseIdentifier].courses = [course];
             CourseStore._collection[course.courseIdentifier].mainCourse = course;
         }
+        
+        CourseStore.fetchLatestCourseData(course.courseCode).then(function (response) {
+            var course = CourseStore.getCourse(parseInt(response.data.courseCode), 10);
+            
+            try {
+                course.totalEnr = parseInt(response.data.enr.split("/")[1], 10);
+            } catch (e) {
+                debugger
+            }
+            
+            if (isNaN(course.totalEnr)) course.totalEnr = response.data.enr;
+            
+            course.final = response.data.final;
+            course.instructor = response.data.instructor;
+            course.max = response.data.max;
+            course.place = response.data.place;
+            course.req = response.data.req;
+            course.rstr = response.data.rstr;
+            course.status = response.data.status;
+            
+            course.wl = response.data.wl;
+            
+            if (course.wl == "n/a") course.wl = 0;
+            
+            course.fetchingRemoteData = false;
+        });
+        
     };
     
     CourseStore.clear = function () {
@@ -229,6 +257,16 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     CourseStore.replaceCourse = function (oldCourseCode, newCourseCode) {
         return Parse.Cloud.run('removeCourse', {courseCode : oldCourseCode}).then(function () {
             return Parse.Cloud.run('addCourse', {courseCode : newCourseCode}).then(CourseStore.fetchCourses);
+        });
+    };
+    
+    CourseStore.fetchLatestCourseData = function (courseCode) {
+        CourseStore.getCourse(courseCode).fetchingRemoteData = true;
+        
+        return $http({
+            url: 'php/scrape.php',
+            method: "GET",
+            params: {course_code: courseCode}
         });
     };
     
@@ -371,5 +409,11 @@ course.directive('courseSearchView', function () {
 course.directive('courseHeldDaysView', function () {
     return {
         templateUrl: "app/components/course/directives/course-held-days-view.html"
+    }
+});
+
+course.directive('courseProgressView', function () {
+    return {
+        templateUrl: "app/components/course/directives/course-progress-view.html"
     }
 });

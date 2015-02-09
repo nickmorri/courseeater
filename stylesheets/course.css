@@ -50,6 +50,10 @@
 	border-radius: 0px;
 }
 
+.progress {
+    margin-bottom: 0px;
+}
+
 /* Collapsible */
 
 .accordion-inner { border-top: 0 none; }
