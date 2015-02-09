@@ -9,6 +9,10 @@ authentication.factory('AuthService', ['$state', '$rootScope', function ($state,
         return authService.currentUser !== null;
     };
     
+    authService.checkLogin = function (username, password) {
+        return Parse.User.logIn(username, password);
+    };
+    
     authService.login = function (username, password) {
         return Parse.User.logIn(username, password).then(function (response) {
             authService.currentUser = Parse.User.current();
@@ -18,7 +22,6 @@ authentication.factory('AuthService', ['$state', '$rootScope', function ($state,
     };
     
     authService.register = function (username, email, password) {
-        debugger
         var user = new Parse.User();
         user.set("username", username);
         user.set("email", email);
