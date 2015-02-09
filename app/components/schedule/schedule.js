@@ -88,15 +88,7 @@ schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListS
         }       
     });
     
-    if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists().then(function () {
-        $scope.courseStore.setQuery($scope.courseListStore.activeList.getCourseQuery())
-    });
-    
-    $scope.$watch('courseListStore.activeList', function (newValue, oldValue) {
-        if (newValue !== undefined && newValue !== oldValue) {
-            $scope.courseStore.setQuery($scope.courseListStore.activeList.getCourseQuery())    
-        }
-    });
+    if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
     
 }]);
 

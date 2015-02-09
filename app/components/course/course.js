@@ -1,7 +1,18 @@
 var course = angular.module('courseeater.course', ['ui.bootstrap']);
 
+course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStore, CourseListStore, $rootScope) {
+    $rootScope.listStore = CourseListStore;
+    $rootScope.courseStore = CourseStore;
 course.factory('Course', ['$http', function ($http) {
+        if (newValue !== undefined) {
+            $rootScope.courseStore.setQuery(newValue.getCourseQuery());
+        }
+    });
+}]);
+
+course.factory('Course', function () {
     return function (data, color) {
+        // Course relevant data
         this.courseCode = data.attributes.courseCode;
         this.courseIdentifier = data.attributes.courseIdentifier;
         this.courseName = data.attributes.courseName.replace(/&nbsp;/g, '');
@@ -25,7 +36,9 @@ course.factory('Course', ['$http', function ($http) {
         this.units = data.attributes.units;
         this.web = data.attributes.web;
         this.wl = data.attributes.wl;
+        this.term = data.attributes.term;
 
+        // Parse object relevant data
         this.id = data.id;
         this.updatedAt = data.updatedAt;
         
@@ -211,6 +224,14 @@ course.fetchLatestData().then(function (data) {
         }
     };
     
+    CourseStore.clear = function () {
+        CourseStore.query = undefined;
+        CourseStore.initialized = false;
+        CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
+        CourseStore._collection = {};
+        CourseStore.events = [];
+    };
+    
     CourseStore.getEquivalentCourse = function (course) {
         var courseGroup = CourseStore._collection[course.courseIdentifier];
         for (var i = 0; i < courseGroup.courses.length; i++) {
@@ -235,7 +256,7 @@ course.fetchLatestData().then(function (data) {
             return Parse.Cloud.run('addCourse', {courseCode : newCourseCode}).then(CourseStore.fetchCourses);
         });
     };
-                
+    
     CourseStore.getColor = function (courseIdentifier) {
         if (CourseStore._collection[courseIdentifier] !== undefined) {
             return CourseStore._collection[courseIdentifier].mainCourse.color;
