@@ -8,17 +8,17 @@
         <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
             <span ng-show="list.term === undefined">Quarter</span>
             <span ng-hide="list.term === undefined">
-                {{available_terms[list.term]}}
+                {{courseListStore.available_terms[list.term]}}
             </span>
             <span class="caret"></span>
         </button>
         <ul class="dropdown-menu" role="menu">
-            <li ng-repeat="(key, value) in available_terms" ng-click="list.term = key">
+            <li ng-repeat="(key, value) in courseListStore.available_terms" ng-click="list.term = key">
                 <a href>{{value}}</a>
             </li>
         </ul>
     </div>
-    <button class="btn btn-primary pull-left" ng-hide="list.newList" disabled="disabled">{{available_terms[list.term]}}</button>
+    <button class="btn btn-primary pull-left" ng-hide="list.newList" disabled="disabled">{{courseListStore.available_terms[list.term]}}</button>
     <button class="btn btn-default" ng-click="$close()">Cancel</button>
     <button class="btn btn-primary" ng-click="createList()" ng-show="list.newList">Create</button>
     <button class="btn btn-danger" ng-click="deleteList()" ng-hide="list.newList">Delete</button>
