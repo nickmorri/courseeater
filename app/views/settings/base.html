@@ -9,6 +9,15 @@
     			<h3 class="panel-title">Change email preferences</h3>
     		</div>  			
     		<form class="panel-body" ng-submit="updateEmail()">
+        		
+        		<div class="alert alert-success" role="alert" ng-show="emailUpdateSuccess">
+            		{{emailUpdateMessage}}
+        		</div>
+        		
+        		<div class="alert alert-danger" role="alert" ng-show="emailUpdateError">
+            		{{emailUpdateMessage}}
+        		</div>
+        		
     			<div class="form-horizontal">
     				<div class="form-group">
     					<label for="new_email" class="col-sm-2 control-label">Email</label>

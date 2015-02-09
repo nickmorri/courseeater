@@ -5,9 +5,24 @@ settings.controller('SettingsController', ['$scope', 'AuthService', '$state', fu
     
     $scope.newEmail = undefined;
     
+    $scope.emailUpdateMessage = "";
+    $scope.emailUpdateSuccess = false;
+    $scope.emailUpdateError = false;
+    
     $scope.updateEmail = function () {
-        debugger
-        console.log($scope.newEmail);
+        $scope.authService.currentUser.set("email", $scope.newEmail);
+        $scope.authService.currentUser.save().then(function () {
+            $scope.newEmail = undefined;
+            $scope.authService.currentUser.fetch();
+            $scope.emailUpdateSuccess = true;
+            $scope.emailUpdateError = false;
+            $scope.emailUpdateMessage = "Email updated successfully.";
+        }, function (error) {
+            $scope.newEmail = undefined;
+            $scope.emailUpdateSuccess = false;
+            $scope.emailUpdateError = true;
+            $scope.emailUpdateMessage = "Whoops! Something went wrong while updating your email. Please try again.";
+        });
     };
     
     
