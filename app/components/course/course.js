@@ -41,6 +41,7 @@ course.factory('Course', function () {
         // Parse object relevant data
         this.id = data.id;
         this.updatedAt = data.updatedAt;
+        this.timeSinceUpdate = new Date().getTime() - new Date(this.updatedAt).getTime();
         
         // Used to decide which buttons to display in search modals
         this.tracking = true;
@@ -200,31 +201,9 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
             CourseStore._collection[course.courseIdentifier].mainCourse = course;
         }
         
-        CourseStore.fetchLatestCourseData(course.courseCode).then(function (response) {
-            var course = CourseStore.getCourse(parseInt(response.data.courseCode), 10);
-            
-            try {
-                course.totalEnr = parseInt(response.data.enr.split("/")[1], 10);
-            } catch (e) {
-                debugger
-            }
-            
-            if (isNaN(course.totalEnr)) course.totalEnr = response.data.enr;
-            
-            course.final = response.data.final;
-            course.instructor = response.data.instructor;
-            course.max = response.data.max;
-            course.place = response.data.place;
-            course.req = response.data.req;
-            course.rstr = response.data.rstr;
-            course.status = response.data.status;
-            
-            course.wl = response.data.wl;
-            
-            if (course.wl == "n/a") course.wl = 0;
-            
-            course.fetchingRemoteData = false;
-        });
+        if (course.timeSinceUpdate > 360000) {
+            CourseStore.checkLatestCourseData(course.courseCode).then(CourseStore.processLatestCourseData);
+        }
         
     };
     
@@ -260,7 +239,33 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
         });
     };
     
-    CourseStore.fetchLatestCourseData = function (courseCode) {
+    CourseStore.processLatestCourseData = function (response) {
+        var course = CourseStore.getCourse(parseInt(response.data.courseCode), 10);
+            
+        try {
+            course.totalEnr = parseInt(response.data.enr.split("/")[1], 10);
+        } catch (e) {
+            debugger
+        }
+        
+        if (isNaN(course.totalEnr)) course.totalEnr = response.data.enr;
+        
+        course.final = response.data.final;
+        course.instructor = response.data.instructor;
+        course.max = response.data.max;
+        course.place = response.data.place;
+        course.req = response.data.req;
+        course.rstr = response.data.rstr;
+        course.status = response.data.status;
+        
+        course.wl = response.data.wl;
+        
+        if (course.wl == "n/a") course.wl = 0;
+        
+        course.fetchingRemoteData = false;
+    };
+    
+    CourseStore.checkLatestCourseData = function (courseCode) {
         CourseStore.getCourse(courseCode).fetchingRemoteData = true;
         
         return $http({
