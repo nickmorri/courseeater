@@ -73,7 +73,11 @@ list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', func
     CourseListStore.clear = function () {
         CourseListStore._collection = [];
         CourseListStore.activeList = undefined;
+        CourseListStore.initialized = false;
     };
+    
+    // Listen for logout event and clear data store on event
+    $rootScope.$on('logout', CourseListStore.clear);
     
     return CourseListStore;
     

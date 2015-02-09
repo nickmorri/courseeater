@@ -201,6 +201,8 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
     
     CourseStore.clear = function () {
+        CourseStore.query = undefined;
+        CourseStore.initialized = false;
         CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
         CourseStore._collection = {};
         CourseStore.events = [];
@@ -230,21 +232,16 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
             return Parse.Cloud.run('addCourse', {courseCode : newCourseCode}).then(CourseStore.fetchCourses);
         });
     };
-                
-    CourseStore.getColor = function (string) {
+    
+    CourseStore.getColor = function (courseIdentifier) {
+        if (CourseStore._collection[courseIdentifier] !== undefined) {
+            return CourseStore._collection[courseIdentifier].mainCourse.color;
+        }
+        
         // Random color for a class
-        hash = Math.abs(string.hash()) % CourseStore.colors.length;
+        var hash = Math.abs(courseIdentifier.hash()) % CourseStore.colors.length;
         return CourseStore.colors.splice(CourseStore.colors.indexOf(CourseStore.colors[hash]), 1)[0];
     };
-    
-    CourseStore.clear = function () {
-        CourseStore.query = undefined;
-    
-        CourseStore.initialized = false;
-        CourseStore._collection = {};
-        CourseStore.events = [];
-    };
-    
     
     // Listen for logout event and clear data store on event
     $rootScope.$on('logout', CourseStore.clear);
