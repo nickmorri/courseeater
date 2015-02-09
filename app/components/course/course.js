@@ -1,7 +1,18 @@
 var course = angular.module('courseeater.course', ['ui.bootstrap']);
 
+course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStore, CourseListStore, $rootScope) {
+    $rootScope.listStore = CourseListStore;
+    $rootScope.courseStore = CourseStore;
+    $rootScope.$watch('listStore.activeList', function (newValue, oldValue) {
+        if (newValue !== undefined) {
+            $rootScope.courseStore.setQuery(newValue.getCourseQuery());
+        }
+    });
+}]);
+
 course.factory('Course', function () {
     return function (data, color) {
+        // Course relevant data
         this.courseCode = data.attributes.courseCode;
         this.courseIdentifier = data.attributes.courseIdentifier;
         this.courseName = data.attributes.courseName.replace(/&nbsp;/g, '');
@@ -25,7 +36,9 @@ course.factory('Course', function () {
         this.units = data.attributes.units;
         this.web = data.attributes.web;
         this.wl = data.attributes.wl;
+        this.term = data.attributes.term;
 
+        // Parse object relevant data
         this.id = data.id;
         this.updatedAt = data.updatedAt;
         
