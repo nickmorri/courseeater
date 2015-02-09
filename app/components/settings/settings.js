@@ -1,6 +1,6 @@
 var settings = angular.module('courseeater.settings', ['ui.bootstrap']);
 
-settings.controller('SettingsController', ['$scope', 'AuthService', function ($scope, AuthService) {
+settings.controller('SettingsController', ['$scope', 'AuthService', '$state', function ($scope, AuthService, $state) {
     $scope.authService = AuthService;
     
     $scope.newEmail = undefined;
@@ -26,15 +26,14 @@ settings.controller('SettingsController', ['$scope', 'AuthService', function ($s
     $scope.deletePassword = undefined;
     
     $scope.deleteAccount = function () {
-        debugger;
-    };
-    
-    
-    $scope.message = "";
-    
-    $scope.sendAlert = function () {
-        $scope.authService.sendAlert($scope.message).then(function (response) {
-            console.log(response);
+        debugger
+        $scope.authService.login($scope.authService.currentUser.attributes.username, $scope.deletePassword).then(function (response) {
+            return $scope.authService.currentUser.destroy();
+        }).then(function () {
+            $scope.authService.logout();
+        }, function (error) {
+            $scope.authService.logout();
         });
     };
+    
 }]);
