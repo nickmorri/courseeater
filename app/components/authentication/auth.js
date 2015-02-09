@@ -12,13 +12,13 @@ authentication.factory('AuthService', ['$state', '$rootScope', function ($state,
     authService.login = function (username, password) {
         return Parse.User.logIn(username, password).then(function (response) {
             authService.currentUser = Parse.User.current();
-            $state.go('track');
         }, function (error) {
             authService.currentUser = null;
         });
     };
     
-    authService.register = function (username, email, password, registration_code) {
+    authService.register = function (username, email, password) {
+        debugger
         var user = new Parse.User();
         user.set("username", username);
         user.set("email", email);
@@ -26,7 +26,6 @@ authentication.factory('AuthService', ['$state', '$rootScope', function ($state,
 
         return user.signUp(null).then(function (response) {
             authService.currentUser = Parse.User.current();
-            $state.go('track');
         }, function (error) {
             authService.currentUser = null;
         });        
@@ -51,10 +50,6 @@ authentication.factory('AuthService', ['$state', '$rootScope', function ($state,
         return authService.currentUser.fetch();
     };
     
-    authService.sendAlert = function (message) {
-        return Parse.Cloud.run("sendAlert", {message : message});
-    };
-    
     return authService;
 }]);
 
@@ -70,28 +65,28 @@ authentication.controller('LoginController', ['$scope', 'AuthService', '$state',
     }
     
     $scope.error = false;
-    $scope.passwordResetGenerated = false;
-    
     $scope.username = undefined;
-    $scope.password = undefined;    
+    $scope.password = undefined;
 
     $scope.login = function () {
         $scope.authService.login($scope.username, $scope.password).then(function (status) {
+            $state.go('track');
             $scope.error = false;
         }).fail(function (error) {
             $scope.error = true;
         });
     };
+
+}]);
+
+authentication.controller('RegistrationController', ['$scope', 'AuthService', '$state', function ($scope, AuthService, $state) {
+    $scope.authService = AuthService;
     
-    $scope.resetPassword = function () {
-        $scope.authService.resetPassword($scope.email).then(function () {
-            $scope.passwordResetGenerated = true;
-            $scope.error = false;
-        }, function (error) {
-            $scope.passwordResetGenerated = false;
-            $scope.error = true;
-        });
-    };
+    $scope.error = false;
+    $scope.username = undefined;
+    $scope.email = undefined;
+    $scope.password = undefined;
+    $scope.registration_code = undefined;
     
     $scope.register = function () {
         $scope.authService.checkRegistrationCode($scope.registration_code).then(function (status) {
@@ -104,5 +99,25 @@ authentication.controller('LoginController', ['$scope', 'AuthService', '$state',
             $scope.error = true;
         });
     };
-
+    
 }]);
+
+authentication.controller('ResetController', ['$scope', 'AuthService', function ($scope, AuthService) {
+    $scope.authService = AuthService;
+    
+    $scope.error = false;
+    $scope.email = undefined;
+    $scope.passwordResetGenerated = false;
+    
+    $scope.resetPassword = function () {
+        $scope.authService.resetPassword($scope.email).then(function () {
+            $scope.passwordResetGenerated = true;
+            $scope.error = false;
+        }, function (error) {
+            $scope.passwordResetGenerated = false;
+            $scope.error = true;
+        });
+    };
+    
+}]);
+    
