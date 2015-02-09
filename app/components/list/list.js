@@ -39,7 +39,7 @@ list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', func
     
     CourseListStore.retrieveCourseLists = function () {
         var query = new Parse.Query("CourseList");
-        query.equalTo("owner", CourseListStore.authService.currentUser);
+        query.equalTo("owner", AuthService.currentUser);
         return query.find().then(function (result) {
             CourseListStore._collection = [];
             var list;
@@ -49,7 +49,7 @@ list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', func
                 
                 if (list.active) CourseListStore.activeList = list;
             }
-            CourseListStore.initialized = true;
+            CourseListStore.initialized = CourseListStore.activeList !== undefined;
         });
     };
     

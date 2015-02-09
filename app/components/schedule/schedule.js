@@ -1,5 +1,9 @@
 var schedule = angular.module('courseeater.schedule', ['courseeater.course', 'courseeater.list', 'ui.bootstrap', 'ui.calendar']);
 
+schedule.run(['CourseStore', 'CourseListStore', function (CourseStore, CourseListStore) {
+    if (!CourseListStore.initialized) CourseListStore.retrieveCourseLists();
+}]);
+
 schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', 'uiCalendarConfig', '$modal', function ($scope, CourseStore, CourseListStore, TemporaryStore, uiCalendarConfig, $modal) {
     $scope.temporaryStore = TemporaryStore;
     $scope.courseListStore = CourseListStore;

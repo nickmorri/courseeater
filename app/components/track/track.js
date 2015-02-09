@@ -88,7 +88,7 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
         var modalInstance = $modal.open({
             templateUrl: 'app/components/course/directives/course-search-modal.html',
             controller: 'CourseSearchModalController'
-        });
+        });  
         
     };
     
