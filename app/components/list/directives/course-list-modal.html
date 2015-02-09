@@ -18,7 +18,7 @@
             </li>
         </ul>
     </div>
-    <div class="label label-primary pull-left" ng-hide="list.newList">{{available_terms[list.term]}}</div>
+    <button class="btn btn-primary pull-left" ng-hide="list.newList" disabled="disabled">{{available_terms[list.term]}}</button>
     <button class="btn btn-default" ng-click="$close()">Cancel</button>
     <button class="btn btn-primary" ng-click="createList()" ng-show="list.newList">Create</button>
     <button class="btn btn-danger" ng-click="deleteList()" ng-hide="list.newList">Delete</button>
