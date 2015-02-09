@@ -26,6 +26,15 @@
     			<h3 class="panel-title">Change password preferences</h3>
     		</div>
     		<form class="panel-body" ng-submit="updatePassword()">
+        		
+        		<div class="alert alert-success" role="alert" ng-show="passwordUpdateSuccess">
+            		{{passwordUpdateMessage}}
+        		</div>
+        		
+        		<div class="alert alert-danger" role="alert" ng-show="passwordUpdateError">
+            		{{passwordUpdateMessage}}
+        		</div>
+        		
     			<div class="form-horizontal">
     				<div class="form-group">
     					<label for="inputCurrentPassword" class="col-sm-2 control-label">Current password</label>
@@ -58,7 +67,7 @@
       					<input type="password" class="form-control update-info" ng-model="deletePassword" placeholder="Current password" />
     					</div>
     				</div>
-    				<button type="button" id="btn-delete" class="btn btn-lg btn-primary btn-block">Delete account</button>
+    				<input type="submit" id="btn-delete" class="btn btn-lg btn-primary btn-block" value="Delete account" />
     			</div>
     		</form>
     	</div>
