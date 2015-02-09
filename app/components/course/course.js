@@ -225,7 +225,6 @@ course.fetchLatestData().then(function (data) {
     };
     
     CourseStore.clear = function () {
-        CourseStore.query = undefined;
         CourseStore.initialized = false;
         CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
         CourseStore._collection = {};
@@ -277,7 +276,10 @@ course.fetchLatestData().then(function (data) {
     
     
     // Listen for logout event and clear data store on event
-    $rootScope.$on('logout', CourseStore.clear);
+    $rootScope.$on('logout', function () {
+        CourseStore.clear();
+        CourseStore.query = undefined;
+    });
     
     return CourseStore;
     

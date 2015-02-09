@@ -80,7 +80,9 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
     
     $scope.displaySearch = function (results, replacement) {
         for (var i = 0; i < results.length; i++) {
-            $scope.temporaryStore.addCourse(results[i], replacement);
+            if (!CourseStore.hasCourse(results[i].attributes.courseCode)) {
+                $scope.temporaryStore.addCourse(results[i], replacement);
+            }
         }
         
         var modalInstance = $modal.open({

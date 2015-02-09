@@ -118,6 +118,7 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
     $scope.searchForCocourses = function (course, type) {
         var query = new Parse.Query("Course");
         query.equalTo("courseIdentifier", course.courseIdentifier);
+        query.equalTo("term", course.term);
         query.equalTo("type", type.toTitleCase());
         query.find().then(function (results) {
             $scope.displaySearch(results, false)
@@ -127,6 +128,7 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
     $scope.searchForReplacements = function (course, type) {
         var query = new Parse.Query("Course");
         query.equalTo("courseIdentifier", course.courseIdentifier);
+        query.equalTo("term", course.term);
         query.notEqualTo("courseCode", course.courseCode);
         query.equalTo("type", type.toTitleCase());
         query.find().then(function (results) {
@@ -136,7 +138,11 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
     
     $scope.displaySearch = function (results, replacement) {
         $scope.temporaryStore.clear();
-        for (var i = 0; i < results.length; i++) $scope.temporaryStore.addCourse(results[i], replacement);
+        for (var i = 0; i < results.length; i++) {
+            if (!CourseStore.hasCourse(results[i].attributes.courseCode)) {
+                $scope.temporaryStore.addCourse(results[i], replacement);
+            }
+        }
         $scope.$close();
     };
     
