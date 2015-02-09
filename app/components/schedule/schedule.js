@@ -134,6 +134,14 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
     
     $scope.displaySearch = function (results, replacement) {
         $scope.temporaryStore.clear();
+        
+        if (results.length == 0) {
+            var modalInstance = $modal.open({
+                templateUrl: 'app/components/course/directives/course-search-modal.html',
+                controller: 'CourseSearchModalController'
+            });
+        }
+        
         for (var i = 0; i < results.length; i++) {
             if (!CourseStore.hasCourse(results[i].attributes.courseCode)) {
                 $scope.temporaryStore.addCourse(results[i], replacement);
