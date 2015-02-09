@@ -1,4 +1,4 @@
-var track = angular.module('courseeater.track', ['courseeater.course', 'courseeater.alert', 'ui.bootstrap', 'jp.ng-bs-animated-button']);
+var track = angular.module('courseeater.track', ['courseeater.course', 'courseeater.list', 'courseeater.alert', 'ui.bootstrap', 'jp.ng-bs-animated-button']);
 
 track.controller('CourseSearchModalController', ['$scope', 'Course', 'CourseStore', 'TemporaryStore', '$modalInstance', 'ButtonConfiguration', function ($scope, Course, CourseStore, TemporaryStore, $modalInstance, ButtonConfiguration) {
     $scope.temporaryStore = TemporaryStore;
@@ -84,8 +84,17 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
         var modalInstance = $modal.open({
             templateUrl: 'app/components/course/directives/course-search-modal.html',
             controller: 'CourseSearchModalController'
-        });
-        
+        });  
     };
+    
+    if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists().then(function () {
+        $scope.courseStore.setQuery($scope.courseListStore.activeList.getCourseQuery())
+    });
+    
+    $scope.$watch('courseListStore.activeList', function (newValue, oldValue) {
+        if (newValue !== undefined && newValue !== oldValue) {
+            $scope.courseStore.setQuery($scope.courseListStore.activeList.getCourseQuery())    
+        }
+    });
     
 }]);

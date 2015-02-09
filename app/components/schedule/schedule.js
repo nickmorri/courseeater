@@ -1,7 +1,12 @@
-var schedule = angular.module('courseeater.schedule', ['courseeater.course', 'ui.bootstrap', 'ui.calendar']);
+var schedule = angular.module('courseeater.schedule', ['courseeater.course', 'courseeater.list', 'ui.bootstrap', 'ui.calendar']);
 
-schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'TemporaryStore', 'uiCalendarConfig', '$modal', function ($scope, CourseStore, TemporaryStore, uiCalendarConfig, $modal) {
+schedule.run(['CourseStore', 'CourseListStore', function (CourseStore, CourseListStore) {
+    if (!CourseListStore.initialized) CourseListStore.retrieveCourseLists();
+}]);
+
+schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', 'uiCalendarConfig', '$modal', function ($scope, CourseStore, CourseListStore, TemporaryStore, uiCalendarConfig, $modal) {
     $scope.temporaryStore = TemporaryStore;
+    $scope.courseListStore = CourseListStore;
     $scope.courseStore = CourseStore;
     
     $scope.eventSource = [];
@@ -81,6 +86,16 @@ schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'TemporarySt
             if ($scope.eventSource.length != 1) $scope.eventSource.pop();
             $scope.eventSource.push(newValue);
         }       
+    });
+    
+    if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists().then(function () {
+        $scope.courseStore.setQuery($scope.courseListStore.activeList.getCourseQuery())
+    });
+    
+    $scope.$watch('courseListStore.activeList', function (newValue, oldValue) {
+        if (newValue !== undefined && newValue !== oldValue) {
+            $scope.courseStore.setQuery($scope.courseListStore.activeList.getCourseQuery())    
+        }
     });
     
 }]);

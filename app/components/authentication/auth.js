@@ -1,6 +1,6 @@
 var authentication = angular.module('courseeater.auth', ['parse-angular', 'parse.service']);
 
-authentication.factory('AuthService', ['$state', function ($state) {
+authentication.factory('AuthService', ['$state', '$rootScope', function ($state, $rootScope) {
     var authService = {};
     
     authService.currentUser = Parse.User.current();
@@ -43,6 +43,7 @@ authentication.factory('AuthService', ['$state', function ($state) {
     authService.logout = function () {
         Parse.User.logOut();
         authService.currentUser = null;
+        $rootScope.$broadcast("logout");
         $state.go('login.login');
     };
     

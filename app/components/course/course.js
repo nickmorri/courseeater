@@ -1,15 +1,5 @@
 var course = angular.module('courseeater.course', ['ui.bootstrap']);
 
-course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStore, CourseListStore, $rootScope) {
-    $rootScope.listStore = CourseListStore;
-    $rootScope.courseStore = CourseStore;
-    $rootScope.$watch('listStore.activeList', function (newValue, oldValue) {
-        if (newValue !== undefined) {
-            $rootScope.courseStore.setQuery(newValue.getCourseQuery());
-        }
-    });
-}]);
-
 course.factory('Course', function () {
     return function (data, color) {
         this.courseCode = data.attributes.courseCode;
@@ -137,19 +127,19 @@ course.factory('TemporaryStore', ['Course', function (Course) {
     
 }]);
 
-course.factory('CourseStore', ['Course', function (Course) {
+course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootScope) {
     var CourseStore = {};
     
     CourseStore.query = undefined;
     
-    CourseStore.ready = false;
+    CourseStore.initialized = false;
     CourseStore._collection = {};
     CourseStore.events = [];
     
     CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
     
     CourseStore.setQuery = function (query) {
-        CourseStore.ready = false;
+        CourseStore.initialized = false;
         CourseStore.query = query;
         CourseStore.fetchCourses();
     };
@@ -177,7 +167,7 @@ course.factory('CourseStore', ['Course', function (Course) {
         for (var i = 0; i < data.length; i++) {
             CourseStore.makeCourse(data[i]);
         }
-        CourseStore.ready = true;
+        CourseStore.initialized = true;
     };
     
     CourseStore.makeCourse = function (course) {
@@ -233,6 +223,18 @@ course.factory('CourseStore', ['Course', function (Course) {
         hash = Math.abs(string.hash()) % CourseStore.colors.length;
         return CourseStore.colors.splice(CourseStore.colors.indexOf(CourseStore.colors[hash]), 1)[0];
     };
+    
+    CourseStore.clear = function () {
+        CourseStore.query = undefined;
+    
+        CourseStore.initialized = false;
+        CourseStore._collection = {};
+        CourseStore.events = [];
+    };
+    
+    
+    // Listen for logout event and clear data store on event
+    $rootScope.$on('logout', CourseStore.clear);
     
     return CourseStore;
     
