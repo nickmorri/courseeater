@@ -1,5 +1,9 @@
 <li class="dropdown" ng-controller="ListController">    
-    <a href class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span> {{courseListStore.activeList.title}}</a>
+    <a href class="dropdown-toggle" data-toggle="dropdown">
+        <span class="glyphicon glyphicon-th-list"></span>
+        {{courseListStore.activeList.title}}
+        <div class="badge">{{courseListStore.available_terms[courseListStore.activeList.term]}}</div>
+    </a>
     <ul class="dropdown-menu">
         <li ng-show="temporaryStore.hasCourses()" ng-click="temporaryStore.clear()"><a href>Clear temporary courses <span class="glyphicon glyphicon-remove"></span></a></li>
         <li role="presentation" class="dropdown-header">Course Lists</li>
