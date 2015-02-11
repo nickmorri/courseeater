@@ -35,7 +35,11 @@ list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', func
     CourseListStore.activeList = undefined;
     CourseListStore.initialized = false;
     
+<<<<<<< HEAD
     CourseListStore.available_terms = {"2015-14": "Spring 2015", "2015-03": "Winter 2015"};
+=======
+    CourseListStore.available_terms = {"2015-14": "Spring 2015"};
+>>>>>>> master
     
     CourseListStore.retrieveCourseLists = function () {
         var query = new Parse.Query("CourseList");
@@ -115,8 +119,11 @@ list.controller('ListController', ['$scope', 'AuthService', 'CourseListStore', '
 list.controller('CourseListModalController', ['$scope', 'CourseListStore', '$modalInstance', 'list', function ($scope, CourseListStore, $modalInstance, list) {
     $scope.courseListStore = CourseListStore;
     
+<<<<<<< HEAD
     $scope
     
+=======
+>>>>>>> master
     if (list !== undefined) {
         $scope.list = list;
         $scope.list.shared = false;
