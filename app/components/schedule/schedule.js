@@ -92,6 +92,66 @@ schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListS
     
 }]);
 
+schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'CourseListStore', 'uiCalendarConfig', '$modal', function ($scope, CourseStore, CourseListStore, uiCalendarConfig, $modal) {
+    $scope.courseListStore = CourseListStore;
+    $scope.courseStore = CourseStore;
+    
+    $scope.eventSource = [];
+    
+    $scope.uiConfig = {
+        calendar: {
+            header: "",
+            defaultView: "agendaWeek",
+            defaultDate: "2015-06-8",
+            minTime: "08:00:00",
+            maxTime: "22:00:00",
+            weekends: false,
+            allDaySlot: false,
+            contentHeight: 640
+        }
+    };
+    
+    $scope.makeImage = function () {
+    	html2canvas($("#finals_calendar"), {
+    		onrendered: function(canvas) {
+    			var destinationCanvas, destinationContext, today, link;
+    		
+    			destinationCanvas = document.createElement('canvas');
+    			destinationCanvas.width = canvas.width;
+    			destinationCanvas.height = canvas.height;
+    			
+    			destinationContext = destinationCanvas.getContext("2d");
+    			destinationContext.rect(0, 0, canvas.width, canvas.height);
+    			destinationContext.fillStyle = "white";
+    			destinationContext.fill();
+    
+    			destinationContext.drawImage(canvas, 0, 0, canvas.width, canvas.height);
+    			
+    			destinationContext.font = '10pt Helvetica';
+    			destinationContext.fillStyle = "black";
+    			destinationContext.fillText("http://courseeater.com", canvas.width - 140, canvas.height - 8);
+    			
+    			today = new Date();
+    			
+    			link = document.createElement("a");
+    			link.download = "Schedule | CourseEater - " + today.toLocaleDateString("en-US") + ".png";
+    			link.href = destinationCanvas.toDataURL();
+    			link.click();
+    	    }
+    	});
+    };
+    
+    $scope.$watch('courseStore.finals', function (newValue, oldValue) {
+        if (newValue !== undefined || newValue !== oldValue) {
+            $scope.eventSource.clear();
+            $scope.eventSource.push(newValue);
+        }
+    });
+    
+    if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
+    
+}]);
+
 schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$modalInstance', 'CourseStore', 'TemporaryStore', 'ButtonConfiguration', 'course', function ($scope, $modal, $modalInstance, CourseStore, TemporaryStore, ButtonConfiguration, course) {
     $scope.courseStore = CourseStore;
     $scope.temporaryStore = TemporaryStore;

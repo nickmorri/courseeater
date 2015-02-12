@@ -45,9 +45,22 @@ courseeater_app.config(['$locationProvider', '$stateProvider', '$urlRouterProvid
         .state('schedule', {
             url: '/schedule',
             templateUrl: 'app/views/schedule/base.html',
-            controller: 'ScheduleController',
-            data: { pageTitle: 'Schedule'}
+            abstract: true
         })
+        
+            .state('schedule.schedule', {
+                url: '',
+                templateUrl: 'app/views/schedule/schedule.html',
+                controller: 'ScheduleController',
+                data: { pageTitle: 'Schedule'}
+            })
+        
+            .state('schedule.finals', {
+                url: '/finals',
+                templateUrl: 'app/views/schedule/finals.html',
+                controller: 'FinalScheduleController',
+                data: { pageTitle: 'Finals'}
+            })
         
         .state('settings', {
             url: '/settings',

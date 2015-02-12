@@ -113,6 +113,71 @@ course.factory('Course', function () {
             return this.events;
         };
         
+        this.makeFinal = function () {
+            if (this.finalEvent !== undefined) return this.finalEvent;
+            
+            var startingDay, finalString, title, heldDay, time, start, end, endFront, endBack, event;
+            startingDay = "2015-06-";
+            
+            if (this.finalExam === undefined) {
+                return undefined;
+            }
+            else {
+                finalString = this.finalExam;
+            }
+            
+            if (this.time.indexOf("TBA") !== -1) return [];
+            // Title processing
+            title = this.courseIdentifier.toUpperCase() + " - " + this.type.toUpperCase();
+            // Day processing
+            heldDay = startingDay + finalString.split(", ")[1].split(" ")[1];
+            
+            if (heldDay.split("-")[2].length == 1) {
+                heldDay = [heldDay.slice(0, heldDay.length - 1), "0", heldDay.slice(heldDay.length - 1)].join('');
+            }
+            
+            // Title processing
+            title = this.courseIdentifier.toUpperCase() + " - " + this.type.toUpperCase();
+            // Time parsing
+            time = finalString.split("-");
+            start = time[0].split(", ")[2];
+            start = parseInt(start.split(":")[0], 10);
+            end = time[1];
+            if (end.indexOf("am") !== -1) {
+                end = end.split("am")[0];
+                endFront = parseInt(end.split(":")[0], 10);
+                endBack = parseInt(end.split(":")[1], 10);
+                if (endBack === 0) {
+                    endBack = "00";
+                }
+                start = "0" + start;
+            } else {
+                end = end.split("pm")[0];
+                endFront = parseInt(end.split(":")[0], 10);
+                endBack = parseInt(end.split(":")[1], 10);
+                if (endFront !== 12) {
+                    start += 12;
+                    endFront += 12;
+                }
+                if (endBack === 0) {
+                    endBack = "00";
+                }
+            }
+            start = "T" + start + ":" + time[0].split(", ")[2].split(":")[1] + ":00";
+            end = "T" + endFront + ":" + endBack + ":00";
+            //Event object creation
+            event = {
+                id: this.courseCode,
+                title: title,
+                start: heldDay + start,
+                end: heldDay + end,
+                backgroundColor: color
+            };
+            
+            this.finalEvent = event;
+            return this.finalEvent;
+        };
+        
     };
 });
 
@@ -154,6 +219,7 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
     CourseStore.initialized = false;
     CourseStore._collection = {};
     CourseStore.events = [];
+    CourseStore.finals = [];
     
     CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
     
@@ -193,6 +259,22 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
         var course = new Course(course, CourseStore.getColor(course.attributes.courseName));
         CourseStore.events = CourseStore.events.concat(course.makeEvent());
         
+        if (course.makeFinal() !== undefined) {
+            
+            if (CourseStore.finals.length === 0) {
+                CourseStore.finals = CourseStore.finals.concat(course.finalEvent);
+            }
+            else {
+                var existed = false;
+                for (var i = 0; i < CourseStore.finals.length; i++) {
+                    if (course.courseCode === CourseStore.finals[i].id) existed = true
+                }
+                if (!existed) {
+                    CourseStore.finals = CourseStore.finals.concat(course.finalEvent);
+                }
+            }
+        }
+        
         if (CourseStore._collection[course.courseIdentifier] !== undefined) {
             CourseStore._collection[course.courseIdentifier].courses.push(course);
             if (course.type == "LEC") CourseStore._collection[course.courseIdentifier].mainCourse = course;
@@ -216,6 +298,7 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
         CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
         CourseStore._collection = {};
         CourseStore.events = [];
+        CourseStore.finals = [];
     };
     
     CourseStore.getEquivalentCourse = function (course) {

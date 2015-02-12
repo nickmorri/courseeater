@@ -1,4 +1,4 @@
-<div class="navbar navbar-default navbar-static-top" role="navigation" ng-controller="NavController">
+<div class="navbar navbar-default navbar-static-top hidden-print" role="navigation" ng-controller="NavController">
  	<div class="container">
   		<div class="navbar-header">
     		<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -17,22 +17,18 @@
     				</a>
 				</li>
 				<li ui-sref-active="active">
-				    <a href ui-sref="schedule">
+				    <a href ui-sref="schedule.schedule">
     				    <span class="glyphicon glyphicon-time"></span> Schedule
+    				</a>
+				</li>
+				<li ui-sref-active="active">
+				    <a href ui-sref="schedule.finals">
+    				    <span class="glyphicon glyphicon-education"></span> Finals
     				</a>
 				</li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
     			<connection-view></connection-view>
-				<!--
-<li ng-show="isPage('schedule')">
-				    <a href ng-click="makeImage()">
-    				    <span class="glyphicon glyphicon-download"></span>
-    				    Download image
-				    </a>
-				</li>
--->
-				<friend-list-menu ng-controller="FriendCtrl"></friend-list-menu>
 				<course-list-view></course-list-view>
 				<user-menu></user-menu>	
 			</ul>
