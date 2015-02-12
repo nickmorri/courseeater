@@ -5,6 +5,7 @@ list.factory('CourseList', function (CourseStore) {
         this.title = data.attributes.title;
         this.active = data.attributes.active;
         this.courseRelation = data.relation("courses");
+        this.courseCodes = data.attributes.courseCodes;
         this.owner = data.attributes.owner;
         this.shared = data.attributes.shared;
         this.id = data.id;

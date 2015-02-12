@@ -4,8 +4,9 @@ course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStor
     $rootScope.listStore = CourseListStore;
     $rootScope.courseStore = CourseStore;
     $rootScope.$watch('listStore.activeList', function (newValue, oldValue) {
-        if (newValue !== undefined) {
-            $rootScope.courseStore.setQuery(newValue.getCourseQuery());
+        if (newValue != oldValue) {
+            // $rootScope.courseStore.setQuery(newValue.getCourseQuery());
+            $rootScope.courseStore.setCourseCodes(newValue.courseCodes);
         }
     });
 }]);
@@ -214,6 +215,7 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
     var CourseStore = {};
     
     CourseStore.query = undefined;
+    CourseStore.courseCodes = undefined;
     
     CourseStore.initialized = false;
     CourseStore._collection = {};
@@ -228,9 +230,31 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
         CourseStore.fetchCourses();
     };
     
-    CourseStore.fetchCourses = function (query) {
+    CourseStore.setCourseCodes = function (courseCodes) {
+        
+        if (CourseStore.initialized) return;
+        
+        CourseStore.courseCodes = courseCodes;
+        CourseStore.fetchCourses();
+    };
+    
+    CourseStore.fetchCourses = function () {
+        CourseStore.clear();
+        for (var i = 0; i < CourseStore.courseCodes.length; i++) {
+            var query = new Parse.Query("Course");
+            query.equalTo("courseCode", CourseStore.courseCodes[i]);
+            query.equalTo("term", "2015-14");
+            query.descending("updatedAt");
+            query.find().then(CourseStore.makeCourseInterface);
+        }
+        CourseStore.initialized = true;
+    };
+    
+    /*
+CourseStore.fetchCourses = function () {
         CourseStore.query.find().then(CourseStore.makeCourses);
     };
+*/
     
     CourseStore.hasCourse = function (courseCode) {
         return CourseStore.getCourse(courseCode) !== undefined;
@@ -252,6 +276,10 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
             CourseStore.makeCourse(data[i]);
         }
         CourseStore.initialized = true;
+    };
+    
+    CourseStore.makeCourseInterface = function (data) {
+        CourseStore.makeCourse(data[0]);
     };
     
     CourseStore.makeCourse = function (course) {
