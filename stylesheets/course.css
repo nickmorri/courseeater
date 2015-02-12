@@ -84,6 +84,19 @@
 .list-group .list-group-item {
 	border-radius: 0px;
 }
+@media (max-width: 768px) {
+    .navbar-nav .open .dropdown-menu>li>a, .navbar-nav .open .dropdown-menu .dropdown-header {
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+    .navbar-nav .open .dropdown-menu>li>a {
+        line-height: 30px;
+    }
+    .course-list-item-title .glyphicon {
+        top: 5px;
+        font-size: large;
+    }
+}
 .panel.panel-primary {
 	border-radius: 0px;
 	margin-bottom: -6px;
@@ -97,4 +110,7 @@
 }
 .modal-header {
     border-bottom: 0px;
+}
+.modal-title .form-control {
+    border-radius: 0px;
 }
