@@ -17,7 +17,7 @@ course.factory('Course', function () {
         this.courseIdentifier = data.attributes.courseIdentifier;
         this.courseName = data.attributes.courseName.replace(/&nbsp;/g, '');
         this.days = data.attributes.days;
-        this.final = data.attributes.final;
+        this.finalExam = data.attributes.final;
         this.instructor = data.attributes.instructor;
         this.localEnr = data.attributes.localEnr;
         this.max = data.attributes.max;
@@ -37,6 +37,10 @@ course.factory('Course', function () {
         this.web = data.attributes.web;
         this.wl = data.attributes.wl;
         this.term = data.attributes.term;
+        
+        
+
+        if (this.finalExam === "NONE") this.finalExam = undefined;
 
         // Parse object relevant data
         this.id = data.id;
