@@ -119,14 +119,13 @@ course.factory('Course', function () {
             var startingDay, finalString, title, heldDay, time, start, end, endFront, endBack, event;
             startingDay = "2015-06-";
             
-            if (this.finalExam === undefined) {
+            if (this.finalExam === undefined || this.finalExam.indexOf("TBA") !== -1) {
                 return undefined;
             }
             else {
                 finalString = this.finalExam;
             }
             
-            if (this.time.indexOf("TBA") !== -1) return [];
             // Title processing
             title = this.courseIdentifier.toUpperCase() + " - " + this.type.toUpperCase();
             // Day processing
