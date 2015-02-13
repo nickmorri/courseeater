@@ -238,6 +238,9 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
             var query = new Parse.Query("Course");
             query.equalTo("courseCode", CourseStore.courseCodes[i]);
             query.equalTo("term", "2015-14");
+            
+            // Ideally will be able to remove this if I can confirm duplicates are no longer being made.
+            
             query.descending("updatedAt");
             query.find().then(CourseStore.makeCourseInterface);
         }
@@ -328,16 +331,25 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
     };
     
     CourseStore.addCourse = function (courseCode) {
-        return Parse.Cloud.run('addCourse', {courseCode : courseCode}).then(CourseStore.fetchCourses);
+        return Parse.Cloud.run('addCourse', {courseCode : courseCode}).then(function (latestCourseCodes) {
+            CourseStore.courseCodes = latestCourseCodes;
+            CourseStore.fetchCourses();
+        });
     };
     
     CourseStore.removeCourse = function (courseCode) {
-        return Parse.Cloud.run('removeCourse', {courseCode : courseCode}).then(CourseStore.fetchCourses);
+        return Parse.Cloud.run('removeCourse', {courseCode : courseCode}).then(function (latestCourseCodes) {
+            CourseStore.courseCodes = latestCourseCodes;
+            CourseStore.fetchCourses();
+        });
     };
         
     CourseStore.replaceCourse = function (oldCourseCode, newCourseCode) {
         return Parse.Cloud.run('removeCourse', {courseCode : oldCourseCode}).then(function () {
-            return Parse.Cloud.run('addCourse', {courseCode : newCourseCode}).then(CourseStore.fetchCourses);
+            return Parse.Cloud.run('addCourse', {courseCode : newCourseCode}).then(function (latestCourseCodes) {
+                CourseStore.courseCodes = latestCourseCodes;
+                CourseStore.fetchCourses();
+            });
         });
     };
     
