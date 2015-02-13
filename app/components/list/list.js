@@ -12,10 +12,6 @@ list.factory('CourseList', function (CourseStore) {
         
         this.term = data.attributes.term;
         
-        this.getCourseQuery = function () {
-            return this.courseRelation.query();
-        };
-        
         this.setActive = function () {
             var list = this;
             Parse.Cloud.run("changeActiveCourseList", {objectId : this.id}).then(function () {

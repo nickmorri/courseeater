@@ -4,9 +4,8 @@ course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStor
     $rootScope.listStore = CourseListStore;
     $rootScope.courseStore = CourseStore;
     $rootScope.$watch('listStore.activeList', function (newValue, oldValue) {
-        if (newValue != oldValue) {
-            // $rootScope.courseStore.setQuery(newValue.getCourseQuery());
-            $rootScope.courseStore.setCourseCodes(newValue.courseCodes);
+        if (newValue !== oldValue) {
+            $rootScope.courseStore.setCourseCodes(newValue.courseCodes, newValue.id);
         }
     });
 }]);
@@ -38,8 +37,6 @@ course.factory('Course', function () {
         this.web = data.attributes.web;
         this.wl = data.attributes.wl;
         this.term = data.attributes.term;
-        
-        
 
         if (this.finalExam === "NONE") this.finalExam = undefined;
 
@@ -214,26 +211,23 @@ course.factory('TemporaryStore', ['Course', function (Course) {
 course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course, $rootScope, $http) {
     var CourseStore = {};
     
-    CourseStore.query = undefined;
+    CourseStore.listID = undefined;
     CourseStore.courseCodes = undefined;
     
     CourseStore.initialized = false;
     CourseStore._collection = {};
+    
+    // FullCalendar EventSources
     CourseStore.events = [];
     CourseStore.finals = [];
     
+    // FullCalendar event colors
     CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
     
-    CourseStore.setQuery = function (query) {
-        CourseStore.initialized = false;
-        CourseStore.query = query;
-        CourseStore.fetchCourses();
-    };
-    
-    CourseStore.setCourseCodes = function (courseCodes) {
-        
-        if (CourseStore.initialized) return;
-        
+    CourseStore.setCourseCodes = function (courseCodes, listID) {
+        if (listID === this.listID) return
+        else this.listID = listID;
+        CourseStore.clear();
         CourseStore.courseCodes = courseCodes;
         CourseStore.fetchCourses();
     };
@@ -249,12 +243,6 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
         }
         CourseStore.initialized = true;
     };
-    
-    /*
-CourseStore.fetchCourses = function () {
-        CourseStore.query.find().then(CourseStore.makeCourses);
-    };
-*/
     
     CourseStore.hasCourse = function (courseCode) {
         return CourseStore.getCourse(courseCode) !== undefined;
@@ -402,7 +390,6 @@ CourseStore.fetchCourses = function () {
     // Listen for logout event and clear data store on event
     $rootScope.$on('logout', function () {
         CourseStore.clear();
-        CourseStore.query = undefined;
     });
     
     return CourseStore;
