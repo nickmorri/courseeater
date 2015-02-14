@@ -233,7 +233,7 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
     };
     
     CourseStore.fetchCourses = function () {
-        CourseStore.clear();
+        CourseStore.clearSchedule();
         for (var i = 0; i < CourseStore.courseCodes.length; i++) {
             var query = new Parse.Query("Course");
             query.equalTo("courseCode", CourseStore.courseCodes[i]);
@@ -242,7 +242,7 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
             // Ideally will be able to remove this if I can confirm duplicates are no longer being made.
             
             query.descending("updatedAt");
-            query.find().then(CourseStore.makeCourseInterface);
+            query.find().then(CourseStore.makeCourse);
         }
         CourseStore.initialized = true;
     };
@@ -261,40 +261,15 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
         return undefined;
     };
     
-    CourseStore.makeCourses = function (data) {
-        CourseStore.clear();
-        for (var i = 0; i < data.length; i++) {
-            CourseStore.makeCourse(data[i]);
-        }
-        CourseStore.initialized = true;
-    };
-    
-    CourseStore.makeCourseInterface = function (data) {
-        CourseStore.makeCourse(data[0]);
-    };
-    
-    CourseStore.makeCourse = function (course) {
-        var course = new Course(course, CourseStore.getColor(course.attributes.courseName));
-        CourseStore.events = CourseStore.events.concat(course.makeEvent());
-        
-        if (course.makeFinal() !== undefined) {
-            
-            if (CourseStore.finals.length === 0) {
-                CourseStore.finals = CourseStore.finals.concat(course.finalEvent);
-            }
-            else {
-                var existed = false;
-                for (var i = 0; i < CourseStore.finals.length; i++) {
-                    if (course.courseCode === CourseStore.finals[i].id) existed = true
-                }
-                if (!existed) {
-                    CourseStore.finals = CourseStore.finals.concat(course.finalEvent);
-                }
-            }
-        }
-        
+    CourseStore.putCourse = function (course) {
         if (CourseStore._collection[course.courseIdentifier] !== undefined) {
-            CourseStore._collection[course.courseIdentifier].courses.push(course);
+            var existingCourse = CourseStore.getCourse(course.courseCode);
+            
+            if (existingCourse) existingCourse = course;
+            else {
+                CourseStore._collection[course.courseIdentifier].courses.push(course);    
+            }
+            
             if (course.type == "LEC") CourseStore._collection[course.courseIdentifier].mainCourse = course;
         }
         else {
@@ -308,15 +283,49 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
         if (course.timeSinceUpdate > 360000) {
             CourseStore.checkLatestCourseData(course.courseCode).then(CourseStore.processLatestCourseData);
         }
-        
+    };
+    
+    CourseStore.putEvent = function (event) {
+        debugger
+        CourseStore.events = CourseStore.events.concat(event);
+    };
+    
+    CourseStore.putFinal = function (event) {
+        if (event !== undefined) {
+            
+            if (CourseStore.finals.length === 0) {
+                CourseStore.finals = CourseStore.finals.concat(event);
+            }
+            else {
+                var existed = false;
+                for (var i = 0; i < CourseStore.finals.length; i++) {
+                    if (event.id === CourseStore.finals[i].id) existed = true
+                }
+                if (!existed) {
+                    CourseStore.finals = CourseStore.finals.concat(event);
+                }
+            }
+            
+        }
+    };
+    
+    CourseStore.makeCourse = function (course) {
+        var course = new Course(course[0], CourseStore.getColor(course[0].attributes.courseName));
+        CourseStore.putCourse(course);
+        CourseStore.putEvent(course.makeEvent());
+        CourseStore.putFinal(course.makeFinal());
+    };
+    
+    CourseStore.clearSchedule = function () {
+        CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
+        CourseStore.events = [];
+        CourseStore.finals = [];
     };
     
     CourseStore.clear = function () {
-        CourseStore.initialized = false;
-        CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
+        CourseStore.initialized = false;    
         CourseStore._collection = {};
-        CourseStore.events = [];
-        CourseStore.finals = [];
+        CourseStore.clearSchedule();
     };
     
     CourseStore.getEquivalentCourse = function (course) {
@@ -337,9 +346,20 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
         });
     };
     
-    CourseStore.removeCourse = function (courseCode) {
+    CourseStore._removeCourseFromCollection = function (courseCode) {
+        for (var className in CourseStore._collection) {
+            var classObj = CourseStore._collection[className];
+            for (var i = 0; i < classObj.courses.length; i++) {
+                if (classObj.courses[i].courseCode === courseCode) break;
+            }
+        }
+        return classObj.courses.splice(i, 1);
+    };
+    
+    CourseStore.removeCourse = function (courseCode) {    
         return Parse.Cloud.run('removeCourse', {courseCode : courseCode}).then(function (latestCourseCodes) {
             CourseStore.courseCodes = latestCourseCodes;
+            CourseStore._removeCourseFromCollection(courseCode);
             CourseStore.fetchCourses();
         });
     };
@@ -348,6 +368,7 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
         return Parse.Cloud.run('removeCourse', {courseCode : oldCourseCode}).then(function () {
             return Parse.Cloud.run('addCourse', {courseCode : newCourseCode}).then(function (latestCourseCodes) {
                 CourseStore.courseCodes = latestCourseCodes;
+                CourseStore.clear();
                 CourseStore.fetchCourses();
             });
         });
