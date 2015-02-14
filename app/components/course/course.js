@@ -4,7 +4,7 @@ course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStor
     $rootScope.listStore = CourseListStore;
     $rootScope.courseStore = CourseStore;
     $rootScope.$watch('listStore.activeList', function (newValue, oldValue) {
-        if (newValue !== oldValue) {
+        if (newValue !== undefined && newValue !== oldValue) {
             $rootScope.courseStore.setCourseCodes(newValue.courseCodes, newValue.id);
         }
     });
@@ -286,7 +286,6 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
     };
     
     CourseStore.putEvent = function (event) {
-        debugger
         CourseStore.events = CourseStore.events.concat(event);
     };
     
