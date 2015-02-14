@@ -13,10 +13,7 @@ list.factory('CourseList', function (CourseStore) {
         this.term = data.attributes.term;
         
         this.setActive = function () {
-            var list = this;
-            Parse.Cloud.run("changeActiveCourseList", {objectId : this.id}).then(function () {
-                list.active = true;
-            });
+            return Parse.Cloud.run("changeActiveCourseList", {objectId : this.id});
         };
         
     };
@@ -65,7 +62,9 @@ list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', func
     CourseListStore.setActiveList = function (list) {
         CourseListStore.activeList.active = false;
         CourseListStore.activeList = list;
-        CourseListStore.activeList.setActive()
+        CourseListStore.activeList.setActive().then(function () {
+            CourseListStore.activeList.active = true;
+        });
         
     };
     
@@ -90,7 +89,7 @@ list.controller('ListController', ['$scope', 'AuthService', 'CourseListStore', '
         if ($scope.courseListStore.activeList == list) return;
         
         if ($(".navbar-header .navbar-toggle").css("display") != "none") $(".navbar-header .navbar-toggle").trigger("click");
-        $scope.courseListStore.setActiveList(list);    
+        $scope.courseListStore.setActiveList(list);
     };
     
     $scope.editList = function (targetList) {
