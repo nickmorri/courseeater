@@ -1,1 +1,16 @@
-<div id="finals_calendar" ui-calendar="uiConfig.calendar" calendar="schedule" ng-model="eventSource" class="calendar"></div>
+<navigation-view></navigation-view>
+
+<div class="schedule schedule-container container-fluid">
+
+    <div class="schedule container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <schedule-toolbar></schedule-toolbar>
+            </div>
+            <div class="schedule panel-body">
+                <div id="finals_calendar" ui-calendar="uiConfig.calendar" calendar="schedule" ng-model="eventSource" class="calendar"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
