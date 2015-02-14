@@ -1,0 +1,20 @@
+<div class="btn-toolbar schedule-toolbar">
+    <div class="row">
+        <div class="col-md-1">
+            <div class="btn-group">
+                <button type="button" class="btn btn-default" ng-click="makeImage()">
+                    <span class="glyphicon glyphicon-circle-arrow-down"></span>
+                    Download
+                </button>
+            </div>
+        </div>
+        <div class="col-md-offset-10 col-md-1">
+            <div class="btn-group pull-right">
+                <button type="button" class="btn btn-default" ng-click="temporaryStore.clear()" ng-show="temporaryStore.hasCourses()">
+                    <span class="glyphicon glyphicon-remove"></span>
+                    Clear search results
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

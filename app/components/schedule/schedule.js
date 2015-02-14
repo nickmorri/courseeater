@@ -134,7 +134,7 @@ schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'Course
     			today = new Date();
     			
     			link = document.createElement("a");
-    			link.download = "Schedule | CourseEater - " + today.toLocaleDateString("en-US") + ".png";
+    			link.download = "Finals | CourseEater - " + today.toLocaleDateString("en-US") + ".png";
     			link.href = destinationCanvas.toDataURL();
     			link.click();
     	    }
@@ -161,7 +161,11 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
     
     $scope.addCourse = function (course) {
         course.isSubmitting = true;
-        $scope.courseStore.addCourse(course.courseCode).then($scope.$close);
+        $scope.courseStore.addCourse(course.courseCode).then(function () {
+            return $scope.temporaryStore.clear();
+        }).then(function () {
+            $scope.$close()
+        });
     };
     
     $scope.removeCourse = function (course) {
@@ -172,7 +176,12 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
     $scope.replaceCourse = function (course) {
         course.isSubmitting = true;
         var originalCourse = $scope.courseStore.getEquivalentCourse(course);
-        $scope.courseStore.replaceCourse(originalCourse.courseCode, course.courseCode).then($scope.$close);
+        $scope.courseStore.replaceCourse(originalCourse.courseCode, course.courseCode).then(function () {
+            return $scope.temporaryStore.clear();
+        }).then(function () {
+            $scope.$close()
+        });
+
     };
     
     $scope.searchForCocourses = function (course, type) {
@@ -215,3 +224,9 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
     };
     
 }]);
+
+schedule.directive('scheduleToolbar', function () {
+    return {
+        templateUrl: 'app/components/schedule/directives/schedule-toolbar.html'
+    }
+});

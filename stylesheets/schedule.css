@@ -1,7 +1,6 @@
 /* Calendar page */
-.calendar {
-	margin-top: -32px;
-	background: "#fff"
+.schedule .panel-body {
+    padding: 0px;
 }
 .fc-event {
 	border: 0px;
@@ -15,4 +14,17 @@
 }
 .fc-content .fc-time {
     display: none;
+}
+.fc hr {
+    padding: 0px;
+}
+/* Mobile Sizing */
+@media (max-width: 768px) {
+    .schedule {
+        padding: 0px;
+        margin: 0px;
+    }
+    .schedule > .panel {
+        margin-top: -30px
+    }
 }

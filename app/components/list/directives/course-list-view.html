@@ -4,7 +4,6 @@
         {{courseListStore.activeList.title}}
     </a>
     <ul class="dropdown-menu">
-        <li ng-show="temporaryStore.hasCourses()" ng-click="temporaryStore.clear()"><a href>Clear temporary courses <span class="glyphicon glyphicon-remove"></span></a></li>
         <li role="presentation" class="dropdown-header">Course Lists</li>
     	<li ng-repeat="list in courseListStore._collection" ng-class="{'active': list.active}" class="course-list-item">
     	    <a class="course-list-item-title" ng-click="setActiveList(list)">
