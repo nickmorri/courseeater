@@ -4,7 +4,7 @@ body.modal-open { overflow: hidden; }
 .navbar { margin-bottom: 30px; }
 .btn { border-radius: 0px; }
 .course-list-item { cursor: pointer; }
-.add-course-entry { margin-top: -10px; }
+
 .modal-content { border-radius: 0px; }
 .alert { border-radius: 0px; }
 .alert-error {
