@@ -21,17 +21,26 @@ authentication.factory('AuthService', ['$state', '$rootScope', function ($state,
         });
     };
     
-    authService.register = function (username, email, password) {
+    authService.register = function (username, email, password, courseCodes) {
         var user = new Parse.User();
         user.set("username", username);
         user.set("email", email);
         user.set("password", password);
 
-        return user.signUp(null).then(function (response) {
-            authService.currentUser = Parse.User.current();
-        }, function (error) {
-            authService.currentUser = null;
-        });        
+        if (courseCodes.length > 0) {
+            return user.signUp(courseCodes: courseCodes).then(function (response) {
+                authService.currentUser = Parse.User.current();
+            }, function (error) {
+                authService.currentUser = null;
+            });
+        }
+        else {
+            return user.signUp(null).then(function (response) {
+                authService.currentUser = Parse.User.current();
+            }, function (error) {
+                authService.currentUser = null;
+            });    
+        }
     };
     
     authService.checkRegistrationCode = function (registration_code) {
@@ -82,25 +91,50 @@ authentication.controller('LoginController', ['$scope', 'AuthService', '$state',
 
 }]);
 
-authentication.controller('RegistrationController', ['$scope', 'AuthService', '$state', function ($scope, AuthService, $state) {
+authentication.controller('RegistrationController', ['$scope', 'AuthService', '$state', '$http', function ($scope, AuthService, $state, $http) {
     $scope.authService = AuthService;
     
     $scope.error = false;
     $scope.username = undefined;
     $scope.email = undefined;
     $scope.password = undefined;
-    $scope.registration_code = undefined;
+    $scope.antplanner_username = undefined;
+    
+    $scope.importAntplannerAccount = function (username) {
+        return $http({
+            url: 'php/antplanner.php',
+            method: "GET",
+            params: {username: username}
+        });
+    };
     
     $scope.register = function () {
-        $scope.authService.checkRegistrationCode($scope.registration_code).then(function (status) {
+
+        if ($scope.antplanner_username) {
+            $scope.importAntplannerAccount($scope.antplanner_username).then(response) {
+                var data = JSON.parse(response.data.data);
+                var courseCodes = {};
+                for (var i = 0; i < data.length; i++) {
+                    courseCodes[parseInt(data[i].groupId, 10)] = undefined;
+                }
+                
+                $scope.authService.register($scope.username, $scope.email, $scope.password, Object.keys(courseCodes)).then(function (status) {
+                    $state.go('track');
+                }, function (error) {
+                    $scope.error = true;
+                });
+                
+            });
+        }
+        
+        else {
             $scope.authService.register($scope.username, $scope.email, $scope.password).then(function (status) {
                 $state.go('track');
             }, function (error) {
                 $scope.error = true;
-            });
-        }, function (error) {
-            $scope.error = true;
-        });
+            });    
+        }
+        
     };
     
 }]);
