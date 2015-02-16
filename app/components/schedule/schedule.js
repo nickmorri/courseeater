@@ -92,9 +92,10 @@ schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListS
     
 }]);
 
-schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'CourseListStore', 'uiCalendarConfig', '$modal', function ($scope, CourseStore, CourseListStore, uiCalendarConfig, $modal) {
+schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', 'uiCalendarConfig', '$modal', function ($scope, CourseStore, CourseListStore, TemporaryStore, uiCalendarConfig, $modal) {
     $scope.courseListStore = CourseListStore;
     $scope.courseStore = CourseStore;
+    $scope.temporaryStore = TemporaryStore;
     
     $scope.eventSource = [];
     
