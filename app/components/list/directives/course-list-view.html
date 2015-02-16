@@ -5,18 +5,21 @@
         <span class="caret hidden-sm hidden-md hidden-lg">
     </a>
     <ul class="dropdown-menu">
+    	<li class="divider visible-xs-block"></li>
     	<li ng-repeat="list in courseListStore._collection" ng-class="{'active': list.active}" class="course-list-item">
     	    <a class="course-list-item-title" ng-click="setActiveList(list)">
+    		    <span class="glyphicon glyphicon-expand course-list-item-icon" ng-show="courseListStore.activeList == list"></span>
+    		    <span class="glyphicon glyphicon-unchecked course-list-item-icon" ng-hide="courseListStore.activeList == list"></span>
     		    {{list.title}}
-    		    <span class="glyphicon glyphicon-cog pull-right edit-course-list-cog" ng-if="courseListStore.activeList == list" ng-click="editList(list)"></span>
+    		    <span class="glyphicon glyphicon-cog pull-right edit-course-list-cog" ng-show="courseListStore.activeList == list" ng-click="editList(list)"></span>
     	    </a>
         </li>
-    	<li class="divider"></li>
     	<li ng-click="editList()">
     	    <a href>
+        	    <span class="glyphicon glyphicon-plus course-list-item-icon"></span>
         	    New
-                <span class="glyphicon glyphicon-plus pull-right"></span>
             </a>
         </li>
+        <li class="divider visible-xs-block"></li>
     </ul>
 </li>

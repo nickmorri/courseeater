@@ -1,4 +1,4 @@
-var list = angular.module('courseeater.list', ['ui.bootstrap']);
+var list = angular.module('courseeater.list', ['ui.bootstrap', 'jp.ng-bs-animated-button']);
 
 list.factory('CourseList', function (CourseStore) {
     return function (data) {
@@ -111,6 +111,49 @@ list.controller('ListController', ['$scope', 'AuthService', 'CourseListStore', '
 list.controller('CourseListModalController', ['$scope', 'CourseListStore', '$modalInstance', 'list', function ($scope, CourseListStore, $modalInstance, list) {
     $scope.courseListStore = CourseListStore;
     
+    $scope.buttonConfig = {
+        createList: {
+            buttonDefaultText: 'Create',
+            buttonSubmittingText: 'Creating...',
+            buttonSuccessText: 'Created',
+            buttonDefaultClass: 'btn-primary',
+            buttonSubmittingClass: 'btn-primary',
+            buttonSuccessClass: 'btn-success',
+            buttonInitialIcon: 'glyphicon',
+            buttonSubmittingIcon: 'glyphicon',
+            buttonSuccessIcon: 'glyphicon',
+            iconsPosition: 'right'
+        },
+        deleteList: {
+            buttonDefaultText: 'Delete',
+            buttonSubmittingText: 'Deleting...',
+            buttonSuccessText: 'Deleted',
+            buttonDefaultClass: 'btn-danger',
+            buttonSubmittingClass: 'btn-danger',
+            buttonSuccessClass: 'btn-danger',
+            buttonInitialIcon: 'glyphicon',
+            buttonSubmittingIcon: 'glyphicon',
+            buttonSuccessIcon: 'glyphicon',
+            iconsPosition: 'right'
+        },
+        saveList: {
+            buttonDefaultText: 'Save',
+            buttonSubmittingText: 'Saving...',
+            buttonSuccessText: 'Saved',
+            buttonDefaultClass: 'btn-primary',
+            buttonSubmittingClass: 'btn-primary',
+            buttonSuccessClass: 'btn-success',
+            buttonInitialIcon: 'glyphicon',
+            buttonSubmittingIcon: 'glyphicon',
+            buttonSuccessIcon: 'glyphicon',
+            iconsPosition: 'right'
+        }
+    };
+    
+    $scope.isCreating = null;
+    $scope.isSaving = null;
+    $scope.isDeleting = null;
+    
     if (list !== undefined) {
         $scope.list = list;
         $scope.list.shared = false;
@@ -122,15 +165,18 @@ list.controller('CourseListModalController', ['$scope', 'CourseListStore', '$mod
             shared: false
         };
     }
+    $scope.createList = function () {
+        $scope.isCreating = true;
+        $scope.courseListStore.createNewList($scope.list.title, $scope.list.shared, $scope.list.term).then($scope.$close);
+    };
     
     $scope.saveList = function () {
+        $scope.isSaving = true;
         $scope.courseListStore.saveList($scope.list.id, $scope.list.title, $scope.list.term).then($scope.$close);
     };
     
-    $scope.createList = function () {
-        $scope.courseListStore.createNewList($scope.list.title, $scope.list.shared, $scope.list.term).then($scope.$close);
-    };
     $scope.deleteList = function () {
+        $scope.isDeleting = true;
         $scope.courseListStore.deleteList($scope.list.id).then($scope.$close);
     };
     

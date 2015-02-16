@@ -5,7 +5,7 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-success pull-left" disabled="disabled">{{courseListStore.available_terms[list.term]}}</button>
-    <button class="btn btn-primary" ng-click="createList()" ng-show="list.newList">Create</button>
-    <button class="btn btn-danger" ng-click="deleteList()" ng-hide="list.newList">Delete</button>
-    <button class="btn btn-primary" ng-click="saveList()" ng-hide="list.newList">Save</button>
+    <jp-ng-bs-animated-button is-submitting="isCreating" result="result" options="buttonConfig.createList" ng-click="createList()" ng-show="list.newList"></jp-ng-bs-animated-button>
+    <jp-ng-bs-animated-button is-submitting="isDeleting" result="result" options="buttonConfig.deleteList" ng-click="deleteList()" ng-hide="list.newList"></jp-ng-bs-animated-button>
+    <jp-ng-bs-animated-button is-submitting="isSaving" result="result" options="buttonConfig.saveList" ng-click="saveList()" ng-hide="list.newList"></jp-ng-bs-animated-button>
 </div>
