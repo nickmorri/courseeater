@@ -48,3 +48,12 @@
 .navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:focus, .navbar-default .navbar-nav>.open>a:hover {
     background-color: rgba(237, 162, 21, 1);
 }
+.navbar-toggle .icon-bar {
+    border-radius: 0px;
+}
+.navbar-default .navbar-nav .open .dropdown-menu>.active>a, .navbar-default .navbar-nav .open .dropdown-menu>.active>a:focus, .navbar-default .navbar-nav .open .dropdown-menu>.active>a:hover {
+    background-color: rgba(237, 162, 21, 1);
+}
+.course-list-item-icon {
+    padding-right: 5px;
+}
