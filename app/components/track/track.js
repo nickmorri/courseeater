@@ -42,6 +42,7 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
     $scope.addCourse = function () {
         $scope.isSubmitting = true;
         $scope.courseStore.addCourse($scope.newCourseCode).then(function (response) {
+            $scope.temporaryStore.clear();
             $scope.result = 'success';
             $scope.newCourseCode = undefined;
         }, function (error) {
@@ -59,23 +60,12 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
     };
     
     $scope.searchForCocourses = function (course, type) {
-        var query = new Parse.Query("Course");
-        query.equalTo("courseIdentifier", course.courseIdentifier);
-        query.equalTo("type", type.toTitleCase());
-        query.equalTo("term", course.term);
-        query.find().then(function (results) {
-            $scope.displaySearch(results, false);
-        });
+        $scope.temporaryStore.searchForCocourses(course, type, $scope.displaySearch)  
     };
+
     
     $scope.searchForReplacements = function (course, type) {
-        var query = new Parse.Query("Course");
-        query.equalTo("courseIdentifier", course.courseIdentifier);
-        query.equalTo("type", type.toTitleCase());
-        query.equalTo("term", course.term);
-        query.find().then(function (results) {
-            $scope.displaySearch(results, true);
-        });
+        $scope.temporaryStore.searchForReplacements(course, type, $scope.displaySearch)  
     };
     
     $scope.displaySearch = function (results, replacement) {

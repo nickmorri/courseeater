@@ -185,24 +185,11 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
     };
     
     $scope.searchForCocourses = function (course, type) {
-        var query = new Parse.Query("Course");
-        query.equalTo("courseIdentifier", course.courseIdentifier);
-        query.equalTo("term", course.term);
-        query.equalTo("type", type.toTitleCase());
-        query.find().then(function (results) {
-            $scope.displaySearch(results, false)
-        });
+        $scope.temporaryStore.searchForCocourses(course, type, $scope.displaySearch)  
     };
     
     $scope.searchForReplacements = function (course, type) {
-        var query = new Parse.Query("Course");
-        query.equalTo("courseIdentifier", course.courseIdentifier);
-        query.equalTo("term", course.term);
-        query.notEqualTo("courseCode", course.courseCode);
-        query.equalTo("type", type.toTitleCase());
-        query.find().then(function (results) {
-            $scope.displaySearch(results, true)
-        });
+        $scope.temporaryStore.searchForReplacements(course, type, $scope.displaySearch)  
     };
     
     $scope.displaySearch = function (results, replacement) {
@@ -220,6 +207,7 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
                 $scope.temporaryStore.addCourse(results[i], replacement);
             }
         }
+        
         $scope.$close();
     };
     
