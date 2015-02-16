@@ -10,8 +10,11 @@ course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStor
     });
 }]);
 
-course.factory('Course', function () {
+course.factory('Course', ['$http', function ($http) {
     return function (data, color) {
+        
+        var course = this;
+        
         // Course relevant data
         this.courseCode = data.attributes.courseCode;
         this.courseIdentifier = data.attributes.courseIdentifier;
@@ -179,8 +182,44 @@ course.factory('Course', function () {
             return this.finalEvent;
         };
         
+        this.checkLatestCourseData = function () {
+            this.fetchingRemoteData = true;
+            
+            return $http({
+                url: 'php/scrape.php',
+                method: "GET",
+                params: {course_code: this.courseCode}
+            });
+        };
+        
+        this.processLatestData = function (response) {
+            try {
+                course.totalEnr = parseInt(response.data.enr.split("/")[1], 10);
+            } catch (e) {
+                debugger
+            }
+            
+            if (isNaN(course.totalEnr)) course.totalEnr = response.data.enr;
+            
+            course.final = response.data.final;
+            course.instructor = response.data.instructor;
+            course.max = response.data.max;
+            course.place = response.data.place;
+            course.req = response.data.req;
+            course.rstr = response.data.rstr;
+            course.status = response.data.status;
+            
+            course.wl = response.data.wl;
+            
+            if (course.wl == "n/a") course.wl = 0;
+            
+            course.fetchingRemoteData = false;
+        };
+
+        this.checkLatestCourseData().then(course.processLatestData);
+        
     };
-});
+}]);
 
 course.factory('TemporaryStore', ['Course', function (Course) {
     var TemporaryStore = [];
@@ -188,8 +227,13 @@ course.factory('TemporaryStore', ['Course', function (Course) {
     TemporaryStore.courses = {};
     TemporaryStore.events = [];
     
-    TemporaryStore.hasCourses = function () {
-        return Object.keys(TemporaryStore.courses).length !== 0;
+    TemporaryStore.empty = function () {
+        return Object.keys(TemporaryStore.courses).length === 0;
+    };
+    
+    TemporaryStore.clear = function () {
+        TemporaryStore.courses = {};
+        TemporaryStore.events = [];
     };
     
     TemporaryStore.addCourse = function (course, replacement) {
@@ -203,16 +247,33 @@ course.factory('TemporaryStore', ['Course', function (Course) {
     TemporaryStore.getCourse = function (courseCode) {
         return TemporaryStore.courses[courseCode];
     };
-    TemporaryStore.clear = function () {
-        TemporaryStore.courses = {};
-        TemporaryStore.events = [];
+    
+    TemporaryStore.searchForCocourses = function (course, type, callback) {
+        var query = new Parse.Query("Course");
+        query.equalTo("courseIdentifier", course.courseIdentifier);
+        query.equalTo("term", course.term);
+        query.equalTo("type", type.toTitleCase());
+        query.find().then(function (results) {
+            callback(results, false)
+        });
+    };
+    
+    TemporaryStore.searchForReplacements = function (course, type, callback) {
+        var query = new Parse.Query("Course");
+        query.equalTo("courseIdentifier", course.courseIdentifier);
+        query.equalTo("term", course.term);
+        query.notEqualTo("courseCode", course.courseCode);
+        query.equalTo("type", type.toTitleCase());
+        query.find().then(function (results) {
+            callback(results, true)
+        });
     };
     
     return TemporaryStore;
     
 }]);
 
-course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course, $rootScope, $http) {
+course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootScope) {
     var CourseStore = {};
     
     CourseStore.listID = undefined;
@@ -232,11 +293,13 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
         if (listID === this.listID) return
         else this.listID = listID;
         CourseStore.clear();
-        CourseStore.courseCodes = courseCodes;
-        CourseStore.fetchCourses();
+        CourseStore.fetchCourses(courseCodes);
     };
     
-    CourseStore.fetchCourses = function () {
+    CourseStore.fetchCourses = function (courseCodes) {
+        
+        if (courseCodes) this.courseCodes = courseCodes;
+        
         CourseStore.clearSchedule();
         for (var i = 0; i < CourseStore.courseCodes.length; i++) {
             var query = new Parse.Query("Course");
@@ -251,6 +314,10 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
         CourseStore.initialized = true;
     };
     
+    CourseStore.empty = function () {
+        return Object.keys(CourseStore._collection).length === 0;
+    };
+    
     CourseStore.hasCourse = function (courseCode) {
         return CourseStore.getCourse(courseCode) !== undefined;
     };
@@ -263,6 +330,13 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
             }
         }
         return undefined;
+    };
+    
+    CourseStore.getEquivalentCourse = function (course) {
+        var courseGroup = CourseStore._collection[course.courseIdentifier];
+        for (var i = 0; i < courseGroup.courses.length; i++) {
+            if (courseGroup.courses[i].type == course.type) return courseGroup.courses[i];
+        }
     };
     
     CourseStore.putCourse = function (course) {
@@ -282,10 +356,6 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
             CourseStore._collection[course.courseIdentifier].classIdentifier = course.courseIdentifier;
             CourseStore._collection[course.courseIdentifier].courses = [course];
             CourseStore._collection[course.courseIdentifier].mainCourse = course;
-        }
-        
-        if (course.timeSinceUpdate > 360000) {
-            CourseStore.checkLatestCourseData(course.courseCode).then(CourseStore.processLatestCourseData);
         }
     };
     
@@ -334,86 +404,36 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
         CourseStore._collection = {};
         CourseStore.clearSchedule();
     };
-    
-    CourseStore.getEquivalentCourse = function (course) {
-        var courseGroup = CourseStore._collection[course.courseIdentifier];
-        for (var i = 0; i < courseGroup.courses.length; i++) {
-            if (courseGroup.courses[i].type == course.type) return courseGroup.courses[i];
-        }
-    };
         
-    CourseStore.empty = function () {
-        return Object.keys(CourseStore._collection).length === 0;
-    };
-    
     CourseStore.addCourse = function (courseCode) {
         return Parse.Cloud.run('addCourse', {courseCode : courseCode}).then(function (latestCourseCodes) {
-            CourseStore.courseCodes = latestCourseCodes;
-            CourseStore.fetchCourses();
+            CourseStore.fetchCourses(latestCourseCodes);
+        });
+    };
+    
+    CourseStore.removeCourse = function (courseCode) {    
+        return Parse.Cloud.run('removeCourse', {courseCode : courseCode}).then(function (latestCourseCodes) {
+            CourseStore._removeCourseFromCollection(courseCode);
+            CourseStore.fetchCourses(latestCourseCodes);
         });
     };
     
     CourseStore._removeCourseFromCollection = function (courseCode) {
         for (var className in CourseStore._collection) {
-            var classObj = CourseStore._collection[className];
-            for (var i = 0; i < classObj.courses.length; i++) {
-                if (classObj.courses[i].courseCode === courseCode) break;
+            var courses = CourseStore._collection[className].courses;
+            for (var i = 0; i < courses.length; i++) {
+                if (courses[i].courseCode === courseCode) break;
             }
         }
-        return classObj.courses.splice(i, 1);
-    };
-    
-    CourseStore.removeCourse = function (courseCode) {    
-        return Parse.Cloud.run('removeCourse', {courseCode : courseCode}).then(function (latestCourseCodes) {
-            CourseStore.courseCodes = latestCourseCodes;
-            CourseStore._removeCourseFromCollection(courseCode);
-            CourseStore.fetchCourses();
-        });
+        return CourseStore._collection[className].courses.splice(i, 1);
     };
         
     CourseStore.replaceCourse = function (oldCourseCode, newCourseCode) {
         return Parse.Cloud.run('removeCourse', {courseCode : oldCourseCode}).then(function () {
             return Parse.Cloud.run('addCourse', {courseCode : newCourseCode}).then(function (latestCourseCodes) {
-                CourseStore.courseCodes = latestCourseCodes;
-                CourseStore.clear();
-                CourseStore.fetchCourses();
+                CourseStore._removeCourseFromCollection(oldCourseCode);
+                CourseStore.fetchCourses(latestCourseCodes);
             });
-        });
-    };
-    
-    CourseStore.processLatestCourseData = function (response) {
-        var course = CourseStore.getCourse(parseInt(response.data.courseCode), 10);
-            
-        try {
-            course.totalEnr = parseInt(response.data.enr.split("/")[1], 10);
-        } catch (e) {
-            debugger
-        }
-        
-        if (isNaN(course.totalEnr)) course.totalEnr = response.data.enr;
-        
-        course.final = response.data.final;
-        course.instructor = response.data.instructor;
-        course.max = response.data.max;
-        course.place = response.data.place;
-        course.req = response.data.req;
-        course.rstr = response.data.rstr;
-        course.status = response.data.status;
-        
-        course.wl = response.data.wl;
-        
-        if (course.wl == "n/a") course.wl = 0;
-        
-        course.fetchingRemoteData = false;
-    };
-    
-    CourseStore.checkLatestCourseData = function (courseCode) {
-        CourseStore.getCourse(courseCode).fetchingRemoteData = true;
-        
-        return $http({
-            url: 'php/scrape.php',
-            method: "GET",
-            params: {course_code: courseCode}
         });
     };
     
