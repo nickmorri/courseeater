@@ -100,8 +100,8 @@ course.factory('Course', function () {
                 event = {
                     id: this.courseCode,
                     title: title,
-                    start: heldDays[i] + start,
-                    end: heldDays[i] + end,
+                    start: heldDays[i] + start + "Z",
+                    end: heldDays[i] + end + "Z",
                     backgroundColor: this.color
                 };
                 calendarCourses.push(event);
@@ -162,14 +162,18 @@ course.factory('Course', function () {
             }
             start = "T" + start + ":" + time[0].split(", ")[2].split(":")[1] + ":00";
             end = "T" + endFront + ":" + endBack + ":00";
+            
+            
             //Event object creation
             event = {
                 id: this.courseCode,
                 title: title,
-                start: heldDay + start,
-                end: heldDay + end,
+                start: heldDay + start + "Z",
+                end: heldDay + end + "Z",
                 backgroundColor: color
             };
+            
+            
             
             this.finalEvent = event;
             return this.finalEvent;
@@ -295,10 +299,14 @@ course.factory('CourseStore', ['Course', '$rootScope', '$http', function (Course
             if (CourseStore.finals.length === 0) {
                 CourseStore.finals = CourseStore.finals.concat(event);
             }
+            
             else {
                 var existed = false;
                 for (var i = 0; i < CourseStore.finals.length; i++) {
-                    if (event.id === CourseStore.finals[i].id) existed = true
+                    if (event.id === CourseStore.finals[i].id) {
+                        existed = true;
+                        break;
+                    }
                 }
                 if (!existed) {
                     CourseStore.finals = CourseStore.finals.concat(event);
