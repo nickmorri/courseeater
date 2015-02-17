@@ -42,6 +42,12 @@
 	margin-right: -15px;
 	float: right;
 }
+.label-sec {
+    width: 30px;
+    margin-left: -15px;
+    margin-right: 23px;
+	float: left;
+}
 .label-day { 
     border-radius: 0px; 
     margin-right: -5px;

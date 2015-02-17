@@ -1,8 +1,8 @@
 <div class="list-group">
     <a class="list-group-item" href="http://websoc.reg.uci.edu/perl/WebSoc?YearTerm={{course.term}}&amp;ShowFinals=1&amp;ShowComments=1&amp;CourseCodes={{course.courseCode}}" target="_blank">
-        <span class="glyphicon glyphicon-pencil list-detail-glyphicon"></span> 
+        <span class="label panel-label label-sec label-default">{{course.sec}}</span>
         {{course.courseName}}
-        <span class="label panel-label label-course-code label-default">{{course.sec}}</span>
+        
     </a>
     <a class="list-group-item" href="http://www.ratemyprofessors.com/search.jsp?queryoption=HEADER&amp;queryBy=teacherName&amp;schoolName=University+of+California+Irvine&amp;query={{course.instructor.split(',')[0]}}" target="_blank">
         <span class="glyphicon glyphicon-user list-detail-glyphicon"></span> 
