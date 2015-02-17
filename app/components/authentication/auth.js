@@ -47,7 +47,6 @@ authentication.factory('AuthService', ['$state', '$rootScope', '$window', functi
         authService.currentUser = null;
         $rootScope.$broadcast("logout");
         $state.go('login.login');
-        $window.location.reload();
     };
     
     authService.refetchCurrentUser = function () {
@@ -64,9 +63,7 @@ authentication.controller('NavController', ['$scope', 'AuthService', function ($
 authentication.controller('LoginController', ['$scope', 'AuthService', '$state', function ($scope, AuthService, $state) {
     $scope.authService = AuthService;
     
-    if ($scope.authService.loggedIn()) {
-        $state.go('track');
-    }
+    if ($scope.authService.loggedIn()) $state.go('track');
     
     $scope.error = false;
     $scope.username = undefined;
