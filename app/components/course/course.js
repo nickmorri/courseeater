@@ -252,6 +252,7 @@ course.factory('TemporaryStore', ['Course', function (Course) {
         var query = new Parse.Query("Course");
         query.equalTo("courseIdentifier", course.courseIdentifier);
         query.equalTo("term", course.term);
+        query.startsWith("sec", course.sec);
         query.equalTo("type", type.toTitleCase());
         query.find().then(function (results) {
             callback(results, false)
@@ -262,6 +263,7 @@ course.factory('TemporaryStore', ['Course', function (Course) {
         var query = new Parse.Query("Course");
         query.equalTo("courseIdentifier", course.courseIdentifier);
         query.equalTo("term", course.term);
+        query.startsWith("sec", course.sec);
         query.notEqualTo("courseCode", course.courseCode);
         query.equalTo("type", type.toTitleCase());
         query.find().then(function (results) {
