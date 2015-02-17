@@ -1,13 +1,10 @@
 var track = angular.module('courseeater.track', ['courseeater.course', 'courseeater.list', 'courseeater.alert', 'ui.bootstrap', 'jp.ng-bs-animated-button']);
 
-track.controller('CourseSearchModalController', ['$scope', 'Course', 'CourseStore', 'TemporaryStore', '$modalInstance', 'ButtonConfiguration', 'section', function ($scope, Course, CourseStore, TemporaryStore, $modalInstance, ButtonConfiguration, section) {
+track.controller('CourseSearchModalController', ['$scope', 'Course', 'CourseStore', 'TemporaryStore', '$modalInstance', 'ButtonConfiguration', function ($scope, Course, CourseStore, TemporaryStore, $modalInstance, ButtonConfiguration) {
     $scope.temporaryStore = TemporaryStore;
     $scope.courseStore = CourseStore;
     
     $scope.buttonConfig = ButtonConfiguration;
-    
-    $scope.section_restricted = true;
-    $scope.target_section = section;
     
     $scope.addCourse = function (course) {
         course.isSubmitting = true;
@@ -71,7 +68,7 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
         $scope.temporaryStore.searchForReplacements(course, type, $scope.displaySearch)  
     };
     
-    $scope.displaySearch = function (results, replacement, section) {
+    $scope.displaySearch = function (results, replacement) {
         for (var i = 0; i < results.length; i++) {
             if (!CourseStore.hasCourse(results[i].attributes.courseCode)) {
                 $scope.temporaryStore.addCourse(results[i], replacement);
@@ -80,12 +77,7 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
         
         var modalInstance = $modal.open({
             templateUrl: 'app/components/course/directives/course-search-modal.html',
-            controller: 'CourseSearchModalController',
-            resolve: {
-                section: function () {
-                    return section;
-                }
-            }
+            controller: 'CourseSearchModalController'
         });  
         
     };
