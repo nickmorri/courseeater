@@ -421,10 +421,13 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
         for (var className in CourseStore._collection) {
             var courses = CourseStore._collection[className].courses;
             for (var i = 0; i < courses.length; i++) {
-                if (courses[i].courseCode === courseCode) break;
+                if (courses[i].courseCode === courseCode) {
+                    return CourseStore._collection[className].courses.splice(i, 1);
+                }
             }
         }
-        return CourseStore._collection[className].courses.splice(i, 1);
+
+        return undefined;
     };
         
     CourseStore.replaceCourse = function (oldCourseCode, newCourseCode) {
