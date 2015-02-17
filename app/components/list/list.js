@@ -108,7 +108,7 @@ list.controller('ListController', ['$scope', 'AuthService', 'CourseListStore', '
     
 }]);
 
-list.controller('CourseListModalController', ['$scope', 'CourseListStore', '$modalInstance', 'list', function ($scope, CourseListStore, $modalInstance, list) {
+list.controller('CourseListModalController', ['$scope', 'CourseListStore', '$modalInstance', 'AlertStore', 'list', function ($scope, CourseListStore, $modalInstance, AlertStore, list) {
     $scope.courseListStore = CourseListStore;
     
     $scope.buttonConfig = {
@@ -167,17 +167,33 @@ list.controller('CourseListModalController', ['$scope', 'CourseListStore', '$mod
     }
     $scope.createList = function () {
         $scope.isCreating = true;
-        $scope.courseListStore.createNewList($scope.list.title, $scope.list.shared, $scope.list.term).then($scope.$close);
+        $scope.courseListStore.createNewList($scope.list.title, $scope.list.shared, $scope.list.term).then($scope.$close, function (error) {
+            AlertStore.addMessage("An error occured while creating " + $scope.list.title + ". Please try again.");
+            $scope.$close();
+        });
+
     };
     
     $scope.saveList = function () {
         $scope.isSaving = true;
-        $scope.courseListStore.saveList($scope.list.id, $scope.list.title, $scope.list.term).then($scope.$close);
+        $scope.courseListStore.saveList($scope.list.id, $scope.list.title, $scope.list.term).then($scope.$close, function (error) {
+            AlertStore.addMessage("An error occured while saving " + $scope.list.title + ". Please try again.");
+            $scope.$close();
+        });
+
     };
     
     $scope.deleteList = function () {
         $scope.isDeleting = true;
-        $scope.courseListStore.deleteList($scope.list.id).then($scope.$close);
+        $scope.courseListStore.deleteList($scope.list.id).then($scope.$close, function (error) {
+            if (error.message) {
+                AlertStore.addMessage(error.message);    
+            }
+            else {
+                AlertStore.addMessage("An error occured while deleting " + $scope.list.title + ". Please try again.");
+            }
+            $scope.$close();
+        });
     };
     
 }]);
