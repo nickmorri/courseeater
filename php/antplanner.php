@@ -1,6 +1,6 @@
 <?php
 
-$url = 'http://antplanner.appspot.com/schedule/load?username=' + trim($_REQUEST['course_code']);
+$url = 'http://antplanner.appspot.com/schedule/load?username=' . trim($_REQUEST['username']);
 
 $ch = curl_init();
 
