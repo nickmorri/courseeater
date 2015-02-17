@@ -292,7 +292,6 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     CourseStore.setCourseCodes = function (courseCodes, listID) {
         if (listID === this.listID) return
         else this.listID = listID;
-        CourseStore.clear();
         CourseStore.fetchCourses(courseCodes);
     };
     
