@@ -88,6 +88,12 @@ schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListS
         }
     });
     
+    $scope.$watch('courseListStore.activeList', function (newValue, oldValue) {
+        if (newValue !== undefined || newValue !== oldValue) {
+            $scope.temporaryStore.clear();
+        }
+    });
+    
     $scope.temporaryStore.clear();
     if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
     
