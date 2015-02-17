@@ -85,9 +85,10 @@ schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListS
         if (newValue !== undefined && newValue != [] && newValue != oldValue) {
             if ($scope.eventSource.length != 1) $scope.eventSource.pop();
             $scope.eventSource.push(newValue);
-        }       
+        }
     });
     
+    $scope.temporaryStore.clear();
     if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
     
 }]);
@@ -194,17 +195,10 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
     };
     
     $scope.displaySearch = function (results, replacement) {
-        $scope.temporaryStore.clear();
-        
         if (results.length == 0) {
             var modalInstance = $modal.open({
                 templateUrl: 'app/components/course/directives/course-search-modal.html',
-                controller: 'CourseSearchModalController',
-                resolve: {
-                    section: function () {
-                        return section;
-                    }
-                }
+                controller: 'CourseSearchModalController'
             });
         }
         
@@ -213,6 +207,8 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
                 $scope.temporaryStore.addCourse(results[i], replacement);
             }
         }
+        
+        TemporaryStore.filterEvents(true);
         
         $scope.$close();
     };

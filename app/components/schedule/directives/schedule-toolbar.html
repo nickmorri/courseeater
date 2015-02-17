@@ -1,20 +1,22 @@
 <div class="btn-toolbar schedule-toolbar">
-    <div class="row">
-        <div class="col-md-1">
-            <div class="btn-group">
-                <button type="button" class="btn btn-primary" ng-click="makeImage()">
-                    <span class="glyphicon glyphicon-circle-arrow-down"></span>
-                    Download
-                </button>
-            </div>
+    
+       <div class="btn-group pull-left">
+            <button type="button" class="btn btn-primary" ng-click="makeImage()">
+                <span class="glyphicon glyphicon-circle-arrow-down"></span>
+                Download
+            </button>
         </div>
-        <div class="col-md-offset-10 col-md-1">
-            <div class="btn-group pull-right">
-                <button type="button" class="btn btn-danger" ng-click="temporaryStore.clear()" ng-hide="temporaryStore.empty()">
-                    <span class="glyphicon glyphicon-remove"></span>
-                    Clear search results
-                </button>
-            </div>
+        
+        <div class="btn-group pull-right" ng-hide="temporaryStore.empty()">
+            <button type="button" class="btn btn-danger" ng-click="temporaryStore.clear()">
+                <span class="glyphicon glyphicon-remove"></span>
+                Clear 
+            </button>
         </div>
-    </div>
+        
+        <div class="btn-group pull-right" ng-hide="temporaryStore.empty()">
+            <label class="btn btn-primary" ng-model="temporaryStore.section_restricted" ng-click="temporaryStore.filterEvents(true)" btn-radio=true>Section {{temporaryStore.target_section}}</label>
+            <label class="btn btn-primary" ng-model="temporaryStore.section_restricted" ng-click="temporaryStore.filterEvents(false)" btn-radio=false>All ({{temporaryStore.size()}})</label>
+        </div>
+
 </div>

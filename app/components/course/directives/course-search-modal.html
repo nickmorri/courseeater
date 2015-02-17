@@ -1,16 +1,11 @@
 <div class="modal-header">
     <button type="button" class="close" ng-click="$close()"><span aria-hidden="true">&times;</span></button>
-    <h4 class="modal-title" ng-hide="temporaryStore.empty()">
-        Results
-    </h4>
     <h4 class="model-title" ng-show="temporaryStore.empty()">No results</h4>
+    <div class="btn-group" ng-hide="temporaryStore.empty()">
+        <label class="btn btn-primary" ng-model="temporaryStore.section_restricted" btn-radio="true">Section {{temporaryStore.target_section}}</label>
+        <label class="btn btn-primary" ng-model="temporaryStore.section_restricted" btn-radio="false">All ({{temporaryStore.size()}})</label>
+    </div>
 </div>
 <div class="modal-body" ng-hide="temporaryStore.empty()">
-    <div class="btn-group">
-        <label class="btn btn-primary" ng-model="section_restricted" btn-radio="true">Restricted to section {{target_section}}</label>
-        <label class="btn btn-primary" ng-model="section_restricted" btn-radio="false">All</label>
-    </div>
-    <div class="row">
-        <course-search-view class="course-search-view col-md-6" ng-repeat="course in temporaryStore.courses | section:target_section:section_restricted"></course-search-view>
-    </div>
+    <course-search-view class="course-search-view" ng-repeat="course in temporaryStore.courses | section:temporaryStore.target_section:temporaryStore.section_restricted"></course-search-view>
 </div>

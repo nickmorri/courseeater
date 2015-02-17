@@ -227,13 +227,22 @@ course.factory('TemporaryStore', ['Course', function (Course) {
     TemporaryStore.courses = {};
     TemporaryStore.events = [];
     
+    TemporaryStore.section_restricted = true;
+    TemporaryStore.target_section = undefined;
+    
     TemporaryStore.empty = function () {
         return Object.keys(TemporaryStore.courses).length === 0;
+    };
+    
+    TemporaryStore.size = function () {
+        return Object.keys(TemporaryStore.courses).length;
     };
     
     TemporaryStore.clear = function () {
         TemporaryStore.courses = {};
         TemporaryStore.events = [];
+        TemporaryStore.section_restricted = true;
+        TemporaryStore.target_section = undefined;
     };
     
     TemporaryStore.addCourse = function (course, replacement) {
@@ -248,7 +257,30 @@ course.factory('TemporaryStore', ['Course', function (Course) {
         return TemporaryStore.courses[courseCode];
     };
     
+    TemporaryStore.filterEvents = function (filter) {
+        
+        TemporaryStore.section_restricted = filter; 
+            
+        TemporaryStore.events = [];
+        
+        if (TemporaryStore.section_restricted) {
+            for (var course in TemporaryStore.courses) {
+                if (TemporaryStore.courses[course].sec.indexOf(TemporaryStore.target_section) == 0) {
+                    TemporaryStore.events = TemporaryStore.events.concat(TemporaryStore.courses[course].makeEvent());
+                }
+            }    
+        }
+        else {
+            for (course in TemporaryStore.courses) {
+                TemporaryStore.events = TemporaryStore.events.concat(TemporaryStore.courses[course].makeEvent());
+            }   
+        }
+    };
+    
     TemporaryStore.searchForCocourses = function (course, type, callback) {
+        TemporaryStore.clear();
+        TemporaryStore.target_section = course.sec.charAt(0);
+        
         var query = new Parse.Query("Course");
         query.equalTo("courseIdentifier", course.courseIdentifier);
         query.equalTo("term", course.term);
@@ -259,6 +291,9 @@ course.factory('TemporaryStore', ['Course', function (Course) {
     };
     
     TemporaryStore.searchForReplacements = function (course, type, callback) {
+        TemporaryStore.clear();
+        TemporaryStore.target_section = course.sec.charAt(0);
+        
         var query = new Parse.Query("Course");
         query.equalTo("courseIdentifier", course.courseIdentifier);
         query.equalTo("term", course.term);
