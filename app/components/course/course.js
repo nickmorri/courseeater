@@ -290,9 +290,12 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
     
     CourseStore.setCourseCodes = function (courseCodes, listID) {
-        if (listID !== this.listID) CourseStore.clear();
-        else this.listID = listID;
-        CourseStore.fetchCourses(courseCodes);
+        if (listID !== this.listID) {
+            CourseStore.clear()
+            CourseStore.fetchCourses(courseCodes);
+            this.listID = listID;
+        }
+        
     };
     
     CourseStore.fetchCourses = function (courseCodes) {
