@@ -284,10 +284,9 @@ course.factory('TemporaryStore', ['Course', function (Course) {
         var query = new Parse.Query("Course");
         query.equalTo("courseIdentifier", course.courseIdentifier);
         query.equalTo("term", course.term);
-        query.startsWith("sec", course.sec);
         query.equalTo("type", type.toTitleCase());
         query.find().then(function (results) {
-            callback(results, false)
+            callback(results, false, course.sec);
         });
     };
     
@@ -298,11 +297,10 @@ course.factory('TemporaryStore', ['Course', function (Course) {
         var query = new Parse.Query("Course");
         query.equalTo("courseIdentifier", course.courseIdentifier);
         query.equalTo("term", course.term);
-        query.startsWith("sec", course.sec);
         query.notEqualTo("courseCode", course.courseCode);
         query.equalTo("type", type.toTitleCase());
         query.find().then(function (results) {
-            callback(results, true)
+            callback(results, true, course.sec);
         });
     };
     
@@ -625,4 +623,15 @@ course.directive('courseProgressView', function () {
     return {
         templateUrl: "app/components/course/directives/course-progress-view.html"
     }
+});
+
+course.filter('section', function() {
+    return function (input, sec, enabled) {
+        if (enabled) {
+            var output = [];
+            for (course in input) if (input[course].sec.indexOf(sec) == 0) output.push(input[course]);
+            return output;
+        }
+        else return input;    
+    };
 });
