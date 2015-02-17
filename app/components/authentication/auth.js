@@ -132,6 +132,13 @@ authentication.controller('RegistrationController', ['$scope', 'AuthService', '$
         
         if ($scope.antplanner_username) {
             $scope.importAntplannerAccount($scope.antplanner_username).then(function(response) {
+                
+                if (!response.data.success) {
+                    $scope.result = "error";
+                    $scope.error = true;
+                    $scope.error_message = "The Antplanner username entered was not retrieved. Please try again.";
+                }
+                
                 var data = JSON.parse(response.data.data);
                 for (var i = 0; i < data.length; i++) {
                     if (courseCodes.indexOf(parseInt(data[i].groupId, 10)) == -1) {
