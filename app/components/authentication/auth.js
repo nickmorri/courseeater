@@ -1,6 +1,6 @@
 var authentication = angular.module('courseeater.auth', ['parse-angular', 'parse.service', 'jp.ng-bs-animated-button']);
 
-authentication.factory('AuthService', ['$state', '$rootScope', function ($state, $rootScope) {
+authentication.factory('AuthService', ['$state', '$rootScope', '$window', function ($state, $rootScope, $window) {
     var authService = {};
     
     authService.currentUser = Parse.User.current();
@@ -47,6 +47,7 @@ authentication.factory('AuthService', ['$state', '$rootScope', function ($state,
         authService.currentUser = null;
         $rootScope.$broadcast("logout");
         $state.go('login.login');
+        $window.location.reload();
     };
     
     authService.refetchCurrentUser = function () {
@@ -89,10 +90,13 @@ authentication.controller('RegistrationController', ['$scope', 'AuthService', '$
     $scope.username = undefined;
     $scope.email = undefined;
     $scope.password = undefined;
+    $scope.verify_password = undefined;
     $scope.antplanner_username = undefined;
     
     $scope.isRegistering = null;
     $scope.result = null;
+    
+    $scope.error_message = "Something went wrong. Please try registering again.";
     
     $scope.registerButtonConfig = {
         buttonDefaultText: 'Register',
@@ -116,8 +120,16 @@ authentication.controller('RegistrationController', ['$scope', 'AuthService', '$
     };
     
     $scope.register = function () {
-        
+        $scope.result = null;
+        $scope.error = false;
         $scope.isRegistering = true;
+        
+        if ($scope.password != $scope.verify_password) {
+            $scope.result = "error";
+            $scope.error = true;
+            $scope.error_message = "Password and verification password did not match please try again."
+            return;
+        }
         
         var courseCodes = [];
         
@@ -134,6 +146,7 @@ authentication.controller('RegistrationController', ['$scope', 'AuthService', '$
                 }, function (error) {
                     $scope.result = "error";
                     $scope.error = true;
+                    $scope.error_message = "Something went wrong. Please try registering again.";
                 });
             });
         }
@@ -143,6 +156,7 @@ authentication.controller('RegistrationController', ['$scope', 'AuthService', '$
             }, function (error) {
                 $scope.result = "error";
                 $scope.error = true;
+                $scope.error_message = "Something went wrong. Please try registering again.";
             });    
         }
     };

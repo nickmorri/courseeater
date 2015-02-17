@@ -4,13 +4,14 @@
 			<input ng-model="username" class="form-control form-control-username registration-username" type="text" placeholder="Username" required autofocus=""/>
 			<input ng-model="email" class="form-control form-control-email registration-email" type="email" placeholder="Email" required />
 			<input ng-model="password" class="form-control form-control-password registration-password" type="password" placeholder="Password" required autocomplete="off" />
+			<input ng-model="verify_password" class="form-control form-control-password verification-password" type="password" placeholder="Verify Password" required autocomplete="off" />
 			<label for="antplanner_username">Import account data from Antplanner</label>
-			<input ng-model="antplanner_username" class="form-control form-control-registration-code antplanner-username" type="text" placeholder="Antplanner Username (Optional)" />
+			<input ng-model="antplanner_username" id="antplanner_username" class="form-control form-control-registration-code antplanner-username" type="text" placeholder="Antplanner Username (Optional)" />
 			
 			<input jp-ng-bs-animated-button is-submitting="isRegistering" result="result" options="registerButtonConfig" ng-click="addCourse(course)" value="Register" />
 			
 			<div class="alert alert-danger alert-register" ng-show="error">
-        		<strong>Whoops!</strong> Something went wrong. Please try registering again.
+        		<strong>Whoops!</strong> {{error_message}}
         	</div>
 			
 		</form>

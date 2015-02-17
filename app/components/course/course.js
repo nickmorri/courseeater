@@ -290,7 +290,6 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
     
     CourseStore.setCourseCodes = function (courseCodes, listID) {
-
         if (listID === this.listID) return
         else this.listID = listID;
         CourseStore.clear();
@@ -298,7 +297,6 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
     
     CourseStore.fetchCourses = function (courseCodes) {
-        
         if (courseCodes) this.courseCodes = courseCodes;
         
         CourseStore.clearSchedule();
