@@ -293,6 +293,7 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
         if (listID === this.listID) return
         else this.listID = listID;
         CourseStore.clear();
+        debugger
         CourseStore.fetchCourses(courseCodes);
     };
     
@@ -399,6 +400,8 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
     
     CourseStore.clear = function () {
+        CourseStore.listID = undefined;
+        CourseStore.courseCodes = [];
         CourseStore.initialized = false;    
         CourseStore._collection = {};
         CourseStore.clearSchedule();
