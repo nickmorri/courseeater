@@ -1,4 +1,4 @@
-var authentication = angular.module('courseeater.auth', ['parse-angular', 'parse.service']);
+var authentication = angular.module('courseeater.auth', ['parse-angular', 'parse.service', 'jp.ng-bs-animated-button']);
 
 authentication.factory('AuthService', ['$state', '$rootScope', function ($state, $rootScope) {
     var authService = {};
@@ -27,20 +27,11 @@ authentication.factory('AuthService', ['$state', '$rootScope', function ($state,
         user.set("email", email);
         user.set("password", password);
 
-        if (courseCodes.length > 0) {
-            return user.signUp(courseCodes: courseCodes).then(function (response) {
-                authService.currentUser = Parse.User.current();
-            }, function (error) {
-                authService.currentUser = null;
-            });
-        }
-        else {
-            return user.signUp(null).then(function (response) {
-                authService.currentUser = Parse.User.current();
-            }, function (error) {
-                authService.currentUser = null;
-            });    
-        }
+        return user.signUp({importCourseCodes: courseCodes}).then(function (response) {
+            authService.currentUser = Parse.User.current();
+        }, function (error) {
+            authService.currentUser = null;
+        });
     };
     
     authService.checkRegistrationCode = function (registration_code) {
@@ -100,6 +91,22 @@ authentication.controller('RegistrationController', ['$scope', 'AuthService', '$
     $scope.password = undefined;
     $scope.antplanner_username = undefined;
     
+    $scope.isRegistering = null;
+    $scope.result = null;
+    
+    $scope.registerButtonConfig = {
+        buttonDefaultText: 'Register',
+        buttonSubmittingText: 'Registering',
+        buttonErrorText: 'Whoops',
+        buttonSuccessText: 'Registered',
+        buttonDefaultClass: 'btn-primary',
+        buttonSuccessClass: 'btn-success',
+        buttonSizeClass: 'form-control',
+        buttonInitialIcon: 'glyphicon glyphicon-user',
+        buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
+        buttonSuccessIcon: 'glyphicon glyphicon-ok'
+    };
+    
     $scope.importAntplannerAccount = function (username) {
         return $http({
             url: 'php/antplanner.php',
@@ -109,32 +116,35 @@ authentication.controller('RegistrationController', ['$scope', 'AuthService', '$
     };
     
     $scope.register = function () {
-
+        
+        $scope.isRegistering = true;
+        
+        var courseCodes = [];
+        
         if ($scope.antplanner_username) {
-            $scope.importAntplannerAccount($scope.antplanner_username).then(response) {
+            $scope.importAntplannerAccount($scope.antplanner_username).then(function(response) {
                 var data = JSON.parse(response.data.data);
-                var courseCodes = {};
                 for (var i = 0; i < data.length; i++) {
-                    courseCodes[parseInt(data[i].groupId, 10)] = undefined;
+                    if (courseCodes.indexOf(parseInt(data[i].groupId, 10)) == -1) {
+                        courseCodes.push(parseInt(data[i].groupId, 10));
+                    }
                 }
-                
-                $scope.authService.register($scope.username, $scope.email, $scope.password, Object.keys(courseCodes)).then(function (status) {
+                $scope.authService.register($scope.username, $scope.email, $scope.password, courseCodes).then(function (status) {
                     $state.go('track');
                 }, function (error) {
+                    $scope.result = "error";
                     $scope.error = true;
                 });
-                
             });
         }
-        
         else {
-            $scope.authService.register($scope.username, $scope.email, $scope.password).then(function (status) {
+            $scope.authService.register($scope.username, $scope.email, $scope.password, courseCodes).then(function (status) {
                 $state.go('track');
             }, function (error) {
+                $scope.result = "error";
                 $scope.error = true;
             });    
         }
-        
     };
     
 }]);
