@@ -8,6 +8,9 @@
                 <schedule-toolbar></schedule-toolbar>
             </div>
             <div class="schedule panel-body">
+                <div class="alert alert-info alert-section" ng-show="temporaryStore.target_section != undefined && temporaryStore.events == 0">
+                    No results while section restricted to section {{temporaryStore.target_section}}. Ensure section matches desired section if you <a href ng-click="temporaryStore.filterEvents(false)">remove filter</a>.
+                </div>
                 <div id="calendar" ui-calendar="uiConfig.calendar" calendar="schedule" ng-model="eventSource" class="calendar"></div>
             </div>
         </div>
