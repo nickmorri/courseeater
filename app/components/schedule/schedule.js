@@ -199,7 +199,12 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
         if (results.length == 0) {
             var modalInstance = $modal.open({
                 templateUrl: 'app/components/course/directives/course-search-modal.html',
-                controller: 'CourseSearchModalController'
+                controller: 'CourseSearchModalController',
+                resolve: {
+                    section: function () {
+                        return section;
+                    }
+                }
             });
         }
         
