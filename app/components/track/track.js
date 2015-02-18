@@ -44,9 +44,11 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
         $scope.courseStore.addCourse($scope.newCourseCode).then(function (response) {
             $scope.temporaryStore.clear();
             $scope.result = 'success';
+
             $scope.newCourseCode = undefined;
         }, function (error) {
             $scope.result = 'error';
+
             $scope.alertStore.addMessage(error.message, 'warning')
         });
     };
@@ -68,7 +70,7 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
         $scope.temporaryStore.searchForReplacements(course, type, $scope.displaySearch)  
     };
     
-    $scope.displaySearch = function (results, replacement, section) {
+    $scope.displaySearch = function (results, replacement) {
         for (var i = 0; i < results.length; i++) {
             if (!CourseStore.hasCourse(results[i].attributes.courseCode)) {
                 $scope.temporaryStore.addCourse(results[i], replacement);
