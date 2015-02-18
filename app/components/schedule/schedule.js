@@ -206,15 +206,19 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
                 templateUrl: 'app/components/course/directives/course-search-modal.html',
                 controller: 'CourseSearchModalController'
             });
+    
+            TemporaryStore.target_section = undefined;
+            
         }
-        
-        for (var i = 0; i < results.length; i++) {
-            if (!CourseStore.hasCourse(results[i].attributes.courseCode)) {
-                $scope.temporaryStore.addCourse(results[i], replacement);
+        else {
+            for (var i = 0; i < results.length; i++) {
+                if (!CourseStore.hasCourse(results[i].attributes.courseCode)) {
+                    $scope.temporaryStore.addCourse(results[i], replacement);
+                }
             }
+            
+            TemporaryStore.filterEvents(true);    
         }
-        
-        TemporaryStore.filterEvents(true);
         
         $scope.$close();
     };
