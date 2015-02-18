@@ -44,9 +44,11 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
         $scope.courseStore.addCourse($scope.newCourseCode).then(function (response) {
             $scope.temporaryStore.clear();
             $scope.result = 'success';
+
             $scope.newCourseCode = undefined;
         }, function (error) {
             $scope.result = 'error';
+
             $scope.alertStore.addMessage(error.message, 'warning')
         });
     };
