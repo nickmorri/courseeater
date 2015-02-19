@@ -27,7 +27,7 @@ schedule.controller('SearchController', ['$scope', 'CourseStore', 'CourseListSto
         $http({
             url: 'php/search.php',
             method: "GET",
-            params: {available_available_ge_categories: "Any"}
+            params: {available_ge_categories: "Any"}
         }).then(function (response) {
             $scope.ge_categories = response.data;
         });
@@ -54,12 +54,13 @@ schedule.controller('SearchController', ['$scope', 'CourseStore', 'CourseListSto
     };
     
     
-    $scope.search_category = function (category) {
+    $scope.search_ge_category = function (category) {
         $http({
             url: 'php/search.php',
             method: "GET",
             params: {category: category}
         }).then(function (response) {
+            debugger
             $scope.results = response.data;
         });
     };

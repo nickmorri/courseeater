@@ -29,13 +29,13 @@
                     {{selected_category}}
                 </span>
                 <span ng-hide="selected_category">
-                    Select Department
+                    Select GE Category
                 </span>
                 <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
                 <li role="presentation" ng-repeat="category in ge_categories">
-                    <a role="menuitem" tabindex="-1" href ng-click="set_category(category)">{{category}}</a>
+                    <a role="menuitem" tabindex="-1" href ng-click="set_category(category.value)">{{category.name}}</a>
                 </li>
             </ul>
         </div>
@@ -46,6 +46,7 @@
     <ul class="list-group">
         <li class="list-group-item" ng-repeat="class in results | filter: {name:filter}">
             {{class.name}}
+            <a href="{{class.cocourses}}" ng-show="class.cocourses">Co-Courses</a>
             <ul class="list-group">
                 <li class="list-group-item" ng-repeat="course in class.course_data">
                     {{course.courseCode}}

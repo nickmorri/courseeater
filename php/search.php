@@ -58,7 +58,12 @@ function process_html($html) {
         $item['identifier'] = str_replace("&nbsp;", " ", trim(trim($class->find('td.CourseTitle text', 0)->plaintext, " &nbsp;"), " "));
         $item['name'] = $class->find('td.CourseTitle font', 0)->plaintext;
         if ($class->find('a', 0) != null) {
-            $item['prerequisites'] = $class->find('a', 0)->href;    
+            if ($class->find('a', 0)->plaintext == "Co-courses") {
+                $item['cocourses'] = $class->find('a', 0)->href;
+            }
+            else if ($class->find('a', 0)->plaintext == "Prerequisites") {
+                $item['prerequisites'] = $class->find('a', 0)->href;    
+            }
         }
         $firstCourse = $class->next_sibling('tr')->next_sibling('tr[valign="top"]');
         
@@ -103,7 +108,12 @@ function get_available_ge_categories() {
     $dropdown = $html->find('select[name="Breadth"]', 0);
     
     foreach($dropdown->find('option') as $category) {
-        $categories[] = $category->value;    
+        
+        if ($category->value != "ANY") {
+            $item['name'] = $category->plaintext;
+            $item['value'] = $category->value;        
+            $categories[] = $item;
+        }
     }
     
     return json_encode($categories);
