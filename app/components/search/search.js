@@ -1,74 +1,119 @@
 var search = angular.module('courseeater.search', ['courseeater.course', 'courseeater.list', 'ui.bootstrap']);
 
-schedule.controller('SearchController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', '$http', function ($scope, CourseStore, CourseListStore, TemporaryStore, $http) {
-    $scope.temporaryStore = TemporaryStore;
-    $scope.courseListStore = CourseListStore;
-    $scope.courseStore = CourseStore;
+search.factory('SearchStore', ['$http', function ($http) {
+    var SearchStore = {};
     
-    $scope.selected_department = undefined;
-    $scope.selected_category = undefined;
-    $scope.ge_categories = undefined;
-    $scope.departments = undefined;
-    $scope.results = undefined;
+    SearchStore.ge_categories = [];
+    SearchStore.departments = [];
     
-    $scope.filter = undefined;
+    SearchStore.search_type = "";
     
-    $scope.retrieve_departments = function () {
+    SearchStore.selected_department = undefined;
+    SearchStore.selected_category = undefined;
+    
+    SearchStore.retrieving_results = undefined;
+    SearchStore.results = undefined;
+    
+    SearchStore.retrieve_departments = function () {
         $http({
             url: 'php/search.php',
             method: "GET",
             params: {available_departments: "Any"}
         }).then(function (response) {
-            $scope.departments = response.data;
+            SearchStore.departments = response.data;
         });
     };
     
-    $scope.retrieve_ge_categories = function () {
+    SearchStore.retrieve_ge_categories = function () {
         $http({
             url: 'php/search.php',
             method: "GET",
             params: {available_ge_categories: "Any"}
         }).then(function (response) {
-            $scope.ge_categories = response.data;
+            SearchStore.ge_categories = response.data;
         });
     };
     
-    $scope.set_department = function (department) {
-        $scope.selected_department = department;
-        $scope.search_department($scope.selected_department);
+    SearchStore.set_department = function (department) {
+        SearchStore.selected_department = department;
+        SearchStore.search_department(SearchStore.selected_department);
     };
     
-    $scope.set_category = function (category) {
-        $scope.selected_category = category;
-        $scope.search_ge_category($scope.selected_category);
+    SearchStore.set_category = function (category) {
+        SearchStore.selected_category = category;
+        SearchStore.search_ge_category(SearchStore.selected_category);
     };
     
-    $scope.search_department = function (department) {
+    SearchStore.search_department = function (department) {
+        
+        SearchStore.retrieving_results = true;
+        
         $http({
             url: 'php/search.php',
             method: "GET",
             params: {department: department}
         }).then(function (response) {
-            $scope.results = response.data;
+            SearchStore.results = response.data;
+            SearchStore.retrieving_results = false;
         });
     };
     
     
-    $scope.search_ge_category = function (category) {
+    SearchStore.search_ge_category = function (category) {
+        
+        SearchStore.retrieving_results = true;
+        
         $http({
             url: 'php/search.php',
             method: "GET",
             params: {category: category}
         }).then(function (response) {
-            debugger
-            $scope.results = response.data;
+            SearchStore.results = response.data;
+            SearchStore.retrieving_results = false;
         });
     };
     
-    $scope.retrieve_departments();
-    $scope.retrieve_ge_categories();
+    SearchStore.retrieve_departments();
+    SearchStore.retrieve_ge_categories();
     
-    $scope.temporaryStore.clear();
+    return SearchStore;
+}]);
+
+search.controller('SearchController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', 'SearchStore', function ($scope, CourseStore, CourseListStore, TemporaryStore, SearchStore) {
+    $scope.temporaryStore = TemporaryStore;
+    $scope.courseListStore = CourseListStore;
+    $scope.courseStore = CourseStore;
+    
+    $scope.searchStore = SearchStore;
+    
+    $scope.filter = "";
+    
     if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
     
 }]);
+
+search.filter('classProps', function () {
+    return function (items, term) {
+        var filtered = [];
+        
+        // Standardize all strings in uppercase for case insensitivity
+        term = term.toUpperCase();
+        angular.forEach(items, function(item) {
+            if (item.name.toUpperCase().indexOf(term) != -1) filtered.push(item);
+            else if (item.identifier.toUpperCase().indexOf(term) != -1) filtered.push(item);
+            else {
+                for (var i = 0; i < item.course_data.length; i++) {
+                    if (item.course_data[i].instructor.toUpperCase().indexOf(term) != -1) {
+                        filtered.push(item);
+                        break;
+                    }
+                    else if (item.course_data[i].courseCode.toUpperCase().indexOf(term) != -1) {
+                        filtered.push(item);
+                        break;
+                    }
+                }
+            }
+        });
+        return filtered;
+    };
+});
