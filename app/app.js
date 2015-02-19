@@ -1,4 +1,4 @@
-var courseeater_app = angular.module('CourseEaterApp', ['ui.router', 'courseeater.auth', 'courseeater.track', 'courseeater.schedule', 'courseeater.settings']);
+var courseeater_app = angular.module('CourseEaterApp', ['ui.router', 'courseeater.auth', 'courseeater.track', 'courseeater.schedule', 'courseeater.search', 'courseeater.settings']);
 
 courseeater_app.config(['$locationProvider', '$stateProvider', '$urlRouterProvider', function($locationProvider, $stateProvider, $urlRouterProvider) {
     
@@ -55,6 +55,13 @@ courseeater_app.config(['$locationProvider', '$stateProvider', '$urlRouterProvid
                 controller: 'FinalScheduleController',
                 data: { pageTitle: 'Finals'}
             })
+            
+        .state('search', {
+            url: '/search',
+            templateUrl: 'app/views/search/base.html',
+            controller: 'SearchController',
+            data: { pageTitle: 'Search'}
+        })
         
         .state('settings', {
             url: '/settings',

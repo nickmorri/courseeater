@@ -1,0 +1,57 @@
+<navigation-view></navigation-view>
+
+<div class="container-fluid form-user-management">
+
+    <div class="container">
+        <alert-view></alert-view>
+    </div>
+    
+    <div class="input-group">
+        <div class="input-group-btn">
+            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+                <span ng-show="selected_department">
+                    {{selected_department}}
+                </span>
+                <span ng-hide="selected_department">
+                    Select Department
+                </span>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li role="presentation" ng-repeat="department in departments">
+                    <a role="menuitem" tabindex="-1" href ng-click="set_department(department)">{{department}}</a>
+                </li>
+            </ul>
+        </div>
+        <div class="input-group-btn">
+            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+                <span ng-show="selected_category">
+                    {{selected_category}}
+                </span>
+                <span ng-hide="selected_category">
+                    Select Department
+                </span>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li role="presentation" ng-repeat="category in ge_categories">
+                    <a role="menuitem" tabindex="-1" href ng-click="set_category(category)">{{category}}</a>
+                </li>
+            </ul>
+        </div>
+        <input type="text" class="form-control" placeholder="Filter by name..." ng-model="filter">
+    </div>
+
+
+    <ul class="list-group">
+        <li class="list-group-item" ng-repeat="class in results | filter: {name:filter}">
+            {{class.name}}
+            <ul class="list-group">
+                <li class="list-group-item" ng-repeat="course in class.course_data">
+                    {{course.courseCode}}
+                </li>
+            </ul>
+        </li>
+    </ul>
+
+</div>

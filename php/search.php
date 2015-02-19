@@ -50,6 +50,11 @@ function process_courses($course) {
 function process_html($html) {
     
     foreach($html->find('tr[bgcolor=#fff0ff]') as $class) {
+        
+        if (!isset($class->valign)) {
+            continue;
+        }
+        
         $item['identifier'] = str_replace("&nbsp;", " ", trim(trim($class->find('td.CourseTitle text', 0)->plaintext, " &nbsp;"), " "));
         $item['name'] = $class->find('td.CourseTitle font', 0)->plaintext;
         if ($class->find('a', 0) != null) {
@@ -66,8 +71,8 @@ function process_html($html) {
 
 };
 
-function get_dept_html($dept) {
-    $url = 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=2015-14&ShowFinals=1&ShowComments=1&Dept=' . urlencode($dept);
+function get_dept_html($department) {
+    $url = 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=2015-14&ShowFinals=1&ShowComments=1&Dept=' . urlencode($department);
 
     return file_get_html($url);
 };
@@ -78,13 +83,46 @@ function get_ge_html($category) {
     return file_get_html($url);
 };
 
-if ($_REQUEST['dept']) {
-    $html = get_dept_html(trim($_REQUEST['dept']));    
-}
-else if ($_REQUEST['category']) {
-    $html = get_ge_html(trim($_REQUEST['category']));
+function get_available_departments() {
+    $url = 'http://websoc.reg.uci.edu/perl/WebSoc';
+    $html = file_get_html($url);
+    
+    $dropdown = $html->find('select[name="Dept"]', 0);
+    
+    foreach($dropdown->find('option') as $department) {
+        $departments[] = $department->value;    
+    }
+    
+    return json_encode($departments);
+};
+
+function get_available_ge_categories() {
+    $url = 'http://websoc.reg.uci.edu/perl/WebSoc';
+    $html = file_get_html($url);
+    
+    $dropdown = $html->find('select[name="Breadth"]', 0);
+    
+    foreach($dropdown->find('option') as $category) {
+        $categories[] = $category->value;    
+    }
+    
+    return json_encode($categories);
+};
+
+if ($_REQUEST['department']) {
+    $html = get_dept_html(trim($_REQUEST['department']));    
+    echo process_html($html);
 }
 
-echo process_html($html);
+else if ($_REQUEST['category']) {
+    $html = get_ge_html(trim($_REQUEST['category']));
+    echo process_html($html);
+}
+else if ($_REQUEST['available_departments']) {
+    echo get_available_departments();
+}
+else if ($_REQUEST['available_ge_categories']) {
+    echo get_available_ge_categories();
+}
 
 ?>
