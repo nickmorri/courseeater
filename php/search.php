@@ -76,21 +76,34 @@ function process_html($html) {
 
 };
 
+function request_html($url) {
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+    curl_setopt($curl, CURLOPT_HEADER, false);
+    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_REFERER, $url);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+    $str = curl_exec($curl);
+    curl_close($curl);
+    
+    $html_base = new simple_html_dom();
+    // Load HTML from a string
+    return $html_base->load($str);
+};
+
 function get_dept_html($department) {
     $url = 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=2015-14&ShowFinals=1&ShowComments=1&Dept=' . urlencode($department);
-
-    return file_get_html($url);
+    return request_html($url);
 };
 
 function get_ge_html($category) {
     $url = 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=2015-14&ShowFinals=1&ShowComments=1&Breadth=' . urlencode($category);
-
-    return file_get_html($url);
+    return request_html($url);
 };
 
 function get_available_departments() {
-    $url = 'http://websoc.reg.uci.edu/perl/WebSoc';
-    $html = file_get_html($url);
+    $html = file_get_html('http://websoc.reg.uci.edu/perl/WebSoc');
     
     $dropdown = $html->find('select[name="Dept"]', 0);
     
@@ -102,8 +115,7 @@ function get_available_departments() {
 };
 
 function get_available_ge_categories() {
-    $url = 'http://websoc.reg.uci.edu/perl/WebSoc';
-    $html = file_get_html($url);
+    $html = file_get_html('http://websoc.reg.uci.edu/perl/WebSoc');
     
     $dropdown = $html->find('select[name="Breadth"]', 0);
     
@@ -120,7 +132,7 @@ function get_available_ge_categories() {
 };
 
 if ($_REQUEST['department']) {
-    $html = get_dept_html(trim($_REQUEST['department']));    
+    $html = get_dept_html(trim($_REQUEST['department']));
     echo process_html($html);
 }
 
