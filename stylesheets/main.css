@@ -24,6 +24,7 @@ body.modal-open { overflow: hidden; }
 .form-control.update-info { margin-bottom: 10px; }
 .form-control-username { margin-bottom: -1px; }
 .form-control-email { margin-bottom: -1px; }
+.form-control-password { margin-bottom: -1px; }
 /* Remove pesky a href underline */
 a:hover, a:visited, a:link, a:active {
     text-decoration: none;

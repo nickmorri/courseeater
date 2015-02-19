@@ -6,7 +6,6 @@ body {
 	background: url('../resources/background.jpg') no-repeat center center fixed;
 	background-size: cover;
 	background-position: left top;
-	overflow: hidden;
 }
 #loginView .container .jumbotron {
     padding: 30px;
