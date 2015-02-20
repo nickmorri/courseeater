@@ -9,7 +9,7 @@ include_once('simple_html_dom.php');
 
 function process_course_data($course) {
     $courseCode = $course->find('td', 0)->plaintext;
-    $type = $course->find('td', 1)->plaintext;
+    $type = strtoupper($course->find('td', 1)->plaintext);
     $sec = $course->find('td', 2)->plaintext;
     $units = $course->find('td', 3)->plaintext;
     $instructor = $course->find('td', 4)->plaintext;
