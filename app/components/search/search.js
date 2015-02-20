@@ -14,6 +14,8 @@ search.factory('SearchStore', ['$http', function ($http) {
     SearchStore.retrieving_results = undefined;
     SearchStore.results = undefined;
     
+    SearchStore.filter = "";
+    
     SearchStore.retrieve_departments = function () {
         $http({
             url: 'php/search.php',
@@ -44,33 +46,28 @@ search.factory('SearchStore', ['$http', function ($http) {
         SearchStore.search_ge_category(SearchStore.selected_category);
     };
     
-    SearchStore.search_department = function (department) {
-        
+    SearchStore.perform_search = function (parameters) {
         SearchStore.retrieving_results = true;
+        
+        SearchStore.filter = "";
         
         $http({
             url: 'php/search.php',
             method: "GET",
-            params: {department: department}
+            params: parameters,
         }).then(function (response) {
             SearchStore.results = response.data;
             SearchStore.retrieving_results = false;
         });
+    }; 
+    
+    SearchStore.search_department = function (department) {
+        SearchStore.perform_search({department: department});
     };
     
     
     SearchStore.search_ge_category = function (category) {
-        
-        SearchStore.retrieving_results = true;
-        
-        $http({
-            url: 'php/search.php',
-            method: "GET",
-            params: {category: category}
-        }).then(function (response) {
-            SearchStore.results = response.data;
-            SearchStore.retrieving_results = false;
-        });
+        SearchStore.perform_search({category: category});
     };
     
     SearchStore.retrieve_departments();
@@ -86,11 +83,27 @@ search.controller('SearchController', ['$scope', 'CourseStore', 'CourseListStore
     
     $scope.searchStore = SearchStore;
     
-    $scope.filter = "";
+    $scope.addCourse = function (courseCode) {
+        debugger;
+        
+        /* $scope.courseStore.addCourse(courseCode); */
+    };
     
     if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
     
 }]);
+
+search.directive('classSearchItem', function () {
+    return {
+        templateUrl: 'app/components/search/directives/class-search-item.html'
+    }
+});
+
+search.directive('courseSearchItem', function () {
+    return {
+        templateUrl: 'app/components/search/directives/course-search-item.html'
+    }
+});
 
 search.filter('classProps', function () {
     return function (items, term) {

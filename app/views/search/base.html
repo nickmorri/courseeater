@@ -25,7 +25,7 @@
                                 </span>
                                 <span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu">
+                            <ul class="dropdown-menu scrollable-menu">
                                 <li role="presentation" ng-repeat="department in searchStore.departments">
                                     <a role="menuitem" tabindex="-1" href ng-click="searchStore.set_department(department)">{{department}}</a>
                                 </li>
@@ -41,14 +41,14 @@
                                 </span>
                                 <span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu">
+                            <ul class="dropdown-menu scrollable-menu">
                                 <li role="presentation" ng-repeat="category in searchStore.ge_categories">
                                     <a role="menuitem" tabindex="-1" href ng-click="searchStore.set_category(category.value)">{{category.name}}</a>
                                 </li>
                             </ul>
                         </div>
                         <span class="input-group-addon"><span class="glyphicon glyphicon-filter"></span></span>
-                        <input type="text" class="form-control form-control-search-filter" placeholder="Search..." ng-model="filter">
+                        <input type="text" class="form-control form-control-search-filter" placeholder="Filter..." ng-model="searchStore.filter">
                     </div>
                 </div>
                 
@@ -59,17 +59,11 @@
                 
                 <div class="spinner" ng-show="searchStore.retrieving_results"></div>
                 
-                <ul class="list-group" ng-hide="searchStore.retrieving_results">
-                    <li class="list-group-item" ng-repeat="class in searchStore.results | classProps:filter">
-                        {{class.identifier}} - {{class.name}}
-                        <a href="{{class.cocourses}}" ng-show="class.cocourses">Co-Courses</a>
-                        <ul class="list-group">
-                            <li class="list-group-item" ng-repeat="course in class.course_data">
-                                {{course.courseCode}}
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
+                <accordion close-others="false" ng-hide="searchStore.retrieving_results">
+                    <class-search-item ng-repeat="class in searchStore.results | classProps:searchStore.filter"></class-search-item>
+                </accordion>
+
+                
             </div>
         </div>
     

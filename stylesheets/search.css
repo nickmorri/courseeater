@@ -1,0 +1,12 @@
+.scrollable-menu {
+    height: auto;
+    max-height: 200px;
+    overflow-x: hidden;
+}
+.class-search-item {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+.course-search-item {
+    padding: 2px;
+}
