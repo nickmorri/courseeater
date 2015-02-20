@@ -1,5 +1,9 @@
 <accordion-group class="class-search-item">
-    <accordion-heading>{{class.identifier}} - {{class.name}}</accordion-heading>
+    <accordion-heading>
+        <div class="class-search-item-title">
+            {{class.identifier}} - {{class.name}} <span class="badge pull-right">{{class.course_data.length}}</span>
+        </div>
+    </accordion-heading>
     <div class="row">
         <course-search-item ng-repeat="course in class.course_data"></course-search-item>
     </ul>

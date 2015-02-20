@@ -10,3 +10,7 @@
 .course-search-item {
     padding: 2px;
 }
+.course-search-item-detail {
+    white-space: nowrap;
+    overflow-x: scroll;
+}

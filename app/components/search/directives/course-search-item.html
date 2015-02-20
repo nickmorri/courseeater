@@ -1,7 +1,23 @@
-<div class="col-md-2 course-search-item" ng-click="addCourse(course.courseCode)">
-    <div class="panel panel-default">
+<div class="col-xs-6 col-sm-4 col-md-2 course-search-item" ng-click="addCourse(course.courseCode)">
+    <div class="panel panel-{{course.type}}">
         <div class="panel-heading">
-            {{course.type}} - {{course.courseCode}}
+            {{course.type}} {{course.sec}} - {{course.courseCode}}
+        </div>
+        <div class="panel-body">
+            <ul class="list-group">
+                <li class="list-group-item course-search-item-detail">
+                    {{course.instructor}}
+                </li>
+                <li class="list-group-item course-search-item-detail">
+                    {{course.time}}
+                </li>
+                <li class="list-group-item course-search-item-detail">
+                    {{course.enr}} enrolled of {{course.max}} 
+                </li>
+                <li class="list-group-item course-search-item-detail">
+                    <button class="btn btn-block btn-primary">Add</button>
+                </li>
+            </ul>
         </div>
     </div>
 </div>
