@@ -1,11 +1,56 @@
 <?php
-/*
 ini_set('display_errors',1);
 ini_set('display_startup_errors',1);
 error_reporting(-1);
-*/
 
 include_once('simple_html_dom.php');
+
+function process_days($days) {
+    $processed_days = [];
+    
+    if (strpos($days, "M")) {
+        array_push($processed_days, "Mon");
+    }
+    if (strpos($days, "Tu")) {
+        array_push($processed_days, "Tue");
+    }
+    if (strpos($days, "W")) {
+        array_push($processed_days, "Wed");
+    }
+    if (strpos($days, "Th")) {
+        array_push($processed_days, "Thu");
+    }
+    if (strpos($days, "F")) {
+        array_push($processed_days, "Fri");
+    }
+    
+    return $processed_days;
+};
+
+function process_time($time) {
+    $clean_time = [];
+    
+    foreach ($time as $item) {
+        $item = str_replace("-", "", $item);
+        $split_time = explode(":", $item);
+        if (sizeof($split_time) < 2) continue;
+        else {
+            array_push($clean_time, str_replace("am", "AM", $split_time[0]) . ":" . str_replace("p", "PM", $split_time[1]));
+        }
+    }
+    
+    return $clean_time;
+};
+
+function process_datetime($time) {
+    
+    $split_datetime = preg_split('/\s+/', $time);
+    
+    $days = process_days($split_datetime[0]);
+    $time = process_time(array_slice($split_datetime, 1));    
+    
+    return $time;
+};
 
 function process_course_data($course) {
     $courseCode = $course->find('td', 0)->plaintext;
@@ -13,7 +58,7 @@ function process_course_data($course) {
     $sec = $course->find('td', 2)->plaintext;
     $units = $course->find('td', 3)->plaintext;
     $instructor = $course->find('td', 4)->plaintext;
-    $time = $course->find('td', 5)->plaintext;
+    $time = process_datetime($course->find('td', 5)->plaintext);
     $place = $course->find('td', 6)->plaintext;
     $final = $course->find('td', 7)->plaintext;
     $max = $course->find('td', 8)->plaintext;
@@ -24,6 +69,8 @@ function process_course_data($course) {
     $textbooks = $course->find('td', 13)->plaintext;
     $web = $course->find('td', 14)->plaintext;
     $status = $course->find('td', 15)->plaintext;
+    
+    
     
     $courseAttributes = array('courseCode' => $courseCode, 'type' => $type, 'sec' => $sec, 'units' => $units, 'instructor' => $instructor, 'time' => $time, 'place' => $place, 'final' => $final, 'max' => $max, 'enr' => $enr, 'wl' => $wl, 'req' => $req, 'rstr' => $rstr, 'textbooks' => $textbooks, 'web' => $web, 'status' => $status);
     
@@ -92,6 +139,16 @@ function request_html($url) {
     return $html_base->load($str);
 };
 
+function get_course_html($course_code) {
+    $url = 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=2015-14&ShowFinals=1&ShowComments=1&CourseCodes=' . urlencode($course_code);
+    return request_html($url);
+};
+
+function get_co_course_html($course_code) {
+    $url = 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=2015-14&ShowFinals=1&ShowComments=1&CoCourse=' . urlencode($course_code);
+    return request_html($url);
+};
+
 function get_dept_html($department) {
     $url = 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=2015-14&ShowFinals=1&ShowComments=1&Dept=' . urlencode($department);
     return request_html($url);
@@ -131,11 +188,18 @@ function get_available_ge_categories() {
     return json_encode($categories);
 };
 
-if ($_REQUEST['department']) {
+if ($_REQUEST['course_code']) {
+    $html = get_course_html(trim($_REQUEST['course_code']));
+    echo process_html($html);
+}
+else if ($_REQUEST['course_code_cocourses']) {
+    $html = get_co_course_html(trim($_REQUEST['course_code_cocourses']));
+    echo process_html($html);
+} 
+else if ($_REQUEST['department']) {
     $html = get_dept_html(trim($_REQUEST['department']));
     echo process_html($html);
 }
-
 else if ($_REQUEST['category']) {
     $html = get_ge_html(trim($_REQUEST['category']));
     echo process_html($html);
