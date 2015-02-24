@@ -116,11 +116,15 @@ search.filter('classProps', function () {
             else if (item.identifier.toUpperCase().indexOf(term) != -1) filtered.push(item);
             else {
                 for (var i = 0; i < item.course_data.length; i++) {
-                    if (item.course_data[i].instructor.toUpperCase().indexOf(term) != -1) {
-                        filtered.push(item);
-                        break;
+                    
+                    for (var j = 0; j < item.course_data[i].instructor.length; j++) {
+                        if (item.course_data[i].instructor[j].toUpperCase().indexOf(term) != -1) {
+                            filtered.push(item);
+                            break;
+                        }    
                     }
-                    else if (item.course_data[i].courseCode.toUpperCase().indexOf(term) != -1) {
+                    
+                    if (item.course_data[i].courseCode.toUpperCase().indexOf(term) != -1) {
                         filtered.push(item);
                         break;
                     }
