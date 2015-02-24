@@ -1,5 +1,11 @@
 <?php
 
+function flush_cache() {
+    $mem = new Memcached();
+    $mem->addServer("127.0.0.1", 11211);
+    $mem->flush(0);
+};
+
 function get_data($key) {
     $mem = new Memcached();
     $mem->addServer("127.0.0.1", 11211);
