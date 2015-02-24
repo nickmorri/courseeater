@@ -1,7 +1,7 @@
 <progressbar class="progress-striped active" value="100" type="primary" ng-show="course.fetchingRemoteData"><i>loading...</i></progressbar>
 
-<progressbar class="progress" value="100" type="primary" ng-show="course.totalEnr == 0" ng-hide="course.fetchingRemoteData"><i>All {{course.max}} seats open</i></progressbar>
+<progressbar class="progress" value="100" type="primary" ng-hide="course.fetchingRemoteData || course.totalEnr != 0"><i>All {{course.max}} seats open</i></progressbar>
 
-<progressbar animate="false" value="dynamic" type="success" value="course.totalEnr" max="course.max" ng-hide="course.totalEnr == 0" ng-hide="course.fetchingRemoteData"><b>{{course.totalEnr}} enrolled / {{course.max}} available</b></progressbar>
+<progressbar animate="false" type="success" value="course.max - course.totalEnr" max="course.max" ng-hide="course.totalEnr == 0" ng-hide="course.fetchingRemoteData"><b>{{course.max - course.totalEnr}} of {{course.max}} seats remaining</b></progressbar>
 
 <progressbar animate="false" value="course.wl" type="warning" ng-hide="course.wl <= 0" ng-hide="course.fetchingRemoteData"><i> {{course.wl}} on waitlist</progressbar>

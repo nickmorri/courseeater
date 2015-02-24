@@ -199,17 +199,20 @@ course.factory('Course', ['$http', function ($http) {
                 debugger
             }
             
-            if (isNaN(course.totalEnr)) course.totalEnr = response.data.enr;
+            if (isNaN(course.totalEnr)) course.totalEnr = parseInt(response.data.enr);
             
+            course.max = parseInt(response.data.max);
+            course.wl = parseInt(response.data.wl);
+            if (isNaN(course.wl)) course.wl = response.data.wl;
             course.final = response.data.final;
             course.instructor = response.data.instructor;
-            course.max = response.data.max;
+            
             course.place = response.data.place;
             course.req = response.data.req;
             course.rstr = response.data.rstr;
             course.status = response.data.status;
             
-            course.wl = response.data.wl;
+            
             
             if (course.wl == "n/a") course.wl = 0;
             
