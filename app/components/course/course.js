@@ -216,6 +216,7 @@ course.factory('Course', ['$http', function ($http) {
             course.status = courseData.status;
             
             course.fetchingRemoteData = false;
+            
         };
 
         this.checkLatestCourseData().then(course.processLatestData);
@@ -600,6 +601,12 @@ course.directive('courseTitleView', function () {
 course.directive('courseInfoView', function () {
      return {
         templateUrl: "app/components/course/directives/course-info-view.html"
+    }
+});
+
+course.directive('courseInstructorView', function () {
+    return {
+        templateUrl: 'app/components/course/directives/course-instructor-view.html'
     }
 });
 
