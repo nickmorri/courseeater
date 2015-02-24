@@ -152,36 +152,37 @@ function process_courses($course) {
     return $course_data;
 };
 
+function process_class($class) {
+    // If valign attribute is not present this is not a class
+    if (!isset($class->valign)) return null;
+    
+    // Process course identifier and course name
+    $item['identifier'] = htmlspecialchars_decode(preg_replace('!\s+!', ' ', str_replace('&nbsp;', ' ', trim(trim($class->find('td.CourseTitle text', 0)->plaintext, " &nbsp;"), " "))));
+    $item['name'] = htmlspecialchars_decode($class->find('td.CourseTitle font', 0)->plaintext);
+    
+    // Find Co-Courses and Prerequisites links
+    $item['cocourses'] = null;
+    $item['prerequisites'] = null;
+    foreach($class->find('a') as $link) {
+        if ($link->plaintext == "Co-courses") {
+            $item['cocourses'] = $link->href;
+        }
+        else if ($link->plaintext == "Prerequisites") {
+            $item['prerequisites'] = $link->href;
+        }
+    }
+    
+    // Process course rows
+    $firstCourse = $class->next_sibling('tr')->next_sibling('tr[valign="top"]');
+    $item['course_data'] = process_courses($firstCourse);
+    return $item;
+};
+
 function process_html($html) {
     
     foreach($html->find('tr[bgcolor=#fff0ff]') as $class) {
-        
-        // If valign attribute is not present this is not a class
-        if (!isset($class->valign)) {
-            continue;
-        }
-        
-        // Process course identifier and course name
-        $item['identifier'] = preg_replace('!\s+!', ' ', str_replace('&nbsp;', ' ', trim(trim($class->find('td.CourseTitle text', 0)->plaintext, " &nbsp;"), " ")));
-        $item['name'] = htmlspecialchars_decode($class->find('td.CourseTitle font', 0)->plaintext);
-        
-        // Find Co-Courses and Prerequisites links
-        $item['cocourses'] = null;
-        $item['prerequisites'] = null;
-        foreach($class->find('a') as $link) {
-            if ($link->plaintext == "Co-courses") {
-                $item['cocourses'] = $link->href;
-            }
-            else if ($link->plaintext == "Prerequisites") {
-                $item['prerequisites'] = $link->href;
-            }
-        }
-        
-        // Process course rows
-        $firstCourse = $class->next_sibling('tr')->next_sibling('tr[valign="top"]');
-        $item['course_data'] = process_courses($firstCourse);
-        
-        $classes[] = $item;
+        $class_data = process_class($class);
+        if ($class_data != null) $classes[] = $class_data;
     }
     
     return json_encode($classes);
@@ -247,7 +248,7 @@ function fetch_available_departments() {
         $dropdown = $html->find('select[name="Dept"]', 0);
         
         foreach($dropdown->find('option') as $department) {
-            $departments[] = $department->value;    
+            $departments[] = htmlspecialchars_decode($department->value);
         }
         
         set_data('available_departments', json_encode($departments));
@@ -329,6 +330,9 @@ else if ($_REQUEST['available_departments']) {
 }
 else if ($_REQUEST['available_ge_categories']) {
     echo fetch_available_ge_categories();
+}
+else if ($_REQUEST['flush_cached_data']) {
+    flush_cache();
 }
 
 ?>
