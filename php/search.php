@@ -237,14 +237,12 @@ function get_ge_html($category) {
 };
 
 function fetch_available_departments() {
-    $url = 'http://websoc.reg.uci.edu/perl/WebSoc';
-    
-    $cached_data = get_data($url);
+    $cached_data = get_data('available_departments');
     
     if ($cached_data) {
         return $cached_data;
     } else {
-        $html = request_html($url);
+        $html = request_html('http://websoc.reg.uci.edu/perl/WebSoc');
     
         $dropdown = $html->find('select[name="Dept"]', 0);
         
@@ -252,7 +250,7 @@ function fetch_available_departments() {
             $departments[] = $department->value;    
         }
         
-        set_data($url, json_encode($departments));
+        set_data('available_departments', json_encode($departments));
         
         return json_encode($departments);
         
@@ -262,14 +260,12 @@ function fetch_available_departments() {
 };
 
 function fetch_available_ge_categories() {
-    $url = 'http://websoc.reg.uci.edu/perl/WebSoc';
-    
-    $cached_data = get_data($url);
+    $cached_data = get_data('available_categories');
     
     if ($cached_data) {
         return $cached_data;
     } else {
-        $html = request_html($url);
+        $html = request_html('http://websoc.reg.uci.edu/perl/WebSoc');
     
         $dropdown = $html->find('select[name="Breadth"]', 0);
         
@@ -282,7 +278,7 @@ function fetch_available_ge_categories() {
             }
         }
         
-        set_data($url, json_encode($categories));
+        set_data('available_categories', json_encode($categories));
         
         return json_encode($categories);
     }
