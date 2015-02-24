@@ -186,35 +186,34 @@ course.factory('Course', ['$http', function ($http) {
             this.fetchingRemoteData = true;
             
             return $http({
-                url: 'php/scrape.php',
+                url: 'php/search.php',
                 method: "GET",
                 params: {course_code: this.courseCode}
             });
         };
         
         this.processLatestData = function (response) {
-            try {
-                course.totalEnr = parseInt(response.data.enr.split("/")[1], 10);
-            } catch (e) {
-                debugger
+            
+            var classData = response.data[0];
+            var courseData = classData.course_data[0];
+
+            if (classData.cocourses) {
+                course.cocoursesURL = classData.cocourses;    
+            }
+            if (classData.prerequisites) {
+                course.prerequistesURL = classData.prerequisites;    
             }
             
-            if (isNaN(course.totalEnr)) course.totalEnr = parseInt(response.data.enr);
-            
-            course.max = parseInt(response.data.max);
-            course.wl = parseInt(response.data.wl);
-            if (isNaN(course.wl)) course.wl = response.data.wl;
-            course.final = response.data.final;
-            course.instructor = response.data.instructor;
-            
-            course.place = response.data.place;
-            course.req = response.data.req;
-            course.rstr = response.data.rstr;
-            course.status = response.data.status;
-            
-            
-            
-            if (course.wl == "n/a") course.wl = 0;
+            course.localEnr = courseData.localEnr;
+            course.totalEnr = courseData.totalEnr;
+            course.max = courseData.max;
+            course.wl = courseData.wl;
+            course.final = courseData.final;
+            course.instructor = courseData.instructor;
+            course.place = courseData.place;
+            course.req = courseData.req;
+            course.rstr = courseData.rstr;
+            course.status = courseData.status;
             
             course.fetchingRemoteData = false;
         };
