@@ -11,42 +11,12 @@ course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStor
 }]);
 
 course.factory('Course', ['$http', function ($http) {
-    return function (data, color) {
+    return function (courseCode) {
         
         var course = this;
         
         // Course relevant data
-        this.courseCode = data.attributes.courseCode;
-        this.courseIdentifier = data.attributes.courseIdentifier;
-        this.courseName = data.attributes.courseName.replace(/&nbsp;/g, '');
-        this.days = data.attributes.days;
-        this.finalExam = data.attributes.final;
-        this.instructor = data.attributes.instructor;
-        this.localEnr = data.attributes.localEnr;
-        this.max = data.attributes.max;
-        this.nor = data.attributes.nor;
-        this.placeBuilding = data.attributes.placeBuilding;
-        this.placeURL = data.attributes.placeURL;
-        this.prerequisites = data.attributes.prerequisities;
-        this.req = data.attributes.req;
-        this.rstr = data.attributes.rstr;
-        this.sec = data.attributes.sec;
-        this.status = data.attributes.status;
-        this.textboooks = data.attributes.textbooks;
-        this.time = data.attributes.time;
-        this.totalEnr = data.attributes.totalEnr;
-        this.type = data.attributes.type.toUpperCase();
-        this.units = data.attributes.units;
-        this.web = data.attributes.web;
-        this.wl = data.attributes.wl;
-        this.term = data.attributes.term;
-
-        if (this.finalExam === "NONE") this.finalExam = undefined;
-
-        // Parse object relevant data
-        this.id = data.id;
-        this.updatedAt = data.updatedAt;
-        this.timeSinceUpdate = new Date().getTime() - new Date(this.updatedAt).getTime();
+        this.courseCode = courseCode;
         
         // Used to decide which buttons to display in search modals
         this.tracking = true;
@@ -58,45 +28,41 @@ course.factory('Course', ['$http', function ($http) {
         this.result = null;
         
         // FullSchedule Calendar configuration
-        this.color = color;
+        this.color = undefined;
         this.events = undefined;
         
         this.makeEvent = function () {
             if (this.events !== undefined) return this.events;
             
             var calendarCourses, title, days, heldDays, time, start, end, event, i, endFront, endBack, startFront, startBack;
-            if (this.time.indexOf("TBA") !== -1) return [];
+            if (this.time == null) return [];
             // Title processing
-            title = this.courseIdentifier.toUpperCase() + " - " + this.type.toUpperCase();
+            title = this.identifier.toUpperCase() + " - " + this.type.toUpperCase();
             // Day parsing
-            days = this.days;
             heldDays = [];
-            if (days.indexOf("M") > -1) heldDays.push(getWeekday(0));
-            if (days.indexOf("Tu") > -1) heldDays.push(getWeekday(1));
-            if (days.indexOf("W") > -1) heldDays.push(getWeekday(2));
-            if (days.indexOf("Th") > -1) heldDays.push(getWeekday(3));
-            if (days.indexOf("F") > -1) heldDays.push(getWeekday(4));
+            if (this.days.indexOf("Mon") > -1) heldDays.push(getWeekday(0));
+            if (this.days.indexOf("Tue") > -1) heldDays.push(getWeekday(1));
+            if (this.days.indexOf("Wed") > -1) heldDays.push(getWeekday(2));
+            if (this.days.indexOf("Thu") > -1) heldDays.push(getWeekday(3));
+            if (this.days.indexOf("Fri") > -1) heldDays.push(getWeekday(4));
             // Time parsing
-            time = this.time.split(" to ");
-            start = time[0];
-            end = time[1];
-            // Removing spaces
-            if (time[0][0] === " ") start = start.slice(1);
-            if (time[1][0] === " ") end = end.slice(1);
+
             // Further breaking things down into 4 distinct parts.
-            startFront = parseInt(start.split(":")[0], 10);
-            startBack = start.split(":")[1].slice(0, 2);
-            endFront = parseInt(end.split(":")[0], 10);
-            endBack = end.split(":")[1].slice(0, 2);
+            startFront = parseInt(this.time.start.split(":")[0], 10);
+            startBack = this.time.start.split(":")[1].slice(0, 2);
+            endFront = parseInt(this.time.end.split(":")[0], 10);
+            endBack = this.time.end.split(":")[1].slice(0, 2);
             // Processing of these parts
-            if (end.indexOf("PM") !== -1 && endFront !== 12) endFront += 12;
-            if (start.indexOf("PM") !== -1 && startFront !== 12) startFront += 12;
+            
+            if (this.time.am_pm == "PM" && endFront !== 12) endFront += 12;
+            if (this.time.start == "PM" && startFront !== 12) startFront += 12;
             if (endFront > 12 && startFront !== 12) startFront += 12;
             if (startFront < 10) startFront = "0" + startFront;
             if (endFront < 10) endFront = "0" + endFront;
             // Formatting these four parts for the FullCalendar library
             start = "T" + startFront + ":" + startBack + ":00";
             end = "T" + endFront + ":" + endBack + ":00";
+            
             calendarCourses = [];
             // Event object creation
             for (i = 0; i < heldDays.length; i++) {
@@ -120,15 +86,15 @@ course.factory('Course', ['$http', function ($http) {
             var startingDay, finalString, title, heldDay, time, start, end, endFront, endBack, event;
             startingDay = "2015-06-";
             
-            if (this.finalExam === undefined || this.finalExam.indexOf("TBA") !== -1) {
+            if (this.final == undefined || this.final.indexOf("TBA") !== -1) {
                 return undefined;
             }
             else {
-                finalString = this.finalExam;
+                finalString = this.final;
             }
             
             // Title processing
-            title = this.courseIdentifier.toUpperCase() + " - " + this.type.toUpperCase();
+            title = this.identifier.toUpperCase() + " - " + this.type.toUpperCase();
             // Day processing
             heldDay = startingDay + finalString.split(", ")[1].split(" ")[1];
             
@@ -136,8 +102,6 @@ course.factory('Course', ['$http', function ($http) {
                 heldDay = [heldDay.slice(0, heldDay.length - 1), "0", heldDay.slice(heldDay.length - 1)].join('');
             }
             
-            // Title processing
-            title = this.courseIdentifier.toUpperCase() + " - " + this.type.toUpperCase();
             // Time parsing
             time = finalString.split("-");
             start = time[0].split(", ")[2];
@@ -166,17 +130,14 @@ course.factory('Course', ['$http', function ($http) {
             start = "T" + start + ":" + time[0].split(", ")[2].split(":")[1] + ":00";
             end = "T" + endFront + ":" + endBack + ":00";
             
-            
             //Event object creation
             event = {
                 id: this.courseCode,
                 title: title,
                 start: heldDay + start + "Z",
                 end: heldDay + end + "Z",
-                backgroundColor: color
+                backgroundColor: this.color
             };
-            
-            
             
             this.finalEvent = event;
             return this.finalEvent;
@@ -193,16 +154,24 @@ course.factory('Course', ['$http', function ($http) {
         };
         
         this.processLatestData = function (response) {
-            
             var classData = response.data[0];
             var courseData = classData.course_data[0];
-
-            if (classData.cocourses) {
-                course.cocoursesURL = classData.cocourses;    
-            }
-            if (classData.prerequisites) {
-                course.prerequistesURL = classData.prerequisites;    
-            }
+            
+            course.name = classData.name;
+            course.identifier = classData.identifier;
+            
+            course.cocoursesURL = classData.cocourses;
+            course.prerequistesURL = classData.prerequisites;
+            course.comments = classData.comments;
+            
+            course.type = courseData.type;
+            course.sec = courseData.sec;
+            
+            course.placeURL = courseData.placeURL;
+            course.place = courseData.place;
+            
+            course.days = courseData.time.days;
+            course.time = courseData.time.clock;
             
             course.localEnr = courseData.localEnr;
             course.totalEnr = courseData.totalEnr;
@@ -218,8 +187,8 @@ course.factory('Course', ['$http', function ($http) {
             course.fetchingRemoteData = false;
             
         };
-
-        this.checkLatestCourseData().then(course.processLatestData);
+        
+        return {response: this.checkLatestCourseData().then(this.processLatestData), course: this};
         
     };
 }]);
@@ -318,7 +287,8 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     CourseStore.courseCodes = undefined;
     
     CourseStore.initialized = false;
-    CourseStore._collection = {};
+    CourseStore.num_loading_courses = 0;
+    CourseStore._collection = [];
     
     // FullCalendar EventSources
     CourseStore.events = [];
@@ -338,23 +308,24 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     
     CourseStore.fetchCourses = function (courseCodes) {
         if (courseCodes) this.courseCodes = courseCodes;
-        
         CourseStore.clearSchedule();
-        for (var i = 0; i < CourseStore.courseCodes.length; i++) {
-            var query = new Parse.Query("Course");
-            query.equalTo("courseCode", CourseStore.courseCodes[i]);
-            query.equalTo("term", "2015-14");
-            
-            // Ideally will be able to remove this if I can confirm duplicates are no longer being made.
-            
-            query.descending("updatedAt");
-            query.find().then(CourseStore.makeCourse);
+        for (var i = 0; i < this.courseCodes.length; i++) {
+            CourseStore.retrieveCourse(this.courseCodes[i]);
         }
-        CourseStore.initialized = true;
+    };
+    
+    CourseStore.retrieveCourse = function (courseCode) {
+        CourseStore.num_loading_courses++;
+        var request = new Course(courseCode);
+        request.response.then(function () {
+            CourseStore.putCourse(request.course);
+            CourseStore.num_loading_courses--;
+            CourseStore.initialized = CourseStore.num_loading_courses == 0;
+        });
     };
     
     CourseStore.empty = function () {
-        return Object.keys(CourseStore._collection).length === 0;
+        return CourseStore._collection.length === 0;
     };
     
     CourseStore.hasCourse = function (courseCode) {
@@ -362,40 +333,24 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
     
     CourseStore.getCourse = function (courseCode) {
-        for (var className in CourseStore._collection) {
-            var classObj = CourseStore._collection[className];
-            for (var i = 0; i < classObj.courses.length; i++) {
-                if (classObj.courses[i].courseCode === courseCode) return classObj.courses[i]
-            }
+        for (var i = 0; i < CourseStore._collection.length; i++) {
+            if (courseCode === CourseStore._collection[i].courseCode) return CourseStore._collection[i];
         }
         return undefined;
     };
     
     CourseStore.getEquivalentCourse = function (course) {
-        var courseGroup = CourseStore._collection[course.courseIdentifier];
-        for (var i = 0; i < courseGroup.courses.length; i++) {
-            if (courseGroup.courses[i].type == course.type) return courseGroup.courses[i];
+        for (var i = 0; i < CourseStore._collection.length; i++) {
+            if (course.identifier === CourseStore._collection[i].identifier) return CourseStore._collection[i];
         }
+        return undefined;
     };
     
     CourseStore.putCourse = function (course) {
-        if (CourseStore._collection[course.courseIdentifier] !== undefined) {
-            var existingCourse = CourseStore.getCourse(course.courseCode);
-            
-            if (existingCourse) existingCourse = course;
-            else {
-                CourseStore._collection[course.courseIdentifier].courses.push(course);    
-            }
-            
-            if (course.type == "LEC") CourseStore._collection[course.courseIdentifier].mainCourse = course;
-        }
-        else {
-            CourseStore._collection[course.courseIdentifier] = {};
-            CourseStore._collection[course.courseIdentifier].className = course.courseName;
-            CourseStore._collection[course.courseIdentifier].classIdentifier = course.courseIdentifier;
-            CourseStore._collection[course.courseIdentifier].courses = [course];
-            CourseStore._collection[course.courseIdentifier].mainCourse = course;
-        }
+        course.color = CourseStore.getColor(course);
+        CourseStore._collection.push(course);
+        CourseStore.putEvent(course.makeEvent());
+        CourseStore.putFinal(course.makeFinal());
     };
     
     CourseStore.putEvent = function (event) {
@@ -425,13 +380,6 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
         }
     };
     
-    CourseStore.makeCourse = function (course) {
-        var course = new Course(course[0], CourseStore.getColor(course[0].attributes.courseName));
-        CourseStore.putCourse(course);
-        CourseStore.putEvent(course.makeEvent());
-        CourseStore.putFinal(course.makeFinal());
-    };
-    
     CourseStore.clearSchedule = function () {
         CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
         CourseStore.events = [];
@@ -442,7 +390,7 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
         CourseStore.listID = undefined;
         CourseStore.courseCodes = [];
         CourseStore.initialized = false;    
-        CourseStore._collection = {};
+        CourseStore._collection = [];
         CourseStore.clearSchedule();
     };
         
@@ -460,16 +408,18 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
     
     CourseStore._removeCourseFromCollection = function (courseCode) {
-        for (var className in CourseStore._collection) {
-            var courses = CourseStore._collection[className].courses;
-            for (var i = 0; i < courses.length; i++) {
-                if (courses[i].courseCode === courseCode) {
-                    return CourseStore._collection[className].courses.splice(i, 1);
-                }
-            }
+        var index = undefined;
+        
+        for (var i = 0; i < CourseStore._collection.length; i++) {
+            if (courseCode === CourseStore._collection[i].courseCode) break;
         }
-
-        return undefined;
+        
+        if (index) {
+            CourseStore._collection.remove(index);
+            return true;
+        }
+        
+        return false;
     };
         
     CourseStore.replaceCourse = function (oldCourseCode, newCourseCode) {
@@ -481,13 +431,12 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
         });
     };
     
-    CourseStore.getColor = function (courseIdentifier) {
-        if (CourseStore._collection[courseIdentifier] !== undefined) {
-            return CourseStore._collection[courseIdentifier].mainCourse.color;
-        }
+    CourseStore.getColor = function (course) {
+        var equivalent_course = CourseStore.getEquivalentCourse(course);
+        if (equivalent_course) return equivalent_course.color;
         
         // Random color for a class
-        var hash = Math.abs(courseIdentifier.hash()) % CourseStore.colors.length;
+        var hash = Math.abs(course.identifier.hash()) % CourseStore.colors.length;
         return CourseStore.colors.splice(CourseStore.colors.indexOf(CourseStore.colors[hash]), 1)[0];
     };
     
