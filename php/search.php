@@ -1,9 +1,7 @@
 <?php
-/*
 ini_set('display_errors',1);
 ini_set('display_startup_errors',1);
 error_reporting(-1);
-*/
 
 include_once('simple_html_dom.php');
 include_once('cache.php');
@@ -11,19 +9,19 @@ include_once('cache.php');
 function process_days($days) {
     $processed_days = [];
     
-    if (strpos($days, "M")) {
+    if (strstr($days, "M")) {
         array_push($processed_days, "Mon");
     }
-    if (strpos($days, "Tu")) {
+    if (strstr($days, "Tu")) {
         array_push($processed_days, "Tue");
     }
-    if (strpos($days, "W")) {
+    if (strstr($days, "W")) {
         array_push($processed_days, "Wed");
     }
-    if (strpos($days, "Th")) {
+    if (strstr($days, "Th")) {
         array_push($processed_days, "Thu");
     }
-    if (strpos($days, "F")) {
+    if (strstr($days, "F")) {
         array_push($processed_days, "Fri");
     }
     
@@ -31,28 +29,64 @@ function process_days($days) {
 };
 
 function process_time($time) {
+    
+    $time = explode("-", htmlspecialchars_decode($time));
+    
     $clean_time = [];
     
-    foreach ($time as $item) {
-        $item = str_replace("-", "", $item);
-        $split_time = explode(":", $item);
-        if (sizeof($split_time) < 2) continue;
+    foreach($time as $dirty_time_part) {
+        
+        $dirty_time_part = trim($dirty_time_part);
+        
+        if (strpos($dirty_time_part, "TBA") !== false) {
+            return null;
+        }
+        
+        if (strpos($dirty_time_part, ":") === false) {
+            continue;
+        }
+        
+        $clean_time_part = str_replace(["a", "p", "-", "&nbs;"], "", $dirty_time_part);
+
+        $clean_time[] = $clean_time_part;
+        
+    }
+    
+    $first_hour = explode(":", $clean_time[0])[0];
+    $second_hour = explode(":", $clean_time[1])[0];
+    
+    if ($first_hour > $second_hour) {
+        if ($first_hour == 12) {
+            $clean_time[] = "PM";
+        }
         else {
-            array_push($clean_time, str_replace("am", "AM", $split_time[0]) . ":" . str_replace("p", "PM", $split_time[1]));
+            $clean_time[] = "AM-PM";
+        }
+    }
+    else if ($first_hour < 8) {
+        $clean_time[] = "PM";
+    }
+    else if ($first_hour == 12 && $second_hour == 12) {
+        $clean_time[] = "PM";
+    }
+    else {
+        if ($second_hour == 12) {
+            $clean_time[] = "AM-PM";
+        } else {
+            $clean_time[] = "AM";    
         }
     }
     
-    return $clean_time;
+    return array('start' => $clean_time[0], 'end' => $clean_time[1], 'am_pm' => $clean_time[2]);
 };
 
 function process_datetime($time) {
-    
     $split_datetime = preg_split('/\s+/', $time);
     
     $days = process_days($split_datetime[0]);
-    $time = process_time(array_slice($split_datetime, 1));    
+    $time = process_time(implode(array_slice($split_datetime, 1)));
     
-    return $time;
+    return array("days" => $days, "clock" => $time);
 };
 
 function process_course_data($course) {
@@ -63,7 +97,7 @@ function process_course_data($course) {
     $place = $course->find('td', 6)->plaintext;
     $placeURL = $course->find('td', 6)->find('a', 0)->href;
     $max = intval($course->find('td', 8)->plaintext);
-    $req = $course->find('td', 11)->plaintext;
+    $req = intval($course->find('td', 11)->plaintext);
     $nor = $course->find('td', 12)->plaintext;
     $rstr = $course->find('td', 13)->plaintext;
     $textbookURL = $course->find('td', 14)->find('a', 0)->href;
@@ -85,14 +119,17 @@ function process_course_data($course) {
     if (strpos($final, "&nbsp;")) {
         $final = null;
     }
+    if (strlen($final) <= 6) {
+        $final = null;
+    }
 
     $enr = $course->find('td', 9)->plaintext;    
     if (strpos($enr, "/")) {
         $totalEnr = intval(explode(" / ", $enr)[0]);
         $localEnr = intval(explode(" / ", $enr)[1]);    
     } else {
-        $localEnr = $enr;
-        $totalEnr = $enr;
+        $localEnr = intval($enr);
+        $totalEnr = intval($enr);
     }
     
     $wl = $course->find('td', 10)->plaintext;
@@ -170,6 +207,12 @@ function process_class($class) {
         else if ($link->plaintext == "Prerequisites") {
             $item['prerequisites'] = $link->href;
         }
+    }
+    
+    if ($class->next_sibling('tr')->bgcolor == "#fff0ff") {
+        $item['comments'] = trim(preg_replace('/\t+/', '', htmlspecialchars_decode($class->next_sibling('tr')->plaintext)));
+    } else {
+        $item['comments'] = null;
     }
     
     // Process course rows
