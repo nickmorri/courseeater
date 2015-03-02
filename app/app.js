@@ -130,3 +130,16 @@ courseeater_app.directive('title', ['$rootScope', '$timeout', function($rootScop
         }
     };
 }]);
+
+courseeater_app.directive("popoverHtmlUnsafePopup", function () {
+    return {
+        restrict: "EA",
+        replace: true,
+    	scope: { title: "@", content: "@", placement: "@", animation: "&", isOpen: "&" },
+        templateUrl: "app/directives/popover/popover-html-unsafe-popup.html"
+    };
+});
+
+courseeater_app.directive("popoverHtmlUnsafe", [ "$tooltip", function ($tooltip) {
+    return $tooltip("popoverHtmlUnsafe", "popover", "click");
+}]);
