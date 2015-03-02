@@ -1,9 +1,7 @@
 <div class="list-group">
     <li class="list-group-item">
-        <span class="label panel-label label-sec label-default">{{course.sec}}</span>
-        <a href="http://websoc.reg.uci.edu/perl/WebSoc?YearTerm={{course.term}}&amp;ShowFinals=1&amp;ShowComments=1&amp;CourseCodes={{course.courseCode}}" target="_blank">
-        {{course.name}}
-        </a>
+        <span class="glyphicon glyphicon-tag list-detail-glyphicon"></span>
+        <course-code-view></course-code-view>
     </li>
     <li class="list-group-item">
         <span class="glyphicon glyphicon-user list-detail-glyphicon"></span> 
@@ -11,7 +9,7 @@
     </li>
     <li class="list-group-item">
         <span class="glyphicon glyphicon-flag list-detail-glyphicon"></span> 
-        <a href="{{course.placeURL}}" target="blank">{{course.place}}</a>
+        <course-place-view></course-place-view>
     </li>
     <li class="list-group-item">
         <span class="glyphicon glyphicon-calendar list-detail-glyphicon"></span>
@@ -19,19 +17,11 @@
     </li>
     <li class="list-group-item">
         <span class="glyphicon glyphicon-time list-detail-glyphicon"></span>
-        <span ng-show="course.time.am_pm == 'AM-PM'">
-            {{course.time.start}} AM to {{course.time.end}} PM
-        </span>
-        <span ng-show="course.time.am_pm == 'AM'">
-            {{course.time.start}} to {{course.time.end}} AM
-        </span>
-        <span ng-show="course.time.am_pm == 'PM'">
-            {{course.time.start}} to {{course.time.end}} PM
-        </span>
+        <course-time-view></course-time-view>
     </li>
-    <li class="list-group-item" ng-hide="course.finalExam === undefined">
+    <li class="list-group-item" ng-hide="course.final === undefined">
         <span class="glyphicon glyphicon-education list-detail-glyphicon"></span>
-        <strong>Final:</strong> {{course.finalExam}}
+        <strong>Final:</strong> {{course.final}}
     </li>
     <li class="list-group-item">
         <course-progress-view></course-progress-view>

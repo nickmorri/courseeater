@@ -1,3 +1,7 @@
-<a ng-repeat="instructor in course.instructor" href="http://www.ratemyprofessors.com/search.jsp?queryoption=HEADER&amp;queryBy=teacherName&amp;schoolName=University+of+California+Irvine&amp;query={{instructor.split(',')[0]}}" target="_blank">
-    {{instructor}}
-</a>
+<button ng-repeat="instructor in course.instructor"
+        popover-placement="bottom"
+        popover-html-unsafe='<a class="btn btn-default" href="http://www.ratemyprofessors.com/search.jsp?queryoption=HEADER&amp;queryBy=teacherName&amp;schoolName=University+of+California+Irvine&amp;query={{instructor.split(",")[0]}}" target="_blank">RateMyProfessor</a><a class="btn btn-default" href="https://eaterevals.eee.uci.edu/instructor/{{instructor.split(",")[0]}}" target="_blank">EaterEvals</a>'
+        class="btn btn-default">
+        <span class="glyphicon glyphicon-menu-down"></span>
+        {{instructor}}
+</button>

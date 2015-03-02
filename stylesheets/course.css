@@ -63,6 +63,13 @@
     margin-bottom: 0px;
     border-radius: 0px;
 }
+.progressbar-text {
+    font-style: italic;
+    white-space: pre;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0px 0px 2px black;
+}
 
 /* Collapsible */
 

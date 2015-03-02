@@ -18,6 +18,12 @@ course.factory('Course', ['$http', function ($http) {
         // Course relevant data
         this.courseCode = courseCode;
         
+        // SHOULD ONLY BE A TEMPORARY FIX
+        this.term = "2015-14";
+        
+        // Set to true on first retrieval of remote data
+        this.initialized = false;
+        
         // Used to decide which buttons to display in search modals
         this.tracking = true;
         this.replacement = false;
@@ -156,7 +162,7 @@ course.factory('Course', ['$http', function ($http) {
         this.processLatestData = function (response) {
             var classData = response.data[0];
             var courseData = classData.course_data[0];
-            
+        
             course.name = classData.name;
             course.identifier = classData.identifier;
             
@@ -183,7 +189,7 @@ course.factory('Course', ['$http', function ($http) {
             course.req = courseData.req;
             course.rstr = courseData.rstr;
             course.status = courseData.status;
-            
+            course.initialized = true;
             course.fetchingRemoteData = false;
             
         };
@@ -307,8 +313,8 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
     
     CourseStore.fetchCourses = function (courseCodes) {
+        CourseStore.clearCourses();
         if (courseCodes) this.courseCodes = courseCodes;
-        CourseStore.clearSchedule();
         for (var i = 0; i < this.courseCodes.length; i++) {
             CourseStore.retrieveCourse(this.courseCodes[i]);
         }
@@ -380,6 +386,11 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
         }
     };
     
+    CourseStore.clearCourses = function () {
+        CourseStore.courseCodes = [];
+        CourseStore._collection = [];
+    };
+    
     CourseStore.clearSchedule = function () {
         CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
         CourseStore.events = [];
@@ -388,9 +399,8 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     
     CourseStore.clear = function () {
         CourseStore.listID = undefined;
-        CourseStore.courseCodes = [];
-        CourseStore.initialized = false;    
-        CourseStore._collection = [];
+        CourseStore.initialized = false;
+        CourseStore.clearCourses();
         CourseStore.clearSchedule();
     };
         
@@ -553,6 +563,12 @@ course.directive('courseInfoView', function () {
     }
 });
 
+course.directive('courseCodeView', function () {
+    return {
+        templateUrl: 'app/components/course/directives/course-code-view.html'
+    }
+});
+
 course.directive('courseInstructorView', function () {
     return {
         templateUrl: 'app/components/course/directives/course-instructor-view.html'
@@ -574,6 +590,18 @@ course.directive('courseSearchView', function () {
 course.directive('courseHeldDaysView', function () {
     return {
         templateUrl: "app/components/course/directives/course-held-days-view.html"
+    }
+});
+
+course.directive('courseTimeView', function () {
+    return {
+        templateUrl: "app/components/course/directives/course-time-view.html"
+    }
+});
+
+course.directive('coursePlaceView', function () {
+    return {
+        templateUrl: "app/components/course/directives/course-place-view.html"
     }
 });
 
