@@ -55,8 +55,16 @@
     border-radius: 0px; 
     margin-right: -5px;
 }
+
+/* Action menu */
 .dropdown-menu {
 	border-radius: 0px;
+}
+
+/* Popover professor rating search */
+
+.popover.bottom {
+    border-radius: 0px;
 }
 
 .progress {
