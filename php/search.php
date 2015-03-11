@@ -6,6 +6,8 @@ error_reporting(-1);
 include_once('simple_html_dom.php');
 include_once('cache.php');
 
+$GLOBALS['term'] = '2015-14';
+
 function process_days($days) {
     $processed_days = [];
     
@@ -249,19 +251,19 @@ function request_html($url) {
 };
 
 function build_course_url($course_code) {
-    return 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=2015-14&ShowFinals=1&ShowComments=1&CourseCodes=' . urlencode($course_code);
+    return 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=' . $GLOBALS['term'] . '&ShowFinals=1&ShowComments=1&CourseCodes=' . urlencode($course_code);
 };
 
-function build_co_course_url($course_code) {
-    return 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=2015-14&ShowFinals=1&ShowComments=1&CoCourse=' . urlencode($course_code);
+function build_co_course_url($course_code, $type) {
+    return 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=' . $GLOBALS['term'] . '&ShowFinals=1&ShowComments=1&CoCourse=' . urlencode($course_code) . '&ClassType=' . urlencode($type);
 };
 
 function build_department_url($department) {
-    return 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=2015-14&ShowFinals=1&ShowComments=1&Dept=' . urlencode($department);
+    return 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=' . $GLOBALS['term'] . '&ShowFinals=1&ShowComments=1&Dept=' . urlencode($department);
 };
 
 function build_ge_url($category) {
-    return 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=2015-14&ShowFinals=1&ShowComments=1&Breadth=' . urlencode($category);
+    return 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=' . $GLOBALS['term'] . '&ShowFinals=1&ShowComments=1&Breadth=' . urlencode($category);
 };
 
 function get_course_html($course_code) {
@@ -344,8 +346,8 @@ function fetch_course ($course_code) {
     return fetch_data(build_course_url($course_code));
 };
 
-function fetch_co_course($course_code) {
-    return fetch_data(build_co_course_url($course_code));
+function fetch_co_courses($course_code, $type) {
+    return fetch_data(build_co_course_url($course_code, $type));
 };
 
 function fetch_department($department) {
@@ -360,7 +362,7 @@ if ($_REQUEST['course_code']) {
     echo fetch_course(trim($_REQUEST['course_code']));
 }
 else if ($_REQUEST['course_code_cocourses']) {
-    echo fetch_co_course(trim($_REQUEST['course_code_cocourses']));
+    echo fetch_co_courses(trim($_REQUEST['course_code_cocourses']), trim($_REQUEST['type']));
 } 
 else if ($_REQUEST['department']) {
     echo fetch_department(trim($_REQUEST['department']));

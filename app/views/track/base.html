@@ -21,9 +21,10 @@
             <h1>You don't have any courses added :(</h1>
         </div>
         <div ng-hide="courseStore.empty()" class="row">
-            <class-view class="col-lg-4 col-md-4 col-sm-6 col-xs-12" ng-repeat="(key, class) in courseStore._collection | groupBy: 'identifier'"></class-view>
+            <class-view class="col-lg-4 col-md-4 col-sm-6 col-xs-12" ng-repeat="class in courseStore.getCourses() | groupBy: 'identifier'"></class-view>
         </div>
     </div>
+    
     <div class="container" ng-hide="courseStore.initialized">
         <div class="spinner"></div>
     </div>
