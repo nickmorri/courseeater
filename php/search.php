@@ -1,7 +1,9 @@
 <?php
+/*
 ini_set('display_errors',1);
 ini_set('display_startup_errors',1);
 error_reporting(-1);
+*/
 
 include_once('simple_html_dom.php');
 include_once('cache.php');
@@ -258,6 +260,10 @@ function build_co_course_url($course_code, $type) {
     return 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=' . $GLOBALS['term'] . '&ShowFinals=1&ShowComments=1&CoCourse=' . urlencode($course_code) . '&ClassType=' . urlencode($type);
 };
 
+function build_replacement_course_url($department, $course_num, $class_type) {
+    return 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=' . $GLOBALS['term'] . '&ShowFinals=1&ShowComments=1&Dept=' . urlencode($department) . '&CourseNum=' . urlencode($course_num) . '&ClassType=' . urlencode($class_type);
+};
+
 function build_department_url($department) {
     return 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=' . $GLOBALS['term'] . '&ShowFinals=1&ShowComments=1&Dept=' . urlencode($department);
 };
@@ -342,12 +348,16 @@ function fetch_data($url) {
     return $data;
 };
 
-function fetch_course ($course_code) {
+function fetch_course($course_code) {
     return fetch_data(build_course_url($course_code));
 };
 
-function fetch_co_courses($course_code, $type) {
-    return fetch_data(build_co_course_url($course_code, $type));
+function fetch_co_courses($url) {
+    return fetch_data($url);
+};
+
+function fetch_replacement_course($department, $course_num, $class_type) {
+    return fetch_data(build_replacement_course_url($department, $course_num, $class_type));
 };
 
 function fetch_department($department) {
@@ -363,6 +373,9 @@ if ($_REQUEST['course_code']) {
 }
 else if ($_REQUEST['course_code_cocourses']) {
     echo fetch_co_courses(trim($_REQUEST['course_code_cocourses']), trim($_REQUEST['type']));
+} 
+else if ($_REQUEST['replacement_course_num']) {
+    echo fetch_replacement_course($_REQUEST['department'], $_REQUEST['replacement_course_num'], $_REQUEST['type']);
 } 
 else if ($_REQUEST['department']) {
     echo fetch_department(trim($_REQUEST['department']));
