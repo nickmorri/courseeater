@@ -1,9 +1,7 @@
 <li class="list-group-item" ng-show="course.tracking">
     <div class="btn-group btn-block dropup">
         <jp-ng-bs-animated-button is-submitting="course.isSubmitting" result="course.result" options="buttonConfig.removeWithDropdownOptions" ng-click="removeCourse(course)"></jp-ng-bs-animated-button>
-        <button type="button" class="btn col-xs-2 btn-default dropdown-toggle" data-toggle="dropdown">
-            <span class="glyphicon glyphicon-search"></span>
-        </button>
+        <button type="button" class="btn col-xs-2 btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
         <ul class="dropdown-menu col-md-12" role="menu">
             <li><a class="btn-search-replacements" href ng-click="searchForReplacements(course, course.type)">Search for replacements</a></li>
             <li class="divider"></li>

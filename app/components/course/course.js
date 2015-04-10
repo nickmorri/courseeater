@@ -624,75 +624,69 @@ course.directive('courseView', function () {
     }
 });
 
-course.directive('courseTitleView', function () {
+course.directive('courseTitle', function () {
     return {
-        templateUrl: "app/components/course/directives/course-title-view.html"
+        templateUrl: "app/components/course/directives/course-title.html"
     }
 });
 
-course.directive('courseInfoView', function () {
+course.directive('courseInfo', function () {
      return {
-        templateUrl: "app/components/course/directives/course-info-view.html"
+        templateUrl: "app/components/course/directives/course-info.html"
     }
 });
 
-course.directive('courseNameView', function () {
+course.directive('courseCode', function () {
     return {
-        templateUrl: 'app/components/course/directives/course-name-view.html'
+        templateUrl: 'app/components/course/directives/course-code.html'
     }
 });
 
-course.directive('courseNameView', function () {
+course.directive('courseName', function () {
     return {
-        templateUrl: 'app/components/course/directives/course-name-view.html'
+        templateUrl: 'app/components/course/directives/course-name.html'
     }
 });
 
-course.directive('courseInstructorView', function () {
+course.directive('courseInstructor', function () {
     return {
-        templateUrl: 'app/components/course/directives/course-instructor-view.html'
+        templateUrl: 'app/components/course/directives/course-instructor.html'
     }
 });
 
-course.directive('courseActionsView', function () {
+course.directive('courseActions', function () {
     return {
-        templateUrl: "app/components/course/directives/course-actions-view.html"
+        templateUrl: "app/components/course/directives/course-actions.html"
     }
 });
 
-course.directive('courseAlternativeActionsView', function () {
+course.directive('courseSearch', function () {
     return {
-        templateUrl: "app/components/course/directives/course-alternative-actions-view.html"
+        templateUrl: 'app/components/course/directives/course-search.html'
     }
 });
 
-course.directive('courseSearchView', function () {
+course.directive('courseHeldDays', function () {
     return {
-        templateUrl: 'app/components/course/directives/course-search-view.html'
+        templateUrl: "app/components/course/directives/course-held-days.html"
     }
 });
 
-course.directive('courseHeldDaysView', function () {
+course.directive('courseTime', function () {
     return {
-        templateUrl: "app/components/course/directives/course-held-days-view.html"
+        templateUrl: "app/components/course/directives/course-time.html"
     }
 });
 
-course.directive('courseTimeView', function () {
+course.directive('coursePlace', function () {
     return {
-        templateUrl: "app/components/course/directives/course-time-view.html"
+        templateUrl: "app/components/course/directives/course-place.html"
     }
 });
 
-course.directive('coursePlaceView', function () {
+course.directive('courseProgress', function () {
     return {
-        templateUrl: "app/components/course/directives/course-place-view.html"
-    }
-});
-
-course.directive('courseProgressView', function () {
-    return {
-        templateUrl: "app/components/course/directives/course-progress-view.html"
+        templateUrl: "app/components/course/directives/course-progress.html"
     }
 });
 
@@ -706,3 +700,26 @@ course.filter('section', function() {
         else return input;    
     };
 });
+
+if (!Array.prototype.find) {
+  Array.prototype.find = function(predicate) {
+    if (this == null) {
+      throw new TypeError('Array.prototype.find called on null or undefined');
+    }
+    if (typeof predicate !== 'function') {
+      throw new TypeError('predicate must be a function');
+    }
+    var list = Object(this);
+    var length = list.length >>> 0;
+    var thisArg = arguments[1];
+    var value;
+
+    for (var i = 0; i < length; i++) {
+      value = list[i];
+      if (predicate.call(thisArg, value, i, list)) {
+        return value;
+      }
+    }
+    return undefined;
+  };
+}

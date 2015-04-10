@@ -1,30 +1,30 @@
 <div class="list-group">
     <li class="list-group-item">
         <span class="glyphicon glyphicon-tag list-detail-glyphicon"></span>
-        <course-name-view></course-name-view>
+        <course-name></course-name>
     </li>
     <li class="list-group-item">
         <span class="glyphicon glyphicon-user list-detail-glyphicon"></span> 
-        <course-instructor-view></course-instructor-view>
+        <course-instructor></course-instructor>
     </li>
     <li class="list-group-item">
         <span class="glyphicon glyphicon-flag list-detail-glyphicon"></span> 
-        <course-place-view></course-place-view>
+        <course-place></course-place>
     </li>
     <li class="list-group-item">
         <span class="glyphicon glyphicon-calendar list-detail-glyphicon"></span>
-        <course-held-days-view></course-held-days-view>
+        <course-held-days></course-held-days>
     </li>
     <li class="list-group-item">
         <span class="glyphicon glyphicon-time list-detail-glyphicon"></span>
-        <course-time-view></course-time-view>
+        <course-time></course-time>
     </li>
     <li class="list-group-item" ng-hide="course.final === undefined">
         <span class="glyphicon glyphicon-education list-detail-glyphicon"></span>
         <strong>Final:</strong> {{course.final}}
     </li>
     <li class="list-group-item">
-        <course-progress-view></course-progress-view>
+        <course-progress></course-progress>
     </li>
-    <course-actions-view></course-actions-view>
+    <course-actions></course-actions>
 </div>
