@@ -642,6 +642,12 @@ course.directive('courseNameView', function () {
     }
 });
 
+course.directive('courseNameView', function () {
+    return {
+        templateUrl: 'app/components/course/directives/course-name-view.html'
+    }
+});
+
 course.directive('courseInstructorView', function () {
     return {
         templateUrl: 'app/components/course/directives/course-instructor-view.html'
