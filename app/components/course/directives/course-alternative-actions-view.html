@@ -1,0 +1,14 @@
+<span class="dropdown" dropdown on-toggle="toggled(open)">
+    <a href class="dropdown-toggle" dropdown-toggle>
+        <span class="glyphicon glyphicon-option-vertical"></span>
+    </a>
+    <ul class="dropdown-menu">
+        <li><a class="btn-search-replacements" href ng-hide="course.type == 'DIS'" ng-click="searchForCocourses(course, 'DIS')">Remove</a></li>
+        <li class="divider"></li>
+        <li><a class="btn-search-replacements" href ng-click="searchForReplacements(course, course.type)">Search for replacements</a></li>
+        <li class="divider"></li>
+        <li><a class="btn-search-replacements" href ng-hide="course.type == 'DIS'" ng-click="searchForCocourses(course, 'DIS')">Search for discussion</a></li>
+        <li><a class="btn-search-replacements" href ng-hide="course.type == 'LEC'" ng-click="searchForCocourses(course, 'LEC')">Search for lecture</a></li>
+        <li><a class="btn-search-replacements" href ng-hide="course.type == 'LAB'" ng-click="searchForCocourses(course, 'LAB')">Search for lab</a></li>
+    </ul>
+</span>

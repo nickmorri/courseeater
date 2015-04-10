@@ -1,13 +1,8 @@
-<div class="btn-group" ng-repeat="instructor in course.instructor">
-    <button ng-if="!instructor.staff"
-            popover-placement="bottom"
-            popover-html-unsafe='<a class="btn btn-default" href="http://www.ratemyprofessors.com/ShowRatings.jsp?tid={{instructor.rmp_id}}" target="_blank">RateMyProfessor</a><a class="btn btn-default" href="https://eaterevals.eee.uci.edu/instructor/{{instructor.last_name}}" target="_blank">EaterEvals</a>'
-            class="btn btn-default">
-            <span class="glyphicon glyphicon-menu-down"></span>
-            {{instructor.last_name}}, {{instructor.first_name}}
-            <span class="badge">{{instructor.rmp_avg_rating}}</span>
-    </button>
-    <button ng-if="instructor.staff" class="btn btn-default disabled">
-        STAFF
-    </button>
-</div>
+<a ng-repeat="instructor in course.instructor" ng-if="!instructor.staff" href="http://www.ratemyprofessors.com/ShowRatings.jsp?tid={{instructor.rmp_id}}" target="_blank">
+    <span class="glyphicon glyphicon-link"></span>
+    {{instructor.last_name}}, {{instructor.first_name}}
+    <span class="badge">{{instructor.rmp_avg_rating}}</span>
+</a>
+<a ng-if="instructor.staff" class="disabled">
+    STAFF
+</a>

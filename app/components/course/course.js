@@ -271,6 +271,11 @@ course.factory('Course', ['$http', function ($http) {
             
         };
         
+        this.highlightCourseCode = function (event) {
+            debugger
+            $event.preventDefault(); $event.stopPropagation();
+        };
+        
         return {response: this.getLatestCourseData().then(this.processLatestData), course: this};
         
     };
@@ -585,6 +590,7 @@ course.factory('ButtonConfiguration', function () {
             buttonSubmittingClass: 'btn-primary',
             buttonSuccessClass: 'btn-success',
             buttonSizeClass: 'col-xs-10',
+            buttonDefaultIcon: 'glyphicon glyphicon-remove',
             buttonInitialIcon: 'glyphicon glyphicon-minus',
             buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
             buttonSuccessIcon: 'glyphicon glyphicon-ok'
@@ -630,9 +636,9 @@ course.directive('courseInfoView', function () {
     }
 });
 
-course.directive('courseCodeView', function () {
+course.directive('courseNameView', function () {
     return {
-        templateUrl: 'app/components/course/directives/course-code-view.html'
+        templateUrl: 'app/components/course/directives/course-name-view.html'
     }
 });
 
@@ -645,6 +651,12 @@ course.directive('courseInstructorView', function () {
 course.directive('courseActionsView', function () {
     return {
         templateUrl: "app/components/course/directives/course-actions-view.html"
+    }
+});
+
+course.directive('courseAlternativeActionsView', function () {
+    return {
+        templateUrl: "app/components/course/directives/course-alternative-actions-view.html"
     }
 });
 
