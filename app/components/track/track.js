@@ -62,29 +62,21 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
     };
     
     $scope.searchForCocourses = function (course, type) {
-        $scope.temporaryStore.searchForCocourses(course, type, $scope.displaySearch)  
+        $scope.temporaryStore.searchForCocourses(course, type).then($scope.displaySearch);
     };
 
     
     $scope.searchForReplacements = function (course, type) {
-        $scope.temporaryStore.searchForReplacements(course, type, $scope.displaySearch)  
+        $scope.temporaryStore.searchForReplacements(course, type).then($scope.displaySearch);
     };
     
-    $scope.displaySearch = function (results, replacement) {
-        for (var i = 0; i < results.length; i++) {
-            if (!CourseStore.hasCourse(results[i].attributes.courseCode)) {
-                $scope.temporaryStore.addCourse(results[i], replacement);
-            }
-        }
-        
-        var modalInstance = $modal.open({
+    $scope.displaySearch = function () {
+        $modal.open({
             templateUrl: 'app/components/course/directives/course-search-modal.html',
             controller: 'CourseSearchModalController'
-        });  
-        
+        });
     };
     
     if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
-
     
 }]);
