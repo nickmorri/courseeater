@@ -277,7 +277,7 @@ course.factory('Course', ['$http', function ($http) {
 course.factory('TemporaryStore', ['Course', function (Course) {
     var TemporaryStore = [];
     
-    TemporaryStore.courses = {};
+    TemporaryStore.courses = [];
     TemporaryStore.events = [];
     
     TemporaryStore.section_restricted = true;
@@ -288,18 +288,18 @@ course.factory('TemporaryStore', ['Course', function (Course) {
     };
     
     TemporaryStore.size = function () {
-        return Object.keys(TemporaryStore.courses).length;
+        return TemporaryStore.courses.length;
     };
     
     TemporaryStore.clear = function () {
-        TemporaryStore.courses = {};
+        TemporaryStore.courses = [];
         TemporaryStore.events = [];
         TemporaryStore.section_restricted = true;
         TemporaryStore.target_section = undefined;
     };
         
     TemporaryStore.storeCourse = function (course) {
-        TemporaryStore.courses[course.courseCode] = course;
+        TemporaryStore.courses.push(course)
         TemporaryStore.events = TemporaryStore.events.concat(course.makeEvent());
     };
     
@@ -313,7 +313,9 @@ course.factory('TemporaryStore', ['Course', function (Course) {
     };
     
     TemporaryStore.getCourse = function (courseCode) {
-        return TemporaryStore.courses[courseCode];
+        TemporaryStore.courses.find(function (course) {
+            return course.courseCode === courseCode;
+        }, courseCode);
     };
     
     TemporaryStore.filterEvents = function (filter) {
@@ -323,40 +325,33 @@ course.factory('TemporaryStore', ['Course', function (Course) {
         TemporaryStore.events = [];
         
         if (TemporaryStore.section_restricted) {
-            for (var course in TemporaryStore.courses) {
-                if (TemporaryStore.courses[course].sec.indexOf(TemporaryStore.target_section) == 0) {
-                    TemporaryStore.events = TemporaryStore.events.concat(TemporaryStore.courses[course].makeEvent());
-                }
-            }    
-        }
-        else {
-            for (course in TemporaryStore.courses) {
-                TemporaryStore.events = TemporaryStore.events.concat(TemporaryStore.courses[course].makeEvent());
-            }   
+            TemporaryStore.courses.forEach(function (course) {
+                if (course.sec.indexOf(this.target_section) == 0) this.events = this.events.concat(course.makeEvent());
+            }, TemporaryStore);
+        } else {
+            TemporaryStore.events = TemporaryStore.courses.reduce(function (course) {
+                this.concat(course.makeEvent());
+            }, []);
         }
     };
     
     TemporaryStore.searchForCocourses = function (course, type, callback) {
         TemporaryStore.clear();
         TemporaryStore.target_section = course.sec.charAt(0);
-        course.findCoCourses(type).then(function (response) {
-            for (var i = 0; i < response.data[0].course_data.length; i++) {
-                if (response.data[0].course_data[i].type == response.config.params.type) {
-                    TemporaryStore.addCourse(response.data[0].course_data[i], false);
-                }
-            }
+        return course.findCoCourses(type).then(function (response) {
+            response.data[0].course_data.forEach(function (course) {
+                if (course.type == this) TemporaryStore.addCourse(course, false);
+            }, response.config.params.type);
         })
     };
     
     TemporaryStore.searchForReplacements = function (course, type, callback) {
         TemporaryStore.clear();
         TemporaryStore.target_section = course.sec.charAt(0);
-        course.findReplacements().then(function (response) {
-            for (var i = 0; i < response.data[0].course_data.length; i++) {
-                if (response.data[0].course_data[i].type == response.config.params.type) {
-                    TemporaryStore.addCourse(response.data[0].course_data[i], true);
-                }
-            }
+        return course.findReplacements().then(function (response) {
+            response.data[0].course_data.forEach(function (course) {
+                if (course.type == this) TemporaryStore.addCourse(course, true);
+            }, response.config.params.type);
         });
     };
     
