@@ -103,12 +103,6 @@ search.directive('classSearchItem', function () {
     }
 });
 
-search.directive('courseSearchItem', function () {
-    return {
-        templateUrl: 'app/components/search/directives/course-search-item.html'
-    }
-});
-
 search.filter('classProps', function () {
     return function (items, term) {
         var filtered = [];

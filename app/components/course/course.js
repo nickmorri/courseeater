@@ -596,6 +596,12 @@ course.directive('courseView', function () {
     }
 });
 
+course.directive('courseMiniView', function () {
+    return {
+        templateUrl: "app/components/course/directives/course-mini-view.html"
+    }
+})
+
 course.directive('courseTitle', function () {
     return {
         templateUrl: "app/components/course/directives/course-title.html"

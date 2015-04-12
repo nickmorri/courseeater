@@ -6,16 +6,21 @@
         <div class="panel-body">
             <ul class="list-group">
                 <li class="list-group-item course-search-item-detail">
-                    {{course.instructor}}
+                    <span ng-repeat="instructor in course.instructor">
+                        {{instructor}}<span ng-if="!$last">,</span>
+                    </span>
                 </li>
                 <li class="list-group-item course-search-item-detail">
-                    {{course.time}}
+                    <course-time time="course.time.clock"></course-time>
                 </li>
                 <li class="list-group-item course-search-item-detail">
-                    {{course.enr}} enrolled of {{course.max}} 
+                    <course-held-days days="course.time.days"></course-held-days>
                 </li>
                 <li class="list-group-item course-search-item-detail">
-                    <button class="btn btn-block btn-primary">Add</button>
+                    <course-progress></course-progress>
+                </li>
+                <li class="list-group-item course-search-item-detail">
+                    <button class="btn btn-block btn-primary" ng-click="courseStore.addCourse(course.courseCode)">Add</button>
                 </li>
             </ul>
         </div>
