@@ -5,7 +5,7 @@
     </li>
     <li class="list-group-item">
         <span class="glyphicon glyphicon-user list-detail-glyphicon"></span> 
-        <course-instructor></course-instructor>
+        <course-instructor instructor="course.instructor"></course-instructor>
     </li>
     <li class="list-group-item">
         <span class="glyphicon glyphicon-flag list-detail-glyphicon"></span> 
@@ -13,15 +13,15 @@
     </li>
     <li class="list-group-item">
         <span class="glyphicon glyphicon-calendar list-detail-glyphicon"></span>
-        <course-held-days></course-held-days>
+        <course-held-days days="course.days"></course-held-days>
     </li>
     <li class="list-group-item">
         <span class="glyphicon glyphicon-time list-detail-glyphicon"></span>
-        <course-time></course-time>
+        <course-time time="course.time"></course-time>
     </li>
-    <li class="list-group-item" ng-hide="course.final === undefined">
+    <li class="list-group-item" ng-hide="course.final == undefined">
         <span class="glyphicon glyphicon-education list-detail-glyphicon"></span>
-        <strong>Final:</strong> {{course.final}}
+        <course-final></course-final>
     </li>
     <li class="list-group-item">
         <course-progress></course-progress>

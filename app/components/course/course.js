@@ -628,6 +628,9 @@ course.directive('courseName', function () {
 
 course.directive('courseInstructor', function () {
     return {
+        scope: {
+            instructor: "="  
+        },
         templateUrl: 'app/components/course/directives/course-instructor.html'
     }
 });
@@ -646,12 +649,18 @@ course.directive('courseSearch', function () {
 
 course.directive('courseHeldDays', function () {
     return {
+        scope: {
+            days: "="
+        },
         templateUrl: "app/components/course/directives/course-held-days.html"
     }
 });
 
 course.directive('courseTime', function () {
     return {
+        scope: {
+            time: "="
+        },
         templateUrl: "app/components/course/directives/course-time.html"
     }
 });
@@ -668,14 +677,17 @@ course.directive('courseProgress', function () {
     }
 });
 
+course.directive('courseFinal', function () {
+    return {
+        templateUrl: "app/components/course/directives/course-final.html"
+    }
+});
+
 course.filter('section', function() {
     return function (input, sec, enabled) {
-        if (enabled) {
-            var output = [];
-            for (course in input) if (input[course].sec.indexOf(sec) == 0) output.push(input[course]);
-            return output;
-        }
-        else return input;    
+        return enabled ? input.filter(function (course) {
+            return course.sec.indexOf(this) == 0;
+        }, sec) : input;
     };
 });
 
