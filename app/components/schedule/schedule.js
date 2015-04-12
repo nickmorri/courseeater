@@ -190,32 +190,15 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
     };
     
     $scope.searchForCocourses = function (course, type) {
-        $scope.temporaryStore.searchForCocourses(course, type, $scope.displaySearch)  
+        $scope.temporaryStore.searchForCocourses(course, type).then($scope.displaySearch);
     };
     
     $scope.searchForReplacements = function (course, type) {
-        $scope.temporaryStore.searchForReplacements(course, type, $scope.displaySearch)  
+        $scope.temporaryStore.searchForReplacements(course, type).then($scope.displaySearch);
     };
     
     $scope.displaySearch = function (results, replacement) {
-        if (results.length == 0) {
-            var modalInstance = $modal.open({
-                templateUrl: 'app/components/course/directives/course-search-modal.html',
-                controller: 'CourseSearchModalController'
-            });
-    
-            TemporaryStore.target_section = undefined;
-            
-        }
-        else {
-            for (var i = 0; i < results.length; i++) {
-                if (!CourseStore.hasCourse(results[i].attributes.courseCode)) {
-                    $scope.temporaryStore.addCourse(results[i], replacement);
-                }
-            }
-            
-            TemporaryStore.filterEvents(true);    
-        }
+        TemporaryStore.filterEvents(true);
         
         $scope.$close();
     };
