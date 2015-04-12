@@ -16,6 +16,10 @@ search.factory('SearchStore', ['$http', function ($http) {
     
     SearchStore.filter = "";
     
+    SearchStore.clearFilter = function () {
+        SearchStore.filter = "";
+    };
+    
     SearchStore.retrieve_departments = function () {
         $http({
             url: 'php/search.php',
