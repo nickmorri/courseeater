@@ -12,16 +12,13 @@ schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListS
     $scope.eventSource = [];
     
     $scope.courseClick = function (event, jsEvent, view) {
-        var course = $scope.courseStore.getCourse(event.id);
-        
-        if (course === undefined) course = $scope.temporaryStore.getCourse(event.id);
         
         var modalInstance = $modal.open({
             templateUrl: 'app/components/schedule/directives/course-schedule-modal.html',
             controller: 'CourseScheduleModalController',
             resolve: {
                 course: function () {
-                    return course;
+                    return $scope.courseStore.hasCourse(event.id) ? $scope.courseStore.getCourse(event.id) : $scope.temporaryStore.getCourse(event.id);
                 }
             }
         });
