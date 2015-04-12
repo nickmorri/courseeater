@@ -88,9 +88,7 @@ search.controller('SearchController', ['$scope', 'CourseStore', 'CourseListStore
     $scope.searchStore = SearchStore;
     
     $scope.addCourse = function (courseCode) {
-        debugger;
-        
-        /* $scope.courseStore.addCourse(courseCode); */
+        $scope.courseStore.addCourse(courseCode);
     };
     
     if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
@@ -105,30 +103,12 @@ search.directive('classSearchItem', function () {
 
 search.filter('classProps', function () {
     return function (items, term) {
-        var filtered = [];
-        
-        // Standardize all strings in uppercase for case insensitivity
-        term = term.toUpperCase();
-        angular.forEach(items, function(item) {
-            if (item.name.toUpperCase().indexOf(term) != -1) filtered.push(item);
-            else if (item.identifier.toUpperCase().indexOf(term) != -1) filtered.push(item);
-            else {
-                for (var i = 0; i < item.course_data.length; i++) {
-                    
-                    for (var j = 0; j < item.course_data[i].instructor.length; j++) {
-                        if (item.course_data[i].instructor[j].toUpperCase().indexOf(term) != -1) {
-                            filtered.push(item);
-                            break;
-                        }    
-                    }
-                    
-                    if (item.course_data[i].courseCode.toUpperCase().indexOf(term) != -1) {
-                        filtered.push(item);
-                        break;
-                    }
-                }
-            }
-        });
-        return filtered;
+        return (!items) ? [] : items.filter(function(item) {
+            return item.name.toUpperCase().indexOf(this) != -1 || item.identifier.toUpperCase().indexOf(this) != -1 || item.course_data.some(function (course) {
+                    return course.courseCode.indexOf(this) != -1 || course.instructor.some(function (instructor) {
+                        return instructor.toUpperCase().indexOf(this) != -1;
+                    }, this);
+                }, this);
+        }, term.toUpperCase());
     };
 });
