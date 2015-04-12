@@ -680,9 +680,9 @@ course.directive('courseFinal', function () {
 
 course.filter('section', function() {
     return function (input, sec, enabled) {
-        return enabled ? input.filter(function (course) {
+        return !enabled ? input : input.filter(function (course) {
             return course.sec.indexOf(this) == 0;
-        }, sec) : input;
+        }, sec);
     };
 });
 
