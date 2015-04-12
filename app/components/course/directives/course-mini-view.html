@@ -20,7 +20,8 @@
                     <course-progress></course-progress>
                 </li>
                 <li class="list-group-item course-search-item-detail">
-                    <button class="btn btn-block btn-primary" ng-click="courseStore.addCourse(course.courseCode)">Add</button>
+                    <button class="btn btn-block btn-primary" nh-show="courseStore.hasCourse(course.courseCode)" ng-click="courseStore.addCourse(course.courseCode)">Add</button>
+                    <button class="btn btn-block btn-danger" ng-hide="courseStore.hasCourse(course.courseCode)" ng-click="courseStore.removeCourse(course.courseCode)">Remove</button>
                 </li>
             </ul>
         </div>
