@@ -468,7 +468,7 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
     
     CourseStore.hasCourse = function (courseCode) {
-        return CourseStore.getCourse(courseCode) !== undefined;
+        return CourseStore.getCourse(parseInt(courseCode)) !== undefined;
     };
     
     CourseStore.getCourse = function (courseCode) {
@@ -479,7 +479,7 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     
     CourseStore.getEquivalentCourse = function (course) {
         return CourseStore._collection.find(function (course) {
-            return this.identifier === course.identifier
+            return this.identifier == course.identifier
         }, course);
     };
     
