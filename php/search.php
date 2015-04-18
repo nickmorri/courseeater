@@ -206,10 +206,10 @@ function process_class($class) {
     $item['prerequisites'] = null;
     foreach($class->find('a') as $link) {
         if ($link->plaintext == "Co-courses") {
-            $item['cocourses'] = $link->href;
+            $item['cocourses'] = htmlspecialchars_decode($link->href);
         }
-        else if ($link->plaintext == "Prerequisites") {
-            $item['prerequisites'] = $link->href;
+        if ($link->plaintext == "Prerequisites") {
+            $item['prerequisites'] = htmlspecialchars_decode($link->href);
         }
     }
     

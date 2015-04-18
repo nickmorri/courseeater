@@ -1,10 +1,19 @@
 <accordion-group class="class-search-item">
     <accordion-heading>
         <div class="class-search-item-title">
-            {{class.identifier}} - {{class.name}} <span class="badge pull-right">{{class.course_data.length}}</span>
+            {{class.identifier}} - {{class.name}} 
+            <span class="pull-right">
+                <span class="badge" ng-show="class.prerequisites != null">P</span>
+                <span class="badge">{{class.course_data.length}}</span>
+            </span>
         </div>
     </accordion-heading>
-    <div class="row">
+    <div class="row" ng-if="$parent.isOpen">
+        <div class="col-md-12">
+            <div class="alert alert-warning" ng-show="class.prerequisites != null">
+                <a target="_blank" href="{{class.prerequisites}}">Prerequisites</a> are required for this class
+            </div>
+        </div>
         <course-mini-view ng-repeat="course in class.course_data"></course-mini-view>
     </ul>
 </accordion-group>
