@@ -34,10 +34,6 @@ authentication.factory('AuthService', ['$state', '$rootScope', '$window', functi
         });
     };
     
-    authService.checkRegistrationCode = function (registration_code) {
-        return Parse.Cloud.run("checkRegistrationCode", {registrationCode : registration_code});
-    };
-    
     authService.resetPassword = function (email) {
         return Parse.User.requestPasswordReset(email);
     };
