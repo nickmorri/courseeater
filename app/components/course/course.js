@@ -92,61 +92,64 @@ course.factory('Course', ['$http', function ($http) {
         this.makeFinal = function () {
             if (this.finalEvent !== undefined) return this.finalEvent;
             
-            var startingDay, finalString, title, heldDay, time, start, end, endFront, endBack;
-            startingDay = "2015-06-";
+            var starting_day, final_string, title, day_held, time, start, end, end_front, end_back;
+            
+            // Static value that currently has to be manually changed each quarter..
+            starting_day = "2015-06-";
             
             if (this.final == undefined || this.final.indexOf("TBA") !== -1) {
                 return undefined;
             }
             else {
-                finalString = this.final;
+                final_string = this.final;
             }
             
             // Title processing
             title = this.identifier.toUpperCase() + " - " + this.type.toUpperCase();
             // Day processing
-            heldDay = startingDay + finalString.split(", ")[1].split(" ")[1];
+            day_held = starting_day + final_string.split(", ")[1].split(" ")[1];
             
-            if (heldDay.split("-")[2].length == 1) {
-                heldDay = [heldDay.slice(0, heldDay.length - 1), "0", heldDay.slice(heldDay.length - 1)].join('');
+            if (day_held.split("-")[2].length == 1) {
+                day_held = [day_held.slice(0, day_held.length - 1), "0", day_held.slice(day_held.length - 1)].join('');
             }
             
             // Time parsing
-            time = finalString.split("-");
+            time = final_string.split("-");
             start = time[0].split(", ")[2];
             start = parseInt(start.split(":")[0], 10);
             end = time[1];
             if (end.indexOf("am") !== -1) {
                 end = end.split("am")[0];
-                endFront = parseInt(end.split(":")[0], 10);
-                endBack = parseInt(end.split(":")[1], 10);
-                if (endBack === 0) {
-                    endBack = "00";
+                end_front = parseInt(end.split(":")[0], 10);
+                end_back = parseInt(end.split(":")[1], 10);
+                if (end_back === 0) {
+                    end_back = "00";
                 }
                 start = "0" + start;
             } else {
                 end = end.split("pm")[0];
-                endFront = parseInt(end.split(":")[0], 10);
-                endBack = parseInt(end.split(":")[1], 10);
-                if (endFront !== 12) {
+                end_front = parseInt(end.split(":")[0], 10);
+                end_back = parseInt(end.split(":")[1], 10);
+                if (end_front !== 12) {
                     start += 12;
-                    endFront += 12;
+                    end_front += 12;
                 }
-                if (endBack === 0) {
-                    endBack = "00";
+                if (end_back === 0) {
+                    end_back = "00";
                 }
             }
             start = "T" + start + ":" + time[0].split(", ")[2].split(":")[1] + ":00";
-            end = "T" + endFront + ":" + endBack + ":00";
+            end = "T" + end_front + ":" + end_back + ":00";
             
             //Event object creation
             this.finalEvent = {
                 id: this.courseCode,
                 title: title,
-                start: heldDay + start + "Z",
-                end: heldDay + end + "Z",
+                start: day_held + start + "Z",
+                end: day_held + end + "Z",
                 backgroundColor: this.color
             };
+            
             return this.finalEvent;
         };
         
