@@ -1,3 +1,5 @@
+// Prototypes
+
 String.prototype.toTitleCase = function () {
     return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 };
@@ -21,18 +23,52 @@ Array.prototype.clear = function () {
     this.splice(0, this.length);
 };
 
-// Returns the Date object for the Monday of the current week
+// Returns the Date object relative to the Monday as index 0 of current week
 var getWeekday = function (day) {
-	var date, dayOfMonth, dayOfWeek, thisMonday;
+	var date, day_of_month, day_of_week, this_monday;
 	date = new Date();
 	// Setting time to midnight for consistent Datetime parsing
 	date.setHours(0,0,0,0);
-	dayOfMonth = date.getDate();
-	dayOfWeek = date.getDay();
-	thisMonday = (dayOfMonth - dayOfWeek) + 1;
-	date.setDate(thisMonday + day);
-	return date.toISOString().split("T")[0];;
+	day_of_month = date.getDate();
+	day_of_week = date.getDay();
+	this_monday = (day_of_month - day_of_week) + 1;
+	date.setDate(this_monday + day);
+	return date.toISOString().split("T")[0];
 };
+
+// Polyfills
+
+if (!Array.prototype.find) {
+  Array.prototype.find = function(predicate) {
+    if (this == null) {
+      throw new TypeError('Array.prototype.find called on null or undefined');
+    }
+    if (typeof predicate !== 'function') {
+      throw new TypeError('predicate must be a function');
+    }
+    var list = Object(this);
+    var length = list.length >>> 0;
+    var thisArg = arguments[1];
+    var value;
+
+    for (var i = 0; i < length; i++) {
+      value = list[i];
+      if (predicate.call(thisArg, value, i, list)) {
+        return value;
+      }
+    }
+    return undefined;
+  };
+}
+
+if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function(searchString, position) {
+        position = position || 0;
+        return this.lastIndexOf(searchString, position) === position;
+    };
+}
+
+// Third party code
 
 var google_analytics = function () {
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
