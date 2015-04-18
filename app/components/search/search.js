@@ -1,4 +1,4 @@
-var search = angular.module('courseeater.search', ['courseeater.course', 'courseeater.list', 'ui.bootstrap']);
+var search = angular.module('courseeater.search', ['courseeater.course', 'courseeater.list', 'ui.bootstrap', 'angular.filter', 'jp.ng-bs-animated-button']);
 
 search.factory('SearchStore', ['$http', function ($http) {
     var SearchStore = {};
@@ -80,15 +80,31 @@ search.factory('SearchStore', ['$http', function ($http) {
     return SearchStore;
 }]);
 
-search.controller('SearchController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', 'SearchStore', function ($scope, CourseStore, CourseListStore, TemporaryStore, SearchStore) {
+search.controller('SearchController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', 'SearchStore', 'ButtonConfiguration', function ($scope, CourseStore, CourseListStore, TemporaryStore, SearchStore, ButtonConfiguration) {
     $scope.temporaryStore = TemporaryStore;
     $scope.courseListStore = CourseListStore;
     $scope.courseStore = CourseStore;
-    
     $scope.searchStore = SearchStore;
     
-    $scope.addCourse = function (courseCode) {
-        $scope.courseStore.addCourse(courseCode);
+    $scope.buttonConfig = ButtonConfiguration;
+    
+    $scope.addCourse = function (course) {
+        course.isSubmitting = true;
+        $scope.courseStore.addCourse(course.courseCode).then(function (response) {
+            course.result = 'success';
+            course.isSubmitting = null;
+        }, function (error) {
+            course.result = 'error';
+        });
+    };
+    
+    $scope.removeCourse = function (course) {
+        course.isSubmitting = true;
+        $scope.courseStore.removeCourse(course.courseCode).then(function (response) {
+            course.result = 'success';
+        }, function (error) {
+            course.result = 'error';
+        });
     };
     
     if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
