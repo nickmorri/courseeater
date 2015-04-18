@@ -421,7 +421,7 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
         });
     };
     
-    CourseStore.removeCourse = function (courseCode) {    
+    CourseStore.removeCourse = function (courseCode) {
         return Parse.Cloud.run('removeCourse', {courseCode : courseCode}).then(function (latestCourseCodes) {
             CourseStore.fetchCourses(latestCourseCodes);
         });
@@ -672,6 +672,12 @@ course.directive('courseInstructor', function () {
 course.directive('courseActions', function () {
     return {
         templateUrl: "app/components/course/directives/course-actions.html"
+    }
+});
+
+course.directive('courseMiniActions', function () {
+    return {
+        templateUrl: "app/components/course/directives/course-mini-actions.html"
     }
 });
 
