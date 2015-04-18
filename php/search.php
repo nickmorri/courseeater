@@ -280,7 +280,7 @@ function get_co_course_html($course_code) {
     return request_html(build_co_course_url($course_code));
 };
 
-function get_deptartment_html($department) {
+function get_department_html($department) {
     return request_html(build_department_url($department));
 };
 
