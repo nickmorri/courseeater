@@ -12,11 +12,11 @@
     </div>
 </li>
 <li class="list-group-item" ng-hide="course.tracking">
-    <div class="btn-group btn-block dropup" ng-hide="activeList.hasCourse(course.courseCode)">
+    <div class="btn-group btn-block dropup" ng-hide="courseStore.hasCourse(course.courseCode)">
         <jp-ng-bs-animated-button is-submitting="course.isSubmitting" result="course.result" options="buttonConfig.addOptions" ng-click="addCourse(course)" ng-hide="course.replacement"></jp-ng-bs-animated-button>
         <jp-ng-bs-animated-button is-submitting="course.isSubmitting" result="course.result" options="buttonConfig.replaceOptions" ng-click="replaceCourse(course)" ng-show="course.replacement"></jp-ng-bs-animated-button>
     </div>
-    <div class="btn-group btn-block dropup" ng-show="activeList.hasCourse(course.courseCode)">
+    <div class="btn-group btn-block dropup" ng-show="courseStore.hasCourse(course.courseCode)">
         <jp-ng-bs-animated-button is-submitting="course.isSubmitting" result="course.result" options="buttonConfig.removeOptions" ng-click="removeCourse(course)"></jp-ng-bs-animated-button>
     </div>
 </li>
