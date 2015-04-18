@@ -55,7 +55,7 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
     $scope.removeCourse = function (course) {
         course.isSubmitting = true;
         $scope.courseStore.removeCourse(course.courseCode).then($scope.temporaryStore.clear, function (error) {
-            course.result = 'error';    
+            course.result = 'error';
             $scope.alertStore.addMessage(error.message, 'warning')
         });
     };
