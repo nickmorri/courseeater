@@ -190,8 +190,7 @@ course.factory('Course', ['$http', function ($http) {
         };
         
         this.fetchRateMyProfessor = function () {
-
-            course.instructor.forEach(function (instructor) {
+            this.instructor.forEach(function (instructor) {
                 if (!instructor.staff) {
                     $http({
                         url: 'php/ratemyprofessor.php',
@@ -211,11 +210,9 @@ course.factory('Course', ['$http', function ($http) {
                             instructor.rmp_avg_rating = potential_match.averageratingscore_rf;
                             instructor.rmp_num_rating = potential_match.total_number_of_ratings_i;
                         }
-                        
                     });
                 }
             });
-            
         };
         
         this.processLatestData = function (response) {
@@ -248,6 +245,13 @@ course.factory('Course', ['$http', function ($http) {
             course.wl = courseData.wl;
             course.final = courseData.final;
             
+            course.req = courseData.req;
+            course.rstr = courseData.rstr;
+            course.status = courseData.status;
+            course.initialized = true;
+            
+            course.fetchingRemoteData = false;
+            
             course.instructor = courseData.instructor.map(function (instructor) {
                 if (instructor.indexOf("STAFF") !== -1) {
                     return {
@@ -261,6 +265,7 @@ course.factory('Course', ['$http', function ($http) {
                     return {
                         first_name: split_name[1].trim(),
                         last_name: split_name[0].trim(),
+                        staff: false,
                         rmp_id: undefined,
                         rmp_avg_rating: undefined,
                         rmp_num_rating: undefined
@@ -269,13 +274,6 @@ course.factory('Course', ['$http', function ($http) {
             });
             
             course.fetchRateMyProfessor();
-            
-            course.place = courseData.place;
-            course.req = courseData.req;
-            course.rstr = courseData.rstr;
-            course.status = courseData.status;
-            course.initialized = true;
-            course.fetchingRemoteData = false;
             
         };
         
