@@ -18,8 +18,7 @@ track.controller('CourseSearchModalController', ['$scope', 'Course', 'CourseStor
     
     $scope.replaceCourse = function (course) {
         course.isSubmitting = true;
-        var originalCourse = $scope.courseStore.getEquivalentCourse(course);
-        $scope.courseStore.replaceCourse(originalCourse.courseCode, course.courseCode).then($scope.$close);
+        $scope.courseStore.replaceCourse($scope.temporaryStore.course_code_for_replacement, course.courseCode).then($scope.$close);
     };
     
     // Clear temporary store regardless of result

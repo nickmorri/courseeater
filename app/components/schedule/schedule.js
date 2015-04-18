@@ -179,8 +179,7 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
     
     $scope.replaceCourse = function (course) {
         course.isSubmitting = true;
-        var originalCourse = $scope.courseStore.getEquivalentCourse(course);
-        $scope.courseStore.replaceCourse(originalCourse.courseCode, course.courseCode).then(function () {
+        $scope.courseStore.replaceCourse($scope.temporaryStore.course_code_for_replacement, course.courseCode).then(function () {
             return $scope.temporaryStore.clear();
         }).then(function () {
             $scope.$close()
