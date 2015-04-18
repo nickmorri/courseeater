@@ -34,14 +34,12 @@ list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', func
         var query = new Parse.Query("CourseList");
         query.equalTo("owner", AuthService.currentUser);
         return query.find().then(function (result) {
-            CourseListStore._collection = [];
-            var list;
-            for (var i = 0; i < result.length; i++) {
-                list = new CourseList(result[i]);
-                CourseListStore._collection.push(list);
-                
-                if (list.active) CourseListStore.activeList = list;
-            }
+            CourseListStore._collection = result.map(function (listData) {
+                var list = new CourseList(listData);
+                if (list.active) this.activeList = list;
+                return list;
+            }, CourseListStore);
+            
             CourseListStore.initialized = CourseListStore.activeList !== undefined;
         });
     };
@@ -85,8 +83,10 @@ list.controller('ListController', ['$scope', 'AuthService', 'CourseListStore', '
     $scope.courseListStore = CourseListStore;
     
     $scope.setActiveList = function (list) {
+        // Do nothing if current active list is selected
         if ($scope.courseListStore.activeList == list) return;
         
+        // Collapses user menu on mobile when list is set active
         if ($(".navbar-header .navbar-toggle").css("display") != "none") $(".navbar-header .navbar-toggle").trigger("click");
         $scope.courseListStore.setActiveList(list);
     };
@@ -185,12 +185,8 @@ list.controller('CourseListModalController', ['$scope', 'CourseListStore', '$mod
     $scope.deleteList = function () {
         $scope.isDeleting = true;
         $scope.courseListStore.deleteList($scope.list.id).then($scope.$close, function (error) {
-            if (error.message) {
-                AlertStore.addMessage(error.message);    
-            }
-            else {
-                AlertStore.addMessage("An error occured while deleting " + $scope.list.title + ". Please try again.");
-            }
+            if (error.message) AlertStore.addMessage(error.message);
+            else AlertStore.addMessage("An error occured while deleting " + $scope.list.title + ". Please try again.");
             $scope.$close();
         });
     };

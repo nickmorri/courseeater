@@ -1,5 +1,9 @@
 var alert = angular.module('courseeater.alert', []);
 
+alert.run(['AlertStore', function (AlertStore) {
+    AlertStore.retrieveAlerts();
+}]);
+
 alert.factory('AlertStore',['AuthService', function (AuthService) {
     var AlertStore = {};
     
@@ -7,8 +11,12 @@ alert.factory('AlertStore',['AuthService', function (AuthService) {
     
     AlertStore.currentUser = AuthService.currentUser;
     
+    AlertStore.size = function () {
+        return AlertStore.message.length;
+    };
+    
     AlertStore.hasMessages = function () {
-        return AlertStore.messages.length !== 0;    
+        return AlertStore.size() !== 0;    
     };
     
     AlertStore.addMessage = function (message, type, id) {
@@ -31,17 +39,15 @@ alert.factory('AlertStore',['AuthService', function (AuthService) {
     };
     
     AlertStore.retrieveAlerts = function () {
-        var query = new Parse.Query('Alert');
-        query.equalTo("user", AlertStore.currentUser);
-        query.equalTo("read", false);
-        query.find().then(function (messages) {
-            for (var i = 0; i < messages.length; i++) {
-                AlertStore.addMessage(messages[i].attributes.message, 'danger', messages[i].id);
-            }
-        });
+        var query = new Parse.Query('Alert')
+            .equalTo("user", AlertStore.currentUser)
+            .equalTo("read", false)
+            .find().then(function (messages) {
+                messages.forEach(function (message) {
+                    this.addMessage(message.attributes.message, 'danger', message.id);
+                }, AlertStore);
+            });
     };
-    
-    AlertStore.retrieveAlerts();
     
     return AlertStore;
     

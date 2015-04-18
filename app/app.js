@@ -118,28 +118,9 @@ courseeater_app.directive('userMenu', function () {
 courseeater_app.directive('title', ['$rootScope', '$timeout', function($rootScope, $timeout) {
     return {
         link: function() {
-
-            var listener = function(event, toState) {
-
-                $timeout(function() {
-                    $rootScope.title = (toState.data && toState.data.pageTitle) ? toState.data.pageTitle : 'Default title';
-                });
-            };
-
-            $rootScope.$on('$stateChangeSuccess', listener);
+            $rootScope.$on('$stateChangeSuccess', function(event, toState) {
+                $rootScope.title = (toState.data && toState.data.pageTitle) ? toState.data.pageTitle : 'Default title';
+            });
         }
     };
-}]);
-
-courseeater_app.directive("popoverHtmlUnsafePopup", function () {
-    return {
-        restrict: "EA",
-        replace: true,
-    	scope: { title: "@", content: "@", placement: "@", animation: "&", isOpen: "&" },
-        templateUrl: "app/directives/popover/popover-html-unsafe-popup.html"
-    };
-});
-
-courseeater_app.directive("popoverHtmlUnsafe", [ "$tooltip", function ($tooltip) {
-    return $tooltip("popoverHtmlUnsafe", "popover", "click");
 }]);
