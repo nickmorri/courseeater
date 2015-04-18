@@ -291,6 +291,9 @@ course.factory('TemporaryStore', ['Course', function (Course) {
     TemporaryStore.section_restricted = true;
     TemporaryStore.target_section = undefined;
     
+    // Course code of course being considered for replacement
+    TemporaryStore.course_code_for_replacement = undefined;
+    
     TemporaryStore.empty = function () {
         return TemporaryStore.size() === 0;
     };
@@ -304,11 +307,18 @@ course.factory('TemporaryStore', ['Course', function (Course) {
         TemporaryStore.events = [];
         TemporaryStore.section_restricted = true;
         TemporaryStore.target_section = undefined;
+        TemporaryStore.excluded_course_codes = [];
     };
         
     TemporaryStore.storeCourse = function (course) {
-        TemporaryStore.courses.push(course)
-        TemporaryStore.events = TemporaryStore.events.concat(course.makeEvent());
+        TemporaryStore.courses.push(course);
+        
+        // If section restriction is in effect we should only generate event objects for course which meet the restriction. 
+        // There may be a better way to do this if we have a self regulating event store.
+        if (TemporaryStore.section_restricted && course.sec.startsWith(TemporaryStore.target_section)) {
+            TemporaryStore.events = TemporaryStore.events.concat(course.makeEvent());    
+        }
+        
     };
     
     TemporaryStore.addCourse = function (course, replacement) {
@@ -320,31 +330,40 @@ course.factory('TemporaryStore', ['Course', function (Course) {
         });
     };
     
+    TemporaryStore.hasCourse = function (courseCode) {
+        return TemporaryStore.getCourse(courseCode) === undefined;
+    }
+    
     TemporaryStore.getCourse = function (courseCode) {
-        TemporaryStore.courses.find(function (course) {
-            return course.courseCode === courseCode;
+        return TemporaryStore.courses.find(function (course) {
+            return course.courseCode == this;
         }, courseCode);
     };
     
-    TemporaryStore.filterEvents = function (filter) {
+    TemporaryStore.filterCourses = function (filter) {
+        var target_courses;
         
+        // Set section to user desired section
         TemporaryStore.section_restricted = filter; 
             
-        TemporaryStore.events = [];
+        // Remove event objects from temporary store
+        TemporaryStore.events.clear();
         
-        if (TemporaryStore.section_restricted) {
-            TemporaryStore.courses.forEach(function (course) {
-                if (course.sec.indexOf(this.target_section) == 0) this.events = this.events.concat(course.makeEvent());
-            }, TemporaryStore);
-        } else {
-            TemporaryStore.events = TemporaryStore.courses.reduce(function (course) {
-                this.concat(course.makeEvent());
-            }, []);
-        }
+        // If filtering return courses whose section matches the target section, otherwise return all courses
+        target_courses = TemporaryStore.section_restricted ? TemporaryStore.courses.filter(function (course) {
+            return course.sec.startsWith(this);
+        }, TemporaryStore.target_section) : TemporaryStore.courses;
+        
+        // Generate event objects
+        TemporaryStore.events = target_courses.reduce(function (courses, course) {
+            return courses.concat(course.makeEvent());
+        }, []);
     };
     
     TemporaryStore.searchForCocourses = function (course, type, callback) {
         TemporaryStore.clear();
+        
+        // Get index 0 for courses with sec e.g. A1
         TemporaryStore.target_section = course.sec.charAt(0);
         return course.findCoCourses(type).then(function (response) {
             response.data[0].course_data.forEach(function (course) {
@@ -355,11 +374,19 @@ course.factory('TemporaryStore', ['Course', function (Course) {
     
     TemporaryStore.searchForReplacements = function (course, type, callback) {
         TemporaryStore.clear();
+        
+        // Add courseCode of course potentially being replaced
+        TemporaryStore.course_code_for_replacement = course.courseCode.toString();
+        
+        // Get index 0 for courses with sec e.g. A1
         TemporaryStore.target_section = course.sec.charAt(0);
+        
         return course.findReplacements().then(function (response) {
-            response.data[0].course_data.forEach(function (course) {
-                if (course.type == this) TemporaryStore.addCourse(course, true);
-            }, response.config.params.type);
+            response.data[0].course_data.filter(function (course) {
+                return course.type == this && TemporaryStore.course_code_for_replacement != course.courseCode.toString();
+            }, response.config.params.type).forEach(function (course) {
+                TemporaryStore.addCourse(course, true);
+            });
         });
     };
     
