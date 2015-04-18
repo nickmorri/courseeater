@@ -21,6 +21,10 @@
 .panel-DIS .panel-heading { background-color: #5BC0DE!important; }
 .panel-LAB .panel-heading { background-color: #f10f0f!important; }
 
+.mini-panel-title {
+    color: white;
+}
+
 .panel-label {
 	display: inline-block;
 	padding-top: 15px;
@@ -29,6 +33,7 @@
 	margin-bottom: -10px;
 	border-radius: 0px;
 }
+
 .label-default {
     background-color: rgba(119, 119, 119, 0.5);
 }

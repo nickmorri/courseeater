@@ -50,7 +50,9 @@
                         <span class="input-group-addon"><span class="glyphicon glyphicon-filter"></span></span>
                         <input type="text" class="form-control form-control-search-filter" placeholder="Filter..." ng-model="searchStore.filter">
                             <span class="input-group-btn">
-                                <button class="btn btn-default" type="button" ng-hide="searchStore.filter === undefined || searchStore.filter == ''" ng-click="searchStore.clearFilter()"><span class="glyphicon glyphicon-remove"></span></button>
+                                <button class="btn btn-default" type="button" ng-hide="searchStore.filter === undefined || searchStore.filter == ''" ng-click="searchStore.clearFilter()">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </button>
                             </span>
                     </div>
                 </div>
