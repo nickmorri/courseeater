@@ -38,38 +38,45 @@ course.factory('Course', ['$http', function ($http) {
         this.events = undefined;
         
         this.makeEvent = function () {
+            // If event objects have already been created
             if (this.events !== undefined) return this.events;
             
-            var calendarCourses, title, days, heldDays, time, start, end, event, i, endFront, endBack, startFront, startBack;
+            var title, start, end, end_front, end_back, start_front, start_back, days_held;
+            
+            // When course time is not available
             if (this.time == null) return [];
+            
             // Title processing
             title = this.identifier.toUpperCase() + " - " + this.type.toUpperCase();
-            // Day parsing
-            heldDays = [];
-            if (this.days.indexOf("Mon") > -1) heldDays.push(getWeekday(0));
-            if (this.days.indexOf("Tue") > -1) heldDays.push(getWeekday(1));
-            if (this.days.indexOf("Wed") > -1) heldDays.push(getWeekday(2));
-            if (this.days.indexOf("Thu") > -1) heldDays.push(getWeekday(3));
-            if (this.days.indexOf("Fri") > -1) heldDays.push(getWeekday(4));
+            
             // Time parsing
 
-            // Further breaking things down into 4 distinct parts.
-            startFront = parseInt(this.time.start.split(":")[0], 10);
-            startBack = this.time.start.split(":")[1].slice(0, 2);
-            endFront = parseInt(this.time.end.split(":")[0], 10);
-            endBack = this.time.end.split(":")[1].slice(0, 2);
+            // Course start time parts
+            start_front = parseInt(this.time.start.split(":")[0], 10);
+            start_back = this.time.start.split(":")[1].slice(0, 2);
             
-            if (this.time.am_pm == "PM" && endFront !== 12) endFront += 12;
-            if (this.time.start == "PM" && startFront !== 12) startFront += 12;
-            if (endFront > 12 && startFront !== 12) startFront += 12;
-            if (startFront < 10) startFront = "0" + startFront;
-            if (endFront < 10) endFront = "0" + endFront;
-            // Formatting these four parts for the FullCalendar library
-            start = "T" + startFront + ":" + startBack + ":00";
-            end = "T" + endFront + ":" + endBack + ":00";
+            // Course end time parts
+            end_front = parseInt(this.time.end.split(":")[0], 10);
+            end_back = this.time.end.split(":")[1].slice(0, 2);
+            
+            // Adjust to a 24 hour clock
+            if (this.time.am_pm == "PM" && end_front !== 12) end_front += 12;
+            if (this.time.start == "PM" && start_front !== 12) start_front += 12;
+            if (end_front > 12 && start_front !== 12) start_front += 12;
+            
+            // Formatting of time string
+            if (start_front < 10) start_front = "0" + start_front;
+            if (end_front < 10) end_front = "0" + end_front;
+            start = "T" + start_front + ":" + start_back + ":00";
+            end = "T" + end_front + ":" + end_back + ":00";
+            
+            // Day parsing
+            days_held = this.days.map(function (day, index) {
+                return getWeekday(this.indexOf(day));
+            }, ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
             
             // Event object creation
-            this.events = heldDays.map(function (day) {
+            this.events = days_held.map(function (day) {
                 return {
                     id: this.courseCode,
                     title: title,
