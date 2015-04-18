@@ -12,8 +12,7 @@ schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListS
     $scope.eventSource = [];
     
     $scope.courseClick = function (event, jsEvent, view) {
-        
-        var modalInstance = $modal.open({
+        $modal.open({
             templateUrl: 'app/components/schedule/directives/course-schedule-modal.html',
             controller: 'CourseScheduleModalController',
             resolve: {
@@ -22,7 +21,6 @@ schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListS
                 }
             }
         });
-        
     };
     
     $scope.uiConfig = {
@@ -92,6 +90,7 @@ schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListS
     });
     
     $scope.temporaryStore.clear();
+    
     if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
     
 }]);
@@ -198,8 +197,7 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
     };
     
     $scope.displaySearch = function (results, replacement) {
-        TemporaryStore.filterEvents(true);
-        
+        TemporaryStore.filterCourses(true);
         $scope.$close();
     };
     
