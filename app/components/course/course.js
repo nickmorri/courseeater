@@ -191,7 +191,7 @@ course.factory('Course', ['$http', function ($http) {
         
         this.fetchRateMyProfessor = function () {
             this.instructor.forEach(function (instructor) {
-                if (!instructor.staff) {
+                if (!instructor.staff && Object.keys(instructor).length > 0) {
                     $http({
                         url: 'php/ratemyprofessor.php',
                         method: 'GET',
@@ -252,8 +252,11 @@ course.factory('Course', ['$http', function ($http) {
             
             course.fetchingRemoteData = false;
             
+            
+            
             course.instructor = courseData.instructor.map(function (instructor) {
-                if (instructor.indexOf("STAFF") !== -1) {
+                if (instructor == "") return {};
+                else if (instructor.indexOf("STAFF") !== -1) {
                     return {
                         first_name: "STAFF",
                         last_name: "STAFF",
@@ -262,6 +265,7 @@ course.factory('Course', ['$http', function ($http) {
                 }
                 else {
                     var split_name = instructor.split(",");
+                    
                     return {
                         first_name: split_name[1].trim(),
                         last_name: split_name[0].trim(),
