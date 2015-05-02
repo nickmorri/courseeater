@@ -3,7 +3,7 @@ include_once('simple_html_dom.php');
 
 function scraping_websoc($courseCode) {
     
-    $url = 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=2015-14&ShowFinals=1&ShowComments=1&CourseCodes=' . $courseCode;
+    $url = 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=2015-92&ShowFinals=1&ShowComments=1&CourseCodes=' . $courseCode;
 
     $html = file_get_html($url);
     

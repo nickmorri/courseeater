@@ -5,7 +5,7 @@ course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStor
     $rootScope.courseStore = CourseStore;
     $rootScope.$watch('listStore.activeList', function (newValue, oldValue) {
         if (newValue !== undefined && newValue !== oldValue) {
-            $rootScope.courseStore.setCourseCodes(newValue.courseCodes, newValue.id);
+            $rootScope.courseStore.setCourseCodes(newValue.courseCodes, newValue);
         }
     });
 }]);
@@ -118,7 +118,7 @@ course.factory('Course', ['$http', function ($http) {
             if (this.finalEvent !== undefined) return this.finalEvent;
             
             var startingDay, finalString, title, heldDay, time, start, end, endFront, endBack, event;
-            startingDay = "2015-06-";
+            startingDay = "2015-12-";
             
             if (this.finalExam === undefined || this.finalExam.indexOf("TBA") !== -1) {
                 return undefined;
@@ -314,7 +314,7 @@ course.factory('TemporaryStore', ['Course', function (Course) {
 course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootScope) {
     var CourseStore = {};
     
-    CourseStore.listID = undefined;
+    CourseStore.list = undefined;
     CourseStore.courseCodes = undefined;
     
     CourseStore.initialized = false;
@@ -327,29 +327,32 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     // FullCalendar event colors
     CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
     
-    CourseStore.setCourseCodes = function (courseCodes, listID) {
-        if (listID !== this.listID) {
+    CourseStore.setCourseCodes = function (courseCodes, list) {
+        
+        if (list != CourseStore.list) {
             CourseStore.clear()
-            CourseStore.fetchCourses(courseCodes);
-            this.listID = listID;
+            CourseStore.list = list;
+            CourseStore.fetchCourses();
+            
         }
         
     };
     
-    CourseStore.fetchCourses = function (courseCodes) {
-        if (courseCodes) this.courseCodes = courseCodes;
+    CourseStore.fetchCourses = function () {
         
         CourseStore.clearSchedule();
-        for (var i = 0; i < CourseStore.courseCodes.length; i++) {
+        
+        CourseStore.list.courseCodes.forEach(function (courseCode) {
             var query = new Parse.Query("Course");
-            query.equalTo("courseCode", CourseStore.courseCodes[i]);
-            query.equalTo("term", "2015-14");
+            query.equalTo("courseCode", courseCode);
+            query.equalTo("term", this.list.term);
             
             // Ideally will be able to remove this if I can confirm duplicates are no longer being made.
             
             query.descending("updatedAt");
-            query.find().then(CourseStore.makeCourse);
-        }
+            query.find().then(this.makeCourse);
+        }, CourseStore);
+        
         CourseStore.initialized = true;
     };
     
@@ -439,7 +442,7 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
     
     CourseStore.clear = function () {
-        CourseStore.listID = undefined;
+        CourseStore.list = undefined;
         CourseStore.courseCodes = [];
         CourseStore.initialized = false;    
         CourseStore._collection = {};

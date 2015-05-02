@@ -29,20 +29,21 @@ list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', func
     CourseListStore.activeList = undefined;
     CourseListStore.initialized = false;
     
-    CourseListStore.available_terms = {"2015-14": "Spring 2015"};
+    CourseListStore.available_terms = {"2015-14": "Spring 2015", "2015-92": "Fall 2015"};
     
     CourseListStore.retrieveCourseLists = function () {
         var query = new Parse.Query("CourseList");
         query.equalTo("owner", AuthService.currentUser);
         return query.find().then(function (result) {
-            CourseListStore._collection = [];
-            var list;
-            for (var i = 0; i < result.length; i++) {
-                list = new CourseList(result[i]);
-                CourseListStore._collection.push(list);
-                
-                if (list.active) CourseListStore.activeList = list;
-            }
+            
+            CourseListStore._collection = result.map(function (list) {
+                return new CourseList(list);
+            });
+            
+            CourseListStore.activeList = CourseListStore._collection.find(function (list) {
+                return list.active;
+            });
+            
             CourseListStore.initialized = CourseListStore.activeList !== undefined;
         });
     };
@@ -158,12 +159,14 @@ list.controller('CourseListModalController', ['$scope', 'CourseListStore', '$mod
         $scope.list = list;
         $scope.list.shared = false;
     } else {
+        
         $scope.list = {
             title: undefined,
             newList: true,
-            term: "2015-14",
+            term: "2015-92",
             shared: false
         };
+        
     }
     $scope.createList = function () {
         $scope.isCreating = true;
