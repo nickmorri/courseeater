@@ -28,7 +28,7 @@ list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', func
     CourseListStore.activeList = undefined;
     CourseListStore.initialized = false;
     
-    CourseListStore.available_terms = {"2015-14": "Spring 2015"};
+    CourseListStore.available_terms = {"2015-92": "Fall 2015"};
     
     CourseListStore.retrieveCourseLists = function () {
         var query = new Parse.Query("CourseList");
@@ -160,7 +160,7 @@ list.controller('CourseListModalController', ['$scope', 'CourseListStore', '$mod
         $scope.list = {
             title: undefined,
             newList: true,
-            term: "2015-14",
+            term: "2015-92",
             shared: false
         };
     }

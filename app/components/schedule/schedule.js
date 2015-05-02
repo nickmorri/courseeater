@@ -106,7 +106,7 @@ schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'Course
         calendar: {
             header: "",
             defaultView: "agendaWeek",
-            defaultDate: "2015-06-08",
+            defaultDate: "2015-12-18",
             minTime: "08:00:00",
             maxTime: "22:00:00",
             weekends: false,

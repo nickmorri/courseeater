@@ -19,7 +19,7 @@ course.factory('Course', ['$http', function ($http) {
         this.courseCode = courseCode;
         
         // SHOULD ONLY BE A TEMPORARY FIX
-        this.term = "2015-14";
+        this.term = "2015-92";
         
         // Set to true on first retrieval of remote data
         this.initialized = false;
@@ -95,7 +95,7 @@ course.factory('Course', ['$http', function ($http) {
             var starting_day, final_string, title, day_held, time, start, end, end_front, end_back;
             
             // Static value that currently has to be manually changed each quarter..
-            starting_day = "2015-06-";
+            starting_day = "2015-12-";
             
             if (this.final == undefined || this.final.indexOf("TBA") !== -1) {
                 return undefined;
@@ -675,11 +675,11 @@ course.directive('courseActions', function () {
     }
 });
 
-course.directive('courseMiniActions', function () {
+course.directive('courseMiniActions', ['$http', function ($http) {
     return {
-        templateUrl: "app/components/course/directives/course-mini-actions.html"
+        templateUrl: "app/components/course/directives/course-mini-actions.html",
     }
-});
+}]);
 
 course.directive('courseSearch', function () {
     return {
