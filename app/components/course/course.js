@@ -118,7 +118,7 @@ course.factory('Course', ['$http', function ($http) {
             if (this.finalEvent !== undefined) return this.finalEvent;
             
             var startingDay, finalString, title, heldDay, time, start, end, endFront, endBack, event;
-            startingDay = "2015-06-";
+            startingDay = "2015-12-";
             
             if (this.finalExam === undefined || this.finalExam.indexOf("TBA") !== -1) {
                 return undefined;
@@ -343,7 +343,7 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
         for (var i = 0; i < CourseStore.courseCodes.length; i++) {
             var query = new Parse.Query("Course");
             query.equalTo("courseCode", CourseStore.courseCodes[i]);
-            query.equalTo("term", "2015-14");
+            query.equalTo("term", "2015-92");
             
             // Ideally will be able to remove this if I can confirm duplicates are no longer being made.
             
