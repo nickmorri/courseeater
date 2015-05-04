@@ -1,4 +1,4 @@
-var alert = angular.module('courseeater.alert', []);
+var alert = angular.module('courseeater.alert', ['courseeater.list']);
 
 alert.factory('AlertStore',['AuthService', function (AuthService) {
     var AlertStore = {};
@@ -9,14 +9,6 @@ alert.factory('AlertStore',['AuthService', function (AuthService) {
     
     AlertStore.hasMessages = function () {
         return AlertStore.messages.length !== 0;    
-    };
-    
-    AlertStore.addMessage = function (message, type, id) {
-        AlertStore.messages.push({
-            type: type,
-            message: message,
-            id: id
-        });
     };
     
     AlertStore.removeMessage = function (index) {
@@ -35,9 +27,14 @@ alert.factory('AlertStore',['AuthService', function (AuthService) {
         query.equalTo("user", AlertStore.currentUser);
         query.equalTo("read", false);
         query.find().then(function (messages) {
-            for (var i = 0; i < messages.length; i++) {
-                AlertStore.addMessage(messages[i].attributes.message, 'danger', messages[i].id);
-            }
+            AlertStore.messages = messages.map(function (message) {
+                return {
+                    type: 'danger',
+                    message: message.attributes.message,
+                    newTermNotification: message.attributes.newTermNotification,
+                    id: message.id
+                };
+            });
         });
     };
     
@@ -47,8 +44,22 @@ alert.factory('AlertStore',['AuthService', function (AuthService) {
     
 }]);
 
-alert.controller('AlertController', ['$scope', 'AlertStore', function ($scope, AlertStore) {
+alert.controller('AlertController', ['$scope', '$modal', 'AlertStore', 'CourseListStore', function ($scope, $modal, AlertStore, CourseListStore) {
     $scope.alertStore = AlertStore;
+    $scope.courseListStore = CourseListStore;
+    
+    
+    $scope.newCourseList = function (targetList) {
+        var modalInstance = $modal.open({
+            templateUrl: 'app/components/list/directives/course-list-modal.html',
+            controller: 'CourseListModalController',
+            resolve: {
+                list: function () {
+                    return targetList;
+                }
+            }
+        });
+    };
 }]);
 
 alert.directive('alertView', function () {

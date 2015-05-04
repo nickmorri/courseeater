@@ -1,8 +1,18 @@
 <div ng-controller="AlertController">
     <div ng-repeat="alert in alertStore.messages" class="alert alert-warning" role="alert">
-        <button type="button" class="close" ng-click="alertStore.removeMessage($index)">
-            <span>&times;</span>
+        
+        <div ng-if="alert.newTermNotification">
+            {{courseListStore.available_terms[alert.message]}} schedule available 
+            <a href class="alert-link" ng-click="newCourseList()">Create {{courseListStore.available_terms[alert.message]}} schedule</a>
+        </div>
+        
+        <div ng-if="!alert.newTermNotification">
+            {{alert.message}}
+        </div>
+        
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close" ng-click="alertStore.removeMessage($index)">
+            <span aria-hidden="true">&times;</span>
         </button>
-        {{alert.message}}
+        
     </div>
 </div>
