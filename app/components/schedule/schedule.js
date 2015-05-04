@@ -106,16 +106,35 @@ schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'Course
     
     $scope.eventSource = [];
     
+    $scope.courseClick = function (event, jsEvent, view) {
+        var course = $scope.courseStore.getCourse(event.id);
+        
+        if (course === undefined) course = $scope.temporaryStore.getCourse(event.id);
+        
+        var modalInstance = $modal.open({
+            templateUrl: 'app/components/schedule/directives/course-schedule-modal.html',
+            controller: 'CourseScheduleModalController',
+            resolve: {
+                course: function () {
+                    return course;
+                }
+            }
+        });
+        
+    };
+    
     $scope.uiConfig = {
         calendar: {
+            defaultDate: getWeekday(0),
             header: "",
             defaultView: "agendaWeek",
-            defaultDate: "2015-12-18",
             minTime: "08:00:00",
             maxTime: "22:00:00",
+            columnFormat: { week: "ddd" },
             weekends: false,
             allDaySlot: false,
-            contentHeight: 640
+            contentHeight: 640,
+            eventClick: $scope.courseClick
         }
     };
     

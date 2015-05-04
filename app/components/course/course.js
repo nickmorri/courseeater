@@ -4,15 +4,20 @@ course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStor
     $rootScope.listStore = CourseListStore;
     $rootScope.courseStore = CourseStore;
     $rootScope.$watch('listStore.activeList', function (newValue, oldValue) {
-        if (newValue !== undefined && newValue !== oldValue) {
-            $rootScope.courseStore.setCourseCodes(newValue.courseCodes, newValue);
+        if (oldValue === undefined && newValue === undefined) {
+            // Do nothing
+        }
+        else if (oldValue === undefined && newValue !== undefined) {
+            $rootScope.courseStore.setCourseCodes(newValue);
+        }
+        else if (!newValue.courseCodes.equals(oldValue.courseCodes)) {
+            $rootScope.courseStore.setCourseCodes(newValue);
         }
     });
 }]);
 
 course.factory('Course', ['$http', function ($http) {
     return function (data, color) {
-        
         var course = this;
         
         // Course relevant data
@@ -64,7 +69,7 @@ course.factory('Course', ['$http', function ($http) {
         this.makeEvent = function () {
             if (this.events !== undefined) return this.events;
             
-            var calendarCourses, title, days, heldDays, time, start, end, event, i, endFront, endBack, startFront, startBack;
+            var title, days, heldDays, time, start, end, event, i, endFront, endBack, startFront, startBack;
             if (this.time.indexOf("TBA") !== -1) return [];
             // Title processing
             title = this.courseIdentifier.toUpperCase() + " - " + this.type.toUpperCase();
@@ -97,43 +102,56 @@ course.factory('Course', ['$http', function ($http) {
             // Formatting these four parts for the FullCalendar library
             start = "T" + startFront + ":" + startBack + ":00";
             end = "T" + endFront + ":" + endBack + ":00";
-            calendarCourses = [];
+            
             // Event object creation
-            for (i = 0; i < heldDays.length; i++) {
-                event = {
+            this.events = heldDays.map(function (day) {
+                return {
                     id: this.courseCode,
                     title: title,
-                    start: heldDays[i] + start + "Z",
-                    end: heldDays[i] + end + "Z",
+                    start: day + start + "Z",
+                    end: day + end + "Z",
                     backgroundColor: this.color
-                };
-                calendarCourses.push(event);
-            }
+                }
+            }, this);
             
-            this.events = calendarCourses;
             return this.events;
         };
         
         this.makeFinal = function () {
             if (this.finalEvent !== undefined) return this.finalEvent;
             
-            var startingDay, finalString, title, heldDay, time, start, end, endFront, endBack, event;
-            startingDay = "2015-12-";
+            var finalString, title, heldDay, time, start, end, endFront, endBack;
             
-            if (this.finalExam === undefined || this.finalExam.indexOf("TBA") !== -1) {
-                return undefined;
-            }
-            else {
-                finalString = this.finalExam;
-            }
+            if (this.finalExam === undefined || this.finalExam.indexOf("TBA") !== -1) return undefined;
+            else finalString = this.finalExam;
             
             // Title processing
             title = this.courseIdentifier.toUpperCase() + " - " + this.type.toUpperCase();
             // Day processing
-            heldDay = startingDay + finalString.split(", ")[1].split(" ")[1];
             
-            if (heldDay.split("-")[2].length == 1) {
-                heldDay = [heldDay.slice(0, heldDay.length - 1), "0", heldDay.slice(heldDay.length - 1)].join('');
+            switch (finalString.split(",")[0]) {
+                case "Mon":
+                    heldDay = getWeekday(0);
+                    break;
+                
+                case "Tue":
+                    heldDay = getWeekday(1);
+                    break;
+                
+                case "Wed":
+                    heldDay = getWeekday(2);
+                    break;
+                
+                case "Thu":
+                    heldDay = getWeekday(3);
+                    break;
+                
+                case "Fri":
+                    heldDay = getWeekday(4);
+                    break;
+                
+                default:
+                    return undefined;
             }
             
             // Title processing
@@ -166,9 +184,8 @@ course.factory('Course', ['$http', function ($http) {
             start = "T" + start + ":" + time[0].split(", ")[2].split(":")[1] + ":00";
             end = "T" + endFront + ":" + endBack + ":00";
             
-            
             //Event object creation
-            event = {
+            this.finalEvent = {
                 id: this.courseCode,
                 title: title,
                 start: heldDay + start + "Z",
@@ -176,9 +193,6 @@ course.factory('Course', ['$http', function ($http) {
                 backgroundColor: color
             };
             
-            
-            
-            this.finalEvent = event;
             return this.finalEvent;
         };
         
@@ -327,14 +341,13 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     // FullCalendar event colors
     CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
     
-    CourseStore.setCourseCodes = function (courseCodes, list) {
+    CourseStore.setCourseCodes = function (list) {
         CourseStore.clear()
         CourseStore.list = list;
         CourseStore.fetchCourses();
     };
     
     CourseStore.fetchCourses = function () {
-        
         CourseStore.clearSchedule();
         
         CourseStore.list.courseCodes.forEach(function (courseCode) {
@@ -358,10 +371,9 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     
     CourseStore.getCourse = function (courseCode) {
         for (var className in CourseStore._collection) {
-            var classObj = CourseStore._collection[className];
-            for (var i = 0; i < classObj.courses.length; i++) {
-                if (classObj.courses[i].courseCode === courseCode) return classObj.courses[i]
-            }
+            return CourseStore._collection[className].courses.find(function (course) {
+                return course.courseCode === courseCode;
+            });
         }
         return undefined;
     };
@@ -398,26 +410,9 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
     
     CourseStore.putFinal = function (event) {
-        if (event !== undefined) {
-            
-            if (CourseStore.finals.length === 0) {
-                CourseStore.finals = CourseStore.finals.concat(event);
-            }
-            
-            else {
-                var existed = false;
-                for (var i = 0; i < CourseStore.finals.length; i++) {
-                    if (event.id === CourseStore.finals[i].id) {
-                        existed = true;
-                        break;
-                    }
-                }
-                if (!existed) {
-                    CourseStore.finals = CourseStore.finals.concat(event);
-                }
-            }
-            
-        }
+        if (event !== undefined && CourseStore.finals.every(function (finalEvent) {
+            return finalEvent.id !== event.id
+        })) CourseStore.finals = CourseStore.finals.concat(event);
     };
     
     CourseStore.makeCourse = function (course) {
