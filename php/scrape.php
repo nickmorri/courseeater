@@ -1,9 +1,9 @@
 <?php
 include_once('simple_html_dom.php');
 
-function scraping_websoc($courseCode) {
+function scraping_websoc($courseCode, $term) {
     
-    $url = 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=2015-92&ShowFinals=1&ShowComments=1&CourseCodes=' . $courseCode;
+    $url = 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=' . $term . '&ShowFinals=1&ShowComments=1&CourseCodes=' . $courseCode;
 
     $html = file_get_html($url);
     
@@ -32,6 +32,6 @@ function scraping_websoc($courseCode) {
 
 }
 
-echo scraping_websoc(trim($_REQUEST['course_code']))
+echo scraping_websoc(trim($_REQUEST['course_code']), trim($_REQUEST['term']))
 
 ?>

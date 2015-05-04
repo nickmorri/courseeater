@@ -188,7 +188,7 @@ course.factory('Course', ['$http', function ($http) {
             return $http({
                 url: 'php/scrape.php',
                 method: "GET",
-                params: {course_code: this.courseCode}
+                params: {course_code: this.courseCode, term: this.term}
             });
         };
         
@@ -328,14 +328,9 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
     
     CourseStore.setCourseCodes = function (courseCodes, list) {
-        
-        if (list != CourseStore.list) {
-            CourseStore.clear()
-            CourseStore.list = list;
-            CourseStore.fetchCourses();
-            
-        }
-        
+        CourseStore.clear()
+        CourseStore.list = list;
+        CourseStore.fetchCourses();
     };
     
     CourseStore.fetchCourses = function () {
@@ -447,15 +442,17 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
         
     CourseStore.addCourse = function (courseCode) {
-        return Parse.Cloud.run('addCourse', {courseCode : courseCode}).then(function (latestCourseCodes) {
-            CourseStore.fetchCourses(latestCourseCodes);
+        return Parse.Cloud.run('addCourseNew', {courseCode : courseCode}).then(function (list) {
+            CourseStore.list.courseCodes = list.attributes.courseCodes;
+            CourseStore.fetchCourses();
         });
     };
     
-    CourseStore.removeCourse = function (courseCode) {    
-        return Parse.Cloud.run('removeCourse', {courseCode : courseCode}).then(function (latestCourseCodes) {
+    CourseStore.removeCourse = function (courseCode) {
+        return Parse.Cloud.run('removeCourseNew', {courseCode : courseCode}).then(function (list) {
             CourseStore._removeCourseFromCollection(courseCode);
-            CourseStore.fetchCourses(latestCourseCodes);
+            CourseStore.list.courseCodes = list.attributes.courseCodes;
+            CourseStore.fetchCourses();
         });
     };
     
