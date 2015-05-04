@@ -346,9 +346,6 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
             var query = new Parse.Query("Course");
             query.equalTo("courseCode", courseCode);
             query.equalTo("term", this.list.term);
-            
-            // Ideally will be able to remove this if I can confirm duplicates are no longer being made.
-            
             query.descending("updatedAt");
             query.find().then(this.makeCourse);
         }, CourseStore);
