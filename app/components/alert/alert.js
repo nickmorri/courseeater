@@ -1,8 +1,4 @@
-var alert = angular.module('courseeater.alert', []);
-
-alert.run(['AlertStore', function (AlertStore) {
-    AlertStore.retrieveAlerts();
-}]);
+var alert = angular.module('courseeater.alert', ['courseeater.list']);
 
 alert.factory('AlertStore',['AuthService', function (AuthService) {
     var AlertStore = {};
@@ -11,12 +7,8 @@ alert.factory('AlertStore',['AuthService', function (AuthService) {
     
     AlertStore.currentUser = AuthService.currentUser;
     
-    AlertStore.size = function () {
-        return AlertStore.message.length;
-    };
-    
     AlertStore.hasMessages = function () {
-        return AlertStore.size() !== 0;    
+        return AlertStore.messages.length !== 0;    
     };
     
     AlertStore.addMessage = function (message, type, id) {
@@ -39,22 +31,43 @@ alert.factory('AlertStore',['AuthService', function (AuthService) {
     };
     
     AlertStore.retrieveAlerts = function () {
-        var query = new Parse.Query('Alert')
-            .equalTo("user", AlertStore.currentUser)
-            .equalTo("read", false)
-            .find().then(function (messages) {
-                messages.forEach(function (message) {
-                    this.addMessage(message.attributes.message, 'danger', message.id);
-                }, AlertStore);
+        var query = new Parse.Query('Alert');
+        query.equalTo("user", AlertStore.currentUser);
+        query.equalTo("read", false);
+        query.find().then(function (messages) {
+            AlertStore.messages = messages.map(function (message) {
+                return {
+                    type: 'danger',
+                    message: message.attributes.message,
+                    newTermNotification: message.attributes.newTermNotification,
+                    id: message.id
+                };
             });
+        });
     };
+    
+    AlertStore.retrieveAlerts();
     
     return AlertStore;
     
 }]);
 
-alert.controller('AlertController', ['$scope', 'AlertStore', function ($scope, AlertStore) {
+alert.controller('AlertController', ['$scope', '$modal', 'AlertStore', 'CourseListStore', function ($scope, $modal, AlertStore, CourseListStore) {
     $scope.alertStore = AlertStore;
+    $scope.courseListStore = CourseListStore;
+    
+    
+    $scope.newCourseList = function (targetList) {
+        var modalInstance = $modal.open({
+            templateUrl: 'app/components/list/directives/course-list-modal.html',
+            controller: 'CourseListModalController',
+            resolve: {
+                list: function () {
+                    return targetList;
+                }
+            }
+        });
+    };
 }]);
 
 alert.directive('alertView', function () {

@@ -8,7 +8,9 @@ error_reporting(-1);
 include_once('simple_html_dom.php');
 include_once('cache.php');
 
-$GLOBALS['term'] = '2015-14';
+$GLOBALS['term'] = '2015-92';
+
+/* HTML Processors */
 
 function process_days($days) {
     $processed_days = [];
@@ -252,12 +254,14 @@ function request_html($url) {
     return $html_base->load($str);
 };
 
+/* URL Constructors */
+
 function build_course_url($course_code) {
     return 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=' . $GLOBALS['term'] . '&ShowFinals=1&ShowComments=1&CourseCodes=' . urlencode($course_code);
 };
 
-function build_co_course_url($course_code, $type) {
-    return 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=' . $GLOBALS['term'] . '&ShowFinals=1&ShowComments=1&CoCourse=' . urlencode($course_code) . '&ClassType=' . urlencode($type);
+function build_co_course_url($department, $course_num, $class_type) {
+    return 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=' . $GLOBALS['term'] . '&ShowFinals=1&ShowComments=1&Dept=' . urlencode($department) . '&CourseNum=' . urlencode($course_num) . '&ClassType=' . urlencode($class_type);
 };
 
 function build_replacement_course_url($department, $course_num, $class_type) {
@@ -272,10 +276,6 @@ function build_ge_url($category) {
     return 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=' . $GLOBALS['term'] . '&ShowFinals=1&ShowComments=1&Breadth=' . urlencode($category);
 };
 
-function get_course_html($course_code) {
-    return request_html(build_course_url($course_code));
-};
-
 function get_co_course_html($course_code) {
     return request_html(build_co_course_url($course_code));
 };
@@ -286,6 +286,18 @@ function get_department_html($department) {
 
 function get_ge_html($category) {
     return request_html(build_ge_url($category));
+};
+
+/* Cache first request fallback fetch */
+
+function fetch_data($url) {
+    $data = get_data($url);
+    if (!$data) {
+        $html = request_html($url);
+        $data = process_html($html);
+        set_data($url, $data);
+    }
+    return $data;
 };
 
 function fetch_available_departments() {
@@ -338,22 +350,12 @@ function fetch_available_ge_categories() {
     
 };
 
-function fetch_data($url) {
-    $data = get_data($url);
-    if (!$data) {
-        $html = request_html($url);
-        $data = process_html($html);
-        set_data($url, $data);
-    }
-    return $data;
-};
-
 function fetch_course($course_code) {
     return fetch_data(build_course_url($course_code));
 };
 
-function fetch_co_courses($url) {
-    return fetch_data($url);
+function fetch_co_courses($department, $course_num, $class_type) {
+    return fetch_data(build_co_course_url($department, $course_num, $class_type));
 };
 
 function fetch_replacement_course($department, $course_num, $class_type) {
@@ -367,12 +369,14 @@ function fetch_department($department) {
 function fetch_ge_category($category) {
     return fetch_data(build_ge_url($category));
 };
-    
+
+/* Request handling */
+
 if ($_REQUEST['course_code']) {
     echo fetch_course(trim($_REQUEST['course_code']));
 }
-else if ($_REQUEST['course_code_cocourses']) {
-    echo fetch_co_courses(trim($_REQUEST['course_code_cocourses']), trim($_REQUEST['type']));
+else if ($_REQUEST['cocourses_course_num']) {
+    echo fetch_co_courses($_REQUEST['department'], trim($_REQUEST['cocourses_course_num']), trim($_REQUEST['type']));
 } 
 else if ($_REQUEST['replacement_course_num']) {
     echo fetch_replacement_course($_REQUEST['department'], $_REQUEST['replacement_course_num'], $_REQUEST['type']);

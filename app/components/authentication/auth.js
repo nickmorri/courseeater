@@ -5,9 +5,7 @@ authentication.factory('AuthService', ['$state', '$rootScope', '$window', functi
     
     authService.currentUser = Parse.User.current();
     
-    authService.loggedIn = function () {
-        return authService.currentUser !== null;
-    };
+    authService.loggedIn = authService.currentUser != null;
     
     authService.checkLogin = function (username, password) {
         return Parse.User.logIn(username, password);
@@ -54,6 +52,10 @@ authentication.factory('AuthService', ['$state', '$rootScope', '$window', functi
 
 authentication.controller('NavController', ['$scope', 'AuthService', function ($scope, AuthService) {
     $scope.authService = AuthService;
+    
+    $scope.login = function () {
+        debugger
+    };
 }]);
 
 authentication.controller('LoginController', ['$scope', 'AuthService', '$state', function ($scope, AuthService, $state) {

@@ -57,3 +57,13 @@
 .course-list-item-icon {
     padding-right: 5px;
 }
+.dropdown-control {
+    margin-top: -6px;
+    height: 50px;
+    border-radius: 0px;
+}
+.dropdown-submit {
+    margin-top: -20px;
+    margin-bottom: -10px;
+    border-radius: 0px;
+}

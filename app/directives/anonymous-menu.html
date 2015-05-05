@@ -1,0 +1,16 @@
+<li class="dropdown">
+	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+		<span class="glyphicon glyphicon-user"></span>
+		<span class="user-name-display">
+            Not logged in
+        </span>
+	</a>
+	<ul class="dropdown-menu">
+		<!-- <li><a href="https://docs.google.com/forms/d/1-V4m2t81fpaSa-PoAK8rL93PkM9xSgA7qyNWtSsSkPQ/viewform?usp=send_form" target="_blank"><span class="glyphicon glyphicon-flag"></span> Report Bug</a></li> -->
+        <form class="form-signin" ng-submit="authService.login(username, password)"> 
+            <input class="form-control form-control-username login-username dropdown-control" ng-model="username" type="text" placeholder="Username"> 
+            <input class="form-control form-control-password login-password dropdown-control" ng-model="password" type="password" placeholder="Password"><br>
+            <!-- <input type="submit" class="btn btn-lg btn-primary btn-block form-control-submit dropdown-submit" value="Login" /> -->
+        </form>
+	</ul>
+</li>

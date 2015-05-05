@@ -4,8 +4,12 @@ course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStor
     $rootScope.listStore = CourseListStore;
     $rootScope.courseStore = CourseStore;
     $rootScope.$watch('listStore.activeList', function (newList, oldList) {
-        if (newList !== undefined && newList !== oldList) {
-            $rootScope.courseStore.setCourseCodes(newList.courseCodes, newList.id);
+        if (newList === undefined) return;
+        if ($rootScope.courseStore.list === undefined) {
+            $rootScope.courseStore.setActiveList(newList);
+        }
+        if (oldList === undefined || !oldList.courseCodes.equals(newList.courseCodes)) {
+            $rootScope.courseStore.setActiveList(newList);
         }
     });
 }]);
@@ -95,7 +99,7 @@ course.factory('Course', ['$http', function ($http) {
             var starting_day, final_string, title, day_held, time, start, end, end_front, end_back;
             
             // Static value that currently has to be manually changed each quarter..
-            starting_day = "2015-12-";
+            starting_day = "2015-06-";
             
             if (this.final == undefined || this.final.indexOf("TBA") !== -1) {
                 return undefined;
@@ -164,11 +168,15 @@ course.factory('Course', ['$http', function ($http) {
         };
         
         this.findCoCourses = function (type) {
+            
+            var index = this.identifier.lastIndexOf(" ");
+            
             return $http({
                 url: 'php/search.php',
                 method: 'GET',
                 params: {
-                    course_code_cocourses: this.cocoursesURL,
+                    cocourses_course_num: this.identifier.substring(index).trim(),
+                    department: this.identifier.substring(0, index).trim(),
                     type: type
                 } 
             });
@@ -219,7 +227,10 @@ course.factory('Course', ['$http', function ($http) {
 
             var classData = response.data[0];
             
-            if (classData.course_data === undefined) debugger
+            if (classData.course_data === undefined || classData.course_data == "null") {
+                debugger
+                return undefined;
+            }
             
             var courseData = classData.course_data[0];
         
@@ -401,8 +412,7 @@ course.factory('TemporaryStore', ['Course', function (Course) {
 course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootScope) {
     var CourseStore = {};
     
-    CourseStore.listID = undefined;
-    CourseStore.courseCodes = undefined;
+    CourseStore.list = undefined;
     
     CourseStore.initialized = false;
     CourseStore.num_loading_courses = 0;
@@ -416,41 +426,31 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
     
     CourseStore.addCourse = function (courseCode) {
-        return Parse.Cloud.run('addCourse', {courseCode : courseCode}).then(function (latestCourseCodes) {
-            CourseStore.fetchCourses(latestCourseCodes);
-        });
+        return CourseStore.list.addCourse(courseCode).then(CourseStore.fetchCourses);
     };
     
     CourseStore.removeCourse = function (courseCode) {
-        return Parse.Cloud.run('removeCourse', {courseCode : courseCode}).then(function (latestCourseCodes) {
-            CourseStore.fetchCourses(latestCourseCodes);
-        });
+        return CourseStore.list.removeCourse(courseCode).then(CourseStore.fetchCourses);
     };
         
     CourseStore.replaceCourse = function (oldCourseCode, newCourseCode) {
-        return Parse.Cloud.run('removeCourse', {courseCode : oldCourseCode}).then(function () {
-            return Parse.Cloud.run('addCourse', {courseCode : newCourseCode}).then(function (latestCourseCodes) {
-                CourseStore.fetchCourses(latestCourseCodes);
-            });
+        return CourseStore.list.removeCourse(oldCourseCode).then(function () {
+            return CourseStore.list.addCourse(newCourseCode).then(CourseStore.fetchCourses);
         });
     };
     
-    CourseStore.setCourseCodes = function (courseCodes, listID) {
-        if (listID !== this.listID) {
-            CourseStore.clear()
-            CourseStore.fetchCourses(courseCodes);
-            this.listID = listID;
-        }
-        
+    CourseStore.setActiveList = function (list) {
+        CourseStore.clear()
+        CourseStore.list = list;
+        CourseStore.fetchCourses();
     };
     
-    CourseStore.fetchCourses = function (courseCodes) {
+    CourseStore.fetchCourses = function () {
         CourseStore.clearCourses();
         CourseStore.clearSchedule();
-        if (courseCodes) this.courseCodes = courseCodes;
-        this.courseCodes.forEach(function (courseCode) {
-            this.retrieveCourse(courseCode);
-        }, CourseStore);
+        if (CourseStore.list.courseCodes.length === 0) CourseStore.initialized = true;
+        else CourseStore.list.courseCodes.forEach(CourseStore.retrieveCourse);
+        
     };
     
     CourseStore.retrieveCourse = function (courseCode) {
@@ -472,19 +472,19 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
     
     CourseStore.hasCourse = function (courseCode) {
-        return CourseStore.getCourse(parseInt(courseCode)) !== undefined;
+        return CourseStore.getCourse(courseCode) != undefined;
     };
     
     CourseStore.getCourse = function (courseCode) {
         return CourseStore._collection.find(function (course) {
-            return course.courseCode === courseCode;
+            return course.courseCode == this;
         }, courseCode);
     };
     
     CourseStore.getEquivalentCourse = function (course) {
         return CourseStore._collection.find(function (course) {
-            return this.identifier == course.identifier
-        }, course);
+            return course.identifier == this;
+        }, course.identifier);
     };
     
     CourseStore.storeCourse = function (course) {
@@ -505,7 +505,6 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
     
     CourseStore.clearCourses = function () {
-        CourseStore.courseCodes = [];
         CourseStore._collection = [];
     };
     
@@ -516,7 +515,7 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
     
     CourseStore.clear = function () {
-        CourseStore.listID = undefined;
+        CourseStore.list = undefined;
         CourseStore.initialized = false;
         CourseStore.clearCourses();
         CourseStore.clearSchedule();

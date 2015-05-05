@@ -115,6 +115,14 @@ courseeater_app.directive('userMenu', function () {
     }
 });
 
+courseeater_app.directive('anonymousMenu', function () {
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'app/directives/anonymous-menu.html'
+    }
+});
+
 courseeater_app.directive('title', ['$rootScope', '$timeout', function($rootScope, $timeout) {
     return {
         link: function() {
