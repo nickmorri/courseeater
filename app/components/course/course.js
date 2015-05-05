@@ -438,16 +438,14 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
         
     CourseStore.addCourse = function (courseCode) {
         return Parse.Cloud.run('addCourseNew', {courseCode : courseCode}).then(function (list) {
-            CourseStore.list.courseCodes = list.attributes.courseCodes;
-            CourseStore.fetchCourses();
+            CourseStore.setCourseCodes(list.attributes)
         });
     };
     
     CourseStore.removeCourse = function (courseCode) {
         return Parse.Cloud.run('removeCourseNew', {courseCode : courseCode}).then(function (list) {
             CourseStore._removeCourseFromCollection(courseCode);
-            CourseStore.list.courseCodes = list.attributes.courseCodes;
-            CourseStore.fetchCourses();
+            CourseStore.setCourseCodes(list.attributes);
         });
     };
     
@@ -465,10 +463,10 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
         
     CourseStore.replaceCourse = function (oldCourseCode, newCourseCode) {
-        return Parse.Cloud.run('removeCourse', {courseCode : oldCourseCode}).then(function () {
-            return Parse.Cloud.run('addCourse', {courseCode : newCourseCode}).then(function (latestCourseCodes) {
+        return Parse.Cloud.run('removeCourseNew', {courseCode : oldCourseCode}).then(function () {
+            return Parse.Cloud.run('addCourseNew', {courseCode : newCourseCode}).then(function (list) {
                 CourseStore._removeCourseFromCollection(oldCourseCode);
-                CourseStore.fetchCourses(latestCourseCodes);
+                CourseStore.fetchCourses(list.attributes);
             });
         });
     };
