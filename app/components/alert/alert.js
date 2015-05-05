@@ -11,6 +11,14 @@ alert.factory('AlertStore',['AuthService', function (AuthService) {
         return AlertStore.messages.length !== 0;    
     };
     
+    AlertStore.addMessage = function (message, type, id) {
+        AlertStore.messages.push({
+            type: type,
+            message: message,
+            id: id
+        });
+    };
+    
     AlertStore.removeMessage = function (index) {
         var message = AlertStore.messages.splice(index, 1)[0];
         if (message.id !== undefined) {
