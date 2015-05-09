@@ -1,11 +1,16 @@
 <accordion-group class="class-search-item">
     <accordion-heading>
-        <div class="class-search-item-title">
-            {{class.identifier}} - {{class.name}} 
-            <span class="pull-right">
-                <span class="badge" ng-show="class.prerequisites != null">P</span>
-                <span class="badge">{{class.course_data.length}}</span>
-            </span>
+        <div class="class-search-item-title row">
+            <div class="col-xs-2">
+                {{class.identifier}}
+            </div>
+            <div class="col-xs-10">
+                {{class.name}}
+                <span class="pull-right">
+                    <span class="badge" ng-show="class.prerequisites != null" popover="Prerequisites" popover-trigger="mouseenter">P</span>
+                    <span class="badge">{{class.course_data.length}}</span>
+                </span>
+            </div>
         </div>
     </accordion-heading>
     <div class="row" ng-if="$parent.isOpen">

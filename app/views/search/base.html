@@ -11,63 +11,35 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 
-                <div class="btn-group">
-                    <label class="btn" ng-class="searchStore.search_type == 'department' ? 'btn-success' : 'btn-default'" ng-model="searchStore.search_type" btn-radio="'department'" uncheckable>Department</label>
-                    <label class="btn" ng-class="searchStore.search_type == 'GE' ? 'btn-success' : 'btn-default'" ng-model="searchStore.search_type" btn-radio="'GE'" uncheckable>GE</label>
-                    <div class="input-group" ng-hide="searchStore.search_type == ''">
-                        <div class="input-group-btn" ng-show="searchStore.search_type == 'department'">
-                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                                <span ng-show="searchStore.selected_department">
-                                    {{searchStore.selected_department}}
-                                </span>
-                                <span ng-hide="searchStore.selected_department">
-                                    Name
-                                </span>
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu scrollable-menu">
-                                <li role="presentation" ng-repeat="department in searchStore.departments">
-                                    <a role="menuitem" tabindex="-1" href ng-click="searchStore.set_department(department)">{{department}}</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="input-group-btn" ng-show="searchStore.search_type == 'GE'">
-                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                                <span ng-show="searchStore.selected_category">
-                                    {{searchStore.selected_category}}
-                                </span>
-                                <span ng-hide="searchStore.selected_category">
-                                    Category
-                                </span>
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu scrollable-menu">
-                                <li role="presentation" ng-repeat="category in searchStore.ge_categories">
-                                    <a role="menuitem" tabindex="-1" href ng-click="searchStore.set_category(category.value)">{{category.name}}</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <span class="input-group-addon"><span class="glyphicon glyphicon-filter"></span></span>
-                        <input type="text" class="form-control form-control-search-filter" placeholder="Filter..." ng-model="searchStore.filter">
-                            <span class="input-group-btn">
-                                <button class="btn btn-default" type="button" ng-hide="searchStore.filter === undefined || searchStore.filter == ''" ng-click="searchStore.clearFilter()">
-                                    <span class="glyphicon glyphicon-remove"></span>
-                                </button>
-                            </span>
-                    </div>
+                <div class="input-group">
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
+                    <input type="text" ng-model="searchStore.selected_type" typeahead="type as type.name for type in searchStore.available_types | filter:$viewValue | limitTo:8" class="form-control form-control-search-filter" placeholder="Search for department or GE category.." typeahead-on-select="searchStore.get_type($item, $model, $label)">
+                    <span class="input-group-btn" ng-show="searchStore.selected_type">
+                        <button class="btn btn-default" type="button" ng-click="searchStore.clearSelectedType()">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                    </span>
                 </div>
-                
                 
             </div>
             
-            <div class="panel-body" ng-hide="searchStore.retrieving_results == undefined">
+            <div class="panel-body" ng-show="searchStore.retrieving_results || searchStore.results">
+                
+                <div class="input-group" ng-show="searchStore.results">
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-filter"></span></span>
+                    <input type="text" class="form-control form-control-search-filter" placeholder="Filter by class name, instructor, etc..." ng-model="searchStore.filter">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-show="searchStore.filter" ng-click="searchStore.clearFilter()">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                    </span>
+                </div>
                 
                 <div class="spinner" ng-show="searchStore.retrieving_results"></div>
                 
                 <accordion close-others="false" ng-hide="searchStore.retrieving_results">
                     <class-search-item ng-repeat="class in searchStore.results | classProps:searchStore.filter"></class-search-item>
                 </accordion>
-
                 
             </div>
         </div>

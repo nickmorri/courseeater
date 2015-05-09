@@ -4,8 +4,8 @@
         <course-name></course-name>
     </li>
     <li class="list-group-item">
-        <span class="glyphicon glyphicon-user list-detail-glyphicon"></span> 
-        <course-instructor instructor="course.instructor"></course-instructor>
+        <span class="glyphicon glyphicon-user list-detail-glyphicon"></span>
+        <course-instructor ng-repeat="instructor in course.instructor" instructor="instructor"></course-instructor>
     </li>
     <li class="list-group-item">
         <span class="glyphicon glyphicon-flag list-detail-glyphicon"></span> 
