@@ -6,11 +6,11 @@
     <span class="progressbar-text">All {{course.max}} seats open</span>
 </progressbar>
 
-<progressbar animate="false" value="100" type="warning" ng-hide="course.wl <= 0 || course.fetchingRemoteData">
+<progressbar animate="false" value="100" type="warning" ng-show="course.wl != null && course.wl > 0 && course.fetchingRemoteData">
     <span class="progressbar-text">{{course.wl}} on waitlist</span>
 </progressbar>
 
-<progressbar animate="false" value="100" type="danger" ng-hide="course.fetchingRemoteData || course.wl > 0 || course.totalEnr != course.max">
+<progressbar animate="false" value="100" type="danger" ng-hide="course.fetchingRemoteData || course.totalEnr != course.max || course.max == 0">
     <span class="progressbar-text">All {{course.max}} seats taken</span>
 </progressbar>
 

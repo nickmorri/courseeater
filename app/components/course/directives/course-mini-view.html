@@ -8,9 +8,7 @@
         <div class="panel-body">
             <ul class="list-group">
                 <li class="list-group-item course-search-item-detail">
-                    <span ng-repeat="instructor in course.instructor">
-                        {{instructor}}<span ng-if="!$last">,</span>
-                    </span>
+                    <course-instructor ng-repeat="instructor in course.instructor" instructor="instructor"></course-instructor>
                 </li>
                 <li class="list-group-item course-search-item-detail">
                     <course-time time="course.time.clock"></course-time>

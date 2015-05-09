@@ -5,25 +5,18 @@ course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStor
     $rootScope.courseStore = CourseStore;
     $rootScope.$watch('listStore.activeList', function (newList, oldList) {
         if (newList === undefined) return;
-        if ($rootScope.courseStore.list === undefined) {
-            $rootScope.courseStore.setActiveList(newList);
-        }
-        if (oldList === undefined || !oldList.courseCodes.equals(newList.courseCodes)) {
-            $rootScope.courseStore.setActiveList(newList);
-        }
+        if (oldList === undefined || !oldList.courseCodes.equals(newList.courseCodes)) $rootScope.courseStore.setActiveList(newList);
     });
 }]);
 
 course.factory('Course', ['$http', function ($http) {
-    return function (courseCode, color) {
+    return function (courseCode, term, color) {
         
         var course = this;
         
         // Course relevant data
         this.courseCode = courseCode;
-        
-        // SHOULD ONLY BE A TEMPORARY FIX
-        this.term = "2015-92";
+        this.term = term;
         
         // Set to true on first retrieval of remote data
         this.initialized = false;
@@ -177,7 +170,8 @@ course.factory('Course', ['$http', function ($http) {
                 params: {
                     cocourses_course_num: this.identifier.substring(index).trim(),
                     department: this.identifier.substring(0, index).trim(),
-                    type: type
+                    type: type,
+                    term: this.term
                 } 
             });
         };
@@ -192,35 +186,10 @@ course.factory('Course', ['$http', function ($http) {
                 params: {
                     replacement_course_num: this.identifier.substring(index).trim(),
                     department: this.identifier.substring(0, index).trim(),
-                    type: this.type
+                    type: this.type,
+                    term: this.term
                 }
             });  
-        };
-        
-        this.fetchRateMyProfessor = function () {
-            this.instructor.forEach(function (instructor) {
-                if (!instructor.staff && Object.keys(instructor).length > 0) {
-                    $http({
-                        url: 'php/ratemyprofessor.php',
-                        method: 'GET',
-                        params: {last_name: instructor.last_name}
-                    }).then(function (response) {
-                        var potential_match = response.data.response.docs.find(function (potential) {
-                            return potential.teacherlastname_t.toUpperCase() == this.toUpperCase();
-                        }, response.config.params.last_name);
-                        
-                        if (potential_match !== undefined) {
-                            var instructor = course.instructor.find(function (instructor) {
-                                return instructor.last_name.toUpperCase() === this.teacherlastname_t.toUpperCase() && instructor.first_name[0].toUpperCase() === this.teacherfirstname_t[0].toUpperCase()
-                            }, potential_match);
-                            
-                            instructor.rmp_id = potential_match.pk_id;
-                            instructor.rmp_avg_rating = potential_match.averageratingscore_rf;
-                            instructor.rmp_num_rating = potential_match.total_number_of_ratings_i;
-                        }
-                    });
-                }
-            });
         };
         
         this.processLatestData = function (response) {
@@ -228,7 +197,6 @@ course.factory('Course', ['$http', function ($http) {
             var classData = response.data[0];
             
             if (classData.course_data === undefined || classData.course_data == "null") {
-                debugger
                 return undefined;
             }
             
@@ -263,32 +231,7 @@ course.factory('Course', ['$http', function ($http) {
             
             course.fetchingRemoteData = false;
             
-            
-            
-            course.instructor = courseData.instructor.map(function (instructor) {
-                if (instructor == "") return {};
-                else if (instructor.indexOf("STAFF") !== -1) {
-                    return {
-                        first_name: "STAFF",
-                        last_name: "STAFF",
-                        staff: true
-                    }
-                }
-                else {
-                    var split_name = instructor.split(",");
-                    
-                    return {
-                        first_name: split_name[1].trim(),
-                        last_name: split_name[0].trim(),
-                        staff: false,
-                        rmp_id: undefined,
-                        rmp_avg_rating: undefined,
-                        rmp_num_rating: undefined
-                    }
-                }
-            });
-            
-            course.fetchRateMyProfessor();
+            course.instructor = courseData.instructor;
             
         };
         
@@ -298,7 +241,7 @@ course.factory('Course', ['$http', function ($http) {
 }]);
 
 course.factory('TemporaryStore', ['Course', function (Course) {
-    var TemporaryStore = [];
+    var TemporaryStore = {};
     
     TemporaryStore.courses = [];
     TemporaryStore.events = [];
@@ -337,7 +280,7 @@ course.factory('TemporaryStore', ['Course', function (Course) {
     };
     
     TemporaryStore.addCourse = function (course, replacement) {
-        var request = new Course(course.courseCode, "black");
+        var request = new Course(course.courseCode, undefined, "black");
         request.response.then(function () {
             request.course.tracking = false;
             request.course.replacement = replacement;
@@ -380,10 +323,11 @@ course.factory('TemporaryStore', ['Course', function (Course) {
         
         // Get index 0 for courses with sec e.g. A1
         TemporaryStore.target_section = course.sec.charAt(0);
+        
         return course.findCoCourses(type).then(function (response) {
             response.data[0].course_data.forEach(function (course) {
-                if (course.type == this) TemporaryStore.addCourse(course, false);
-            }, response.config.params.type);
+                TemporaryStore.addCourse(course, false);
+            });
         })
     };
     
@@ -398,7 +342,7 @@ course.factory('TemporaryStore', ['Course', function (Course) {
         
         return course.findReplacements().then(function (response) {
             response.data[0].course_data.filter(function (course) {
-                return course.type == this && TemporaryStore.course_code_for_replacement != course.courseCode.toString();
+                return TemporaryStore.course_code_for_replacement != course.courseCode.toString();
             }, response.config.params.type).forEach(function (course) {
                 TemporaryStore.addCourse(course, true);
             });
@@ -446,8 +390,6 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
     
     CourseStore.fetchCourses = function () {
-        CourseStore.clearCourses();
-        CourseStore.clearSchedule();
         if (CourseStore.list.courseCodes.length === 0) CourseStore.initialized = true;
         else CourseStore.list.courseCodes.forEach(CourseStore.retrieveCourse);
         
@@ -455,7 +397,7 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     
     CourseStore.retrieveCourse = function (courseCode) {
         CourseStore.num_loading_courses++;
-        var request = new Course(courseCode);
+        var request = new Course(courseCode, CourseStore.list.term, undefined);
         request.response.then(function () {
             CourseStore.storeCourse(request.course);
             CourseStore.num_loading_courses--;
@@ -495,13 +437,11 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
     
     CourseStore.storeEvent = function (event) {
-        if (event === undefined) return false;
-        CourseStore.events = CourseStore.events.concat(event);
+        if (event !== undefined) CourseStore.events = CourseStore.events.concat(event);
     };
     
     CourseStore.storeFinal = function (event) {
-        if (event === undefined) return false;
-        CourseStore.finals = CourseStore.finals.concat(event);
+        if (event !== undefined) CourseStore.finals = CourseStore.finals.concat(event);
     };
     
     CourseStore.clearCourses = function () {
@@ -659,14 +599,51 @@ course.directive('courseName', function () {
     }
 });
 
-course.directive('courseInstructor', function () {
+course.directive('courseInstructor', ['$http', function ($http) {
     return {
         scope: {
             instructor: "="  
         },
-        templateUrl: 'app/components/course/directives/course-instructor.html'
+        templateUrl: 'app/components/course/directives/course-instructor.html',
+        link: function (scope, element, attributes) {
+            
+            var instructor_data = {};
+            
+            if (scope.instructor == "") return scope.instructor === undefined;
+            
+            else if (scope.instructor.indexOf("STAFF") !== -1) {                
+                instructor_data.first_name = "STAFF";
+                instructor_data.last_name = "STAFF";
+                instructor_data.staff = true;
+            }
+            else {
+                var split_name = scope.instructor.split(",");
+                instructor_data.first_name = split_name[1].trim();
+                instructor_data.last_name = split_name[0].trim();
+                instructor_data.staff = false;
+            }
+            
+            if (!instructor_data.staff && Object.keys(instructor_data).length > 0) {
+                $http({
+                    url: 'php/ratemyprofessor.php',
+                    method: 'GET',
+                    params: {last_name: instructor_data.last_name}
+                }).then(function (response) {
+                    var potential_match = response.data.response.docs.find(function (potential) {
+                        return potential.teacherlastname_t.toUpperCase() == this.toUpperCase();
+                    }, response.config.params.last_name);
+                    if (potential_match !== undefined) {
+                        instructor_data.rmp_id = potential_match.pk_id;
+                        instructor_data.rmp_avg_rating = potential_match.averageratingscore_rf;
+                        instructor_data.rmp_num_rating = potential_match.total_number_of_ratings_i;
+                    }
+                    scope.instructor = instructor_data;
+                });
+            }
+            scope.instructor = instructor_data;
+        }
     }
-});
+}]);
 
 course.directive('courseActions', function () {
     return {
@@ -674,11 +651,11 @@ course.directive('courseActions', function () {
     }
 });
 
-course.directive('courseMiniActions', ['$http', function ($http) {
+course.directive('courseMiniActions', function () {
     return {
         templateUrl: "app/components/course/directives/course-mini-actions.html",
     }
-}]);
+});
 
 course.directive('courseSearch', function () {
     return {

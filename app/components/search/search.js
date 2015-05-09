@@ -3,13 +3,15 @@ var search = angular.module('courseeater.search', ['courseeater.course', 'course
 search.factory('SearchStore', ['$http', function ($http) {
     var SearchStore = {};
     
-    SearchStore.ge_categories = [];
-    SearchStore.departments = [];
+    SearchStore.available_types = [];
     
-    SearchStore.search_type = "";
+    SearchStore.selected_type = "";
     
-    SearchStore.selected_department = undefined;
-    SearchStore.selected_category = undefined;
+    SearchStore.clearSelectedType = function () {
+        SearchStore.clearFilter();
+        SearchStore.selected_type = "";
+        SearchStore.results = undefined;
+    };
     
     SearchStore.retrieving_results = undefined;
     SearchStore.results = undefined;
@@ -26,7 +28,18 @@ search.factory('SearchStore', ['$http', function ($http) {
             method: "GET",
             params: {available_departments: "Any"}
         }).then(function (response) {
-            SearchStore.departments = response.data;
+            
+            // Remove 'ALL' from listing
+            response.data.splice(response.data.indexOf(" ALL"), 1);
+            
+            SearchStore.available_types = SearchStore.available_types.concat(response.data.map(function (department) {
+                return {
+                    name: department,
+                    value: department,
+                    type: 'department'
+                };
+            }));
+
         });
     };
     
@@ -36,18 +49,19 @@ search.factory('SearchStore', ['$http', function ($http) {
             method: "GET",
             params: {available_ge_categories: "Any"}
         }).then(function (response) {
-            SearchStore.ge_categories = response.data;
+            SearchStore.available_types = SearchStore.available_types.concat(response.data.map(function (category) {
+                return {
+                    name: category.name,
+                    value: category.value,
+                    type: 'category'
+                } 
+            }));
         });
     };
     
-    SearchStore.set_department = function (department) {
-        SearchStore.selected_department = department;
-        SearchStore.search_department(SearchStore.selected_department);
-    };
-    
-    SearchStore.set_category = function (category) {
-        SearchStore.selected_category = category;
-        SearchStore.search_ge_category(SearchStore.selected_category);
+    SearchStore.get_type = function ($item, $model, $label) {
+        if (SearchStore.selected_type.type == 'category') SearchStore.perform_search({category: SearchStore.selected_type.value});
+        else SearchStore.perform_search({department: SearchStore.selected_type.value});
     };
     
     SearchStore.perform_search = function (parameters) {
@@ -64,15 +78,6 @@ search.factory('SearchStore', ['$http', function ($http) {
             SearchStore.retrieving_results = false;
         });
     }; 
-    
-    SearchStore.search_department = function (department) {
-        SearchStore.perform_search({department: department});
-    };
-    
-    
-    SearchStore.search_ge_category = function (category) {
-        SearchStore.perform_search({category: category});
-    };
     
     SearchStore.retrieve_departments();
     SearchStore.retrieve_ge_categories();

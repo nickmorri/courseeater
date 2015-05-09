@@ -39,3 +39,6 @@ a:hover, a:visited, a:link, a:active {
 .btn-group-search-type {
     display: block;
 }
+.input-group-addon {
+    border-radius: 0px;
+}
