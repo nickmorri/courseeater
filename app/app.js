@@ -4,7 +4,7 @@ courseeater_app.config(['$locationProvider', '$stateProvider', '$urlRouterProvid
     
     $locationProvider.html5Mode(true);
     
-    $urlRouterProvider.otherwise('/login');
+    $urlRouterProvider.otherwise('/track');
     
     $stateProvider
     
@@ -71,25 +71,45 @@ courseeater_app.config(['$locationProvider', '$stateProvider', '$urlRouterProvid
         })
 }]);
 
+courseeater_app.run(function ($window, $rootScope) {
+    $rootScope.online = navigator.onLine;
+    
+    $window.addEventListener("offline", function () {
+        $rootScope.$apply(function() {
+            $rootScope.online = false;
+        });
+    }, false);
+    
+    $window.addEventListener("online", function () {
+        $rootScope.$apply(function() {
+            $rootScope.online = true;
+        });
+    }, false);
+    
+});
+
 courseeater_app.controller('HeadController', ['$scope', '$state', function ($scope, $state) {
     $scope.state = $state;
 }]);
 
-courseeater_app.controller('NavController',['$scope', '$timeout', '$state', 'AuthService', function ($scope, $timeout, $state, AuthService) {
+courseeater_app.controller('NavController',['$scope', '$state', 'AuthService', function ($scope, $timeout, $state, AuthService) {
     $scope.connected = navigator.onLine;
     $scope.authService = AuthService;
     $scope.state = $state;
+    
+    $scope.login = function (username, password) {
+        $scope.authService.login(username, password);
+    };
     
     $scope.isPage = function (page) {
         return $scope.state.is(page);
     };
     
-    $scope.checkConnection = function () {
-        $scope.connected = navigator.onLine;
-        $timeout($scope.checkConnection, 5000);    
+    $scope.checkConnection = function (status) {
+        $scope.connected = status;
     };
     
-    $timeout($scope.checkConnection, 5000);
+    $scope.$watch('online', $scope.checkConnection);
     
 }]);
 

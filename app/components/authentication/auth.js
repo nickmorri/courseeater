@@ -14,6 +14,8 @@ authentication.factory('AuthService', ['$state', '$rootScope', '$window', functi
     authService.login = function (username, password) {
         return Parse.User.logIn(username, password).then(function (response) {
             authService.currentUser = Parse.User.current();
+            authService.loggedIn = authService.currentUser != null;
+            $rootScope.$broadcast("login");
         }, function (error) {
             authService.currentUser = null;
         });
@@ -39,8 +41,9 @@ authentication.factory('AuthService', ['$state', '$rootScope', '$window', functi
     authService.logout = function () {
         Parse.User.logOut();
         authService.currentUser = null;
+        authService.loggedIn = authService.currentUser != null;
         $rootScope.$broadcast("logout");
-        $state.go('login.login');
+        // $state.go('login.login');
     };
     
     authService.refetchCurrentUser = function () {
@@ -61,7 +64,7 @@ authentication.controller('NavController', ['$scope', 'AuthService', function ($
 authentication.controller('LoginController', ['$scope', 'AuthService', '$state', function ($scope, AuthService, $state) {
     $scope.authService = AuthService;
     
-    if ($scope.authService.loggedIn()) $state.go('track');
+    if ($scope.authService.loggedIn) $state.go('track');
     
     $scope.error = false;
     $scope.username = undefined;

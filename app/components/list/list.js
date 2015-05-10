@@ -100,6 +100,12 @@ list.factory('ParseCourseListAdaptor', ['AuthService', function (AuthService) {
         return Parse.Cloud.run("changeActiveCourseList", {objectId : list.id});
     };
     
+    Store.upgradeCourseList = function (list) {
+        return Parse.Cloud.run('createCourseList', {title: list.title, shared: list.shared, term: list.term, courseCodes: list.courseCodes});
+    };
+    
+    Store.initialize = function () {};
+    
     Store.clear = function () {};
     
     return Store;
@@ -111,8 +117,12 @@ list.factory('LocalStorageCourseListAdaptor', ['$q', 'localStorageService', func
     // Public
     
     Store.initialize = function () {
-        localStorageService.set('courseLists', []);
-        Store.createNewList('Default', false, "2015-92");
+        
+        if (localStorageService.get('courseLists') === null) {
+            localStorageService.set('courseLists', []);
+            Store.createNewList('Default', false, "2015-92");    
+        }
+        
     };
     
     Store.retrieveCourseLists = function () {
@@ -198,10 +208,8 @@ list.factory('LocalStorageCourseListAdaptor', ['$q', 'localStorageService', func
     };
     
     Store.clear = function () {
-        Store.localStorage.remove('courseLists');
+        localStorageService.remove('courseLists');
     };
-    
-    if (localStorageService.length() === 0 || localStorageService.get('courseLists') === null) Store.initialize();
     
     return Store;
 }]);
@@ -218,13 +226,15 @@ list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', 'Par
     
     CourseListStore.available_terms = {"2015-14": "Spring 2015", "2015-92": "Fall 2015"};
     
-    // If a Parse User object is logged in we should retrieve their CourseLists
-    // Otherwise we should check localStorage to see if we have any local CourseLists available
-    CourseListStore.adaptor = AuthService.loggedIn ? ParseAdaptor : LocalAdaptor;
+    CourseListStore.setAdaptor = function () {
+        // If a Parse User object is logged in we should retrieve their CourseLists
+        // Otherwise we should check localStorage to see if we have any local CourseLists available
+        CourseListStore.adaptor = AuthService.loggedIn ? ParseAdaptor : LocalAdaptor;   
+        CourseListStore.adaptor.initialize(); 
+    };
     
     CourseListStore.retrieveCourseLists = function () {
         return CourseListStore.adaptor.retrieveCourseLists().then(function (result) {
-            
             CourseListStore._collection = result.map(function (list) {
                 return new CourseList(list);
             });
@@ -253,7 +263,11 @@ list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', 'Par
         CourseListStore.adaptor.setActiveList(list).then(CourseListStore.retrieveCourseLists);
     };
     
-    CourseListStore.transferLocalToParse = function () {};
+    CourseListStore.transferLocalToParse = function () {
+        return Parse.Promise.when(CourseListStore._collection.filter(function (list) {
+            return list.courseCodes.length > 0;
+        }).map(ParseAdaptor.upgradeCourseList));
+    };
     
     CourseListStore.clear = function () {
         CourseListStore.adaptor.clear();
@@ -262,8 +276,27 @@ list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', 'Par
         CourseListStore.initialized = false;
     };
     
-    // Listen for logout event and clear data store on event
-    $rootScope.$on('logout', CourseListStore.clear);
+    CourseListStore.handleLogin = function () {
+        CourseListStore.transferLocalToParse().then(function (response) {
+            CourseListStore.clear();
+            CourseListStore.setAdaptor();
+            CourseListStore.retrieveCourseLists();    
+        });
+    };
+    
+    CourseListStore.handleLogout = function () {
+        CourseListStore.clear();
+        CourseListStore.setAdaptor();
+        CourseListStore.retrieveCourseLists();
+    };
+    
+    // Listen for and handle logout event
+    $rootScope.$on('logout', CourseListStore.handleLogout);
+    
+    // Listen for and handle login event
+    $rootScope.$on('login', CourseListStore.handleLogin);
+    
+    CourseListStore.setAdaptor();
     
     return CourseListStore;
     

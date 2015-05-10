@@ -4,8 +4,12 @@ course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStor
     $rootScope.listStore = CourseListStore;
     $rootScope.courseStore = CourseStore;
     $rootScope.$watch('listStore.activeList', function (newList, oldList) {
-        if (newList === undefined) return;
+        if (newList !== undefined) $rootScope.courseStore.setActiveList(newList);
+        /*
+if (newList === undefined) return;
+        if ($rootScope.courseStore.list === undefined) $rootScope.courseStore.setActiveList(newList);
         if (oldList === undefined || !oldList.courseCodes.equals(newList.courseCodes)) $rootScope.courseStore.setActiveList(newList);
+*/
     });
 }]);
 

@@ -1,16 +1,45 @@
-<li class="dropdown">
+<li class="dropdown dropdown-large">
 	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 		<span class="glyphicon glyphicon-user"></span>
 		<span class="user-name-display">
             Not logged in
         </span>
 	</a>
-	<ul class="dropdown-menu">
-		<!-- <li><a href="https://docs.google.com/forms/d/1-V4m2t81fpaSa-PoAK8rL93PkM9xSgA7qyNWtSsSkPQ/viewform?usp=send_form" target="_blank"><span class="glyphicon glyphicon-flag"></span> Report Bug</a></li> -->
-        <form class="form-signin" ng-submit="authService.login(username, password)"> 
-            <input class="form-control form-control-username login-username dropdown-control" ng-model="username" type="text" placeholder="Username"> 
-            <input class="form-control form-control-password login-password dropdown-control" ng-model="password" type="password" placeholder="Password"><br>
-            <!-- <input type="submit" class="btn btn-lg btn-primary btn-block form-control-submit dropdown-submit" value="Login" /> -->
-        </form>
+	<ul class="dropdown-menu dropdown-menu-large row">
+		<li class="col-sm-6">
+			<ul>
+				<li class="dropdown-header">Already have an account?</li>
+				<li class="divider"></li>
+				
+                <form class="form-signin form-user-management" ng-submit="login(username, password)" autocomplete="on">
+            		<input type="text" class="form-control form-control-username login-username" placeholder="Username" ng-model="username" required autofocus />
+            		<input type="password" class="form-control form-control-password login-password" placeholder="Password" ng-model="password" required />
+            		<input type="submit" class="btn btn-lg btn-primary btn-block form-control-submit" value="Login" />
+            		<div class="alert alert-danger alert-login" ng-show="error">
+                		<strong>Whoops!</strong> Either your username or password were incorrect. Please try again or <a href ui-sref="login.reset" class="alert-link">try resetting your password.</a>
+                	</div>
+                	<div class="alert alert-warning alert-login" ng-show="passwordResetGenerated">
+                		<strong>Reset successful.</strong> Please check your email.
+                	</div>    	
+                </form>
+                
+			</ul>
+		</li>
+		<li class="col-sm-6">
+			<ul>
+				<li class="dropdown-header">New to CourseEater?</li>
+				<li class="divider"></li>
+				<button type="button" class="btn btn-lg btn-primary btn-block btn-login-state" ui-sref="login.registration">
+                    Register
+                </button>
+			</ul>
+		</li>
+		<li class="col-sm-6">
+		    <ul>
+    		    <li class="dropdown-header">Found a bug?</li>
+				<li class="divider"></li>
+				<li><a href="https://docs.google.com/forms/d/1-V4m2t81fpaSa-PoAK8rL93PkM9xSgA7qyNWtSsSkPQ/viewform?usp=send_form" target="_blank"><span class="glyphicon glyphicon-flag"></span> Report Bug</a></li>
+		    </ul>
+		</li>
 	</ul>
 </li>
