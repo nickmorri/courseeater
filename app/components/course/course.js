@@ -4,16 +4,13 @@ course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStor
     $rootScope.listStore = CourseListStore;
     $rootScope.courseStore = CourseStore;
     $rootScope.$watch('listStore.activeList', function (newList, oldList) {
-        if (newList !== undefined) $rootScope.courseStore.setActiveList(newList);
-        /*
-if (newList === undefined) return;
+        if (newList === undefined) return;
         if ($rootScope.courseStore.list === undefined) $rootScope.courseStore.setActiveList(newList);
-        if (oldList === undefined || !oldList.courseCodes.equals(newList.courseCodes)) $rootScope.courseStore.setActiveList(newList);
-*/
+        if (oldList !== undefined && !oldList.courseCodes.equals(newList.courseCodes)) $rootScope.courseStore.setActiveList(newList);
     });
 }]);
 
-course.factory('Course', ['$http', function ($http) {
+course.factory('Course', ['$http', '$q', function ($http, $q) {
     return function (courseCode, term, color) {
         
         var course = this;
@@ -162,6 +159,7 @@ course.factory('Course', ['$http', function ($http) {
                 method: "GET",
                 params: {course_code: this.courseCode}
             });
+            
         };
         
         this.findCoCourses = function (type) {
@@ -197,7 +195,7 @@ course.factory('Course', ['$http', function ($http) {
         };
         
         this.processLatestData = function (response) {
-
+            
             var classData = response.data[0];
             
             if (classData.course_data === undefined || classData.course_data == "null") {
@@ -237,9 +235,17 @@ course.factory('Course', ['$http', function ($http) {
             
             course.instructor = courseData.instructor;
             
+            return $q(function (resolve, reject) {
+                resolve(); 
+            });
+            
         };
         
-        return {response: this.getLatestCourseData().then(this.processLatestData), course: this};
+        var request = this.getLatestCourseData();
+        
+        request.then(this.processLatestData);
+        
+        return {response: request, course: this};
         
     };
 }]);
@@ -273,6 +279,9 @@ course.factory('TemporaryStore', ['Course', function (Course) {
     };
         
     TemporaryStore.storeCourse = function (course) {
+        
+        debugger
+        
         TemporaryStore.courses.push(course);
         
         // If section restriction is in effect we should only generate event objects for course which meet the restriction. 
@@ -285,6 +294,7 @@ course.factory('TemporaryStore', ['Course', function (Course) {
     
     TemporaryStore.addCourse = function (course, replacement) {
         var request = new Course(course.courseCode, undefined, "black");
+        
         request.response.then(function () {
             request.course.tracking = false;
             request.course.replacement = replacement;
@@ -388,7 +398,7 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
     
     CourseStore.setActiveList = function (list) {
-        CourseStore.clear()
+        CourseStore.initialized = false;
         CourseStore.list = list;
         CourseStore.fetchCourses();
     };
