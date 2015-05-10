@@ -390,6 +390,8 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     };
     
     CourseStore.fetchCourses = function () {
+        CourseStore.clearCourses();
+        CourseStore.clearSchedule();
         if (CourseStore.list.courseCodes.length === 0) CourseStore.initialized = true;
         else CourseStore.list.courseCodes.forEach(CourseStore.retrieveCourse);
         
@@ -503,7 +505,7 @@ course.factory('ButtonConfiguration', function () {
             buttonInitialIcon: 'glyphicon glyphicon-plus',
             buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
             buttonSuccessIcon: 'glyphicon glyphicon-ok',
-            animationCompleteTime: '200'
+            animationCompleteTime: '0'
         },
         removeOptions: {
             buttonDefaultText: 'Remove',
@@ -516,7 +518,7 @@ course.factory('ButtonConfiguration', function () {
             buttonInitialIcon: 'glyphicon glyphicon-minus',
             buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
             buttonSuccessIcon: 'glyphicon glyphicon-ok',
-            animationCompleteTime: '200'
+            animationCompleteTime: '0'
         },
         replaceOptions: {
             buttonDefaultText: 'Replace',
