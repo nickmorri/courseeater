@@ -384,7 +384,7 @@ list.controller('CourseListModalController', ['$scope', 'CourseListStore', '$mod
         $scope.list = {
             title: undefined,
             newList: true,
-            term: "2015-14",
+            term: "2015-92",
             shared: false
         };
     }

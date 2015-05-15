@@ -35,7 +35,7 @@ function request_html($url) {
 };
 
 function build_professor_url($last_name) {
-    return 'http://search.mtvnservices.com/typeahead/suggest/?solrformat=true&rows=10&q=' . $last_name . '+AND+schoolid_s%3A' . $GLOBALS['school_id'] . '&defType=edismax&qf=teacherfullname_t%5E1000+autosuggest&bf=pow(total_number_of_ratings_i%2C2.1)&sort=total_number_of_ratings_i+desc&siteName=rmp&rows=20&start=0&fl=pk_id+teacherfirstname_t+teacherlastname_t+total_number_of_ratings_i+averageratingscore_rf+schoolid_s';
+    return 'http://search.mtvnservices.com/typeahead/suggest/?solrformat=true&rows=10&q=' . urlencode($last_name) . '+AND+schoolid_s%3A' . $GLOBALS['school_id'] . '&defType=edismax&qf=teacherfullname_t%5E1000+autosuggest&bf=pow(total_number_of_ratings_i%2C2.1)&sort=total_number_of_ratings_i+desc&siteName=rmp&rows=20&start=0&fl=pk_id+teacherfirstname_t+teacherlastname_t+total_number_of_ratings_i+averageratingscore_rf+schoolid_s';
 };
     
 if (trim($_REQUEST['last_name'])) {

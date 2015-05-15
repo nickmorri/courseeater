@@ -256,8 +256,8 @@ function request_html($url) {
 
 /* URL Constructors */
 
-function build_course_url($course_code) {
-    return 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=' . $GLOBALS['term'] . '&ShowFinals=1&ShowComments=1&CourseCodes=' . urlencode($course_code);
+function build_course_url($course_code, $term) {
+    return 'http://websoc.reg.uci.edu/perl/WebSoc?YearTerm=' . urlencode($term) . '&ShowFinals=1&ShowComments=1&CourseCodes=' . urlencode($course_code);
 };
 
 function build_co_course_url($department, $course_num, $class_type, $term) {
@@ -350,8 +350,8 @@ function fetch_available_ge_categories() {
     
 };
 
-function fetch_course($course_code) {
-    return fetch_data(build_course_url($course_code));
+function fetch_course($course_code, $term) {
+    return fetch_data(build_course_url($course_code, $term));
 };
 
 function fetch_co_courses($department, $course_num, $class_type, $term) {
@@ -373,7 +373,7 @@ function fetch_ge_category($category) {
 /* Request handling */
 
 if ($_REQUEST['course_code']) {
-    echo fetch_course(trim($_REQUEST['course_code']));
+    echo fetch_course(trim($_REQUEST['course_code']), trim($_REQUEST['term']));
 }
 else if ($_REQUEST['cocourses_course_num']) {
     echo fetch_co_courses($_REQUEST['department'], trim($_REQUEST['cocourses_course_num']), trim($_REQUEST['type']), trim($_REQUEST['term']));

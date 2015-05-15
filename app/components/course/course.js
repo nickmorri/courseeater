@@ -31,6 +31,9 @@ course.factory('Course', ['$http', '$q', function ($http, $q) {
         this.isSubmitting = null;
         this.result = null;
         
+        // Asyncronous variable
+        this.deferred = $q.defer();
+        
         // FullSchedule Calendar configuration
         this.color = color;
         this.events = undefined;
@@ -154,10 +157,53 @@ course.factory('Course', ['$http', '$q', function ($http, $q) {
         this.getLatestCourseData = function () {
             this.fetchingRemoteData = true;
             
+            var course = this;
+            
             return $http({
                 url: 'php/search.php',
                 method: "GET",
-                params: {course_code: this.courseCode}
+                params: {course_code: this.courseCode, term: this.term}
+            }).then(function (response) {
+                var classData = response.data[0];
+            
+                if (classData.course_data === undefined || classData.course_data == "null") {
+                    return undefined;
+                }
+                
+                var courseData = classData.course_data[0];
+            
+                course.name = classData.name;
+                course.identifier = classData.identifier;
+                
+                course.cocoursesURL = classData.cocourses;
+                course.prerequistesURL = classData.prerequisites;
+                course.comments = classData.comments;
+                
+                course.type = courseData.type;
+                course.sec = courseData.sec;
+                
+                course.placeURL = courseData.placeURL;
+                course.place = courseData.place;
+                
+                course.days = courseData.time.days;
+                course.time = courseData.time.clock;
+                
+                course.localEnr = courseData.localEnr;
+                course.totalEnr = courseData.totalEnr;
+                course.max = courseData.max;
+                course.wl = courseData.wl;
+                course.final = courseData.final;
+                
+                course.req = courseData.req;
+                course.rstr = courseData.rstr;
+                course.status = courseData.status;
+                course.initialized = true;
+                
+                course.fetchingRemoteData = false;
+                
+                course.instructor = courseData.instructor;
+                
+                course.deferred.resolve(course);
             });
             
         };
@@ -194,63 +240,14 @@ course.factory('Course', ['$http', '$q', function ($http, $q) {
             });  
         };
         
-        this.processLatestData = function (response) {
-            
-            var classData = response.data[0];
-            
-            if (classData.course_data === undefined || classData.course_data == "null") {
-                return undefined;
-            }
-            
-            var courseData = classData.course_data[0];
+        this.getLatestCourseData();
         
-            course.name = classData.name;
-            course.identifier = classData.identifier;
-            
-            course.cocoursesURL = classData.cocourses;
-            course.prerequistesURL = classData.prerequisites;
-            course.comments = classData.comments;
-            
-            course.type = courseData.type;
-            course.sec = courseData.sec;
-            
-            course.placeURL = courseData.placeURL;
-            course.place = courseData.place;
-            
-            course.days = courseData.time.days;
-            course.time = courseData.time.clock;
-            
-            course.localEnr = courseData.localEnr;
-            course.totalEnr = courseData.totalEnr;
-            course.max = courseData.max;
-            course.wl = courseData.wl;
-            course.final = courseData.final;
-            
-            course.req = courseData.req;
-            course.rstr = courseData.rstr;
-            course.status = courseData.status;
-            course.initialized = true;
-            
-            course.fetchingRemoteData = false;
-            
-            course.instructor = courseData.instructor;
-            
-            return $q(function (resolve, reject) {
-                resolve(); 
-            });
-            
-        };
-        
-        var request = this.getLatestCourseData();
-        
-        request.then(this.processLatestData);
-        
-        return {response: request, course: this};
+        return this;
         
     };
 }]);
 
-course.factory('TemporaryStore', ['Course', function (Course) {
+course.factory('TemporaryStore', ['Course', 'CourseListStore', function (Course, CourseListStore) {
     var TemporaryStore = {};
     
     TemporaryStore.courses = [];
@@ -279,9 +276,7 @@ course.factory('TemporaryStore', ['Course', function (Course) {
     };
         
     TemporaryStore.storeCourse = function (course) {
-        
-        debugger
-        
+                
         TemporaryStore.courses.push(course);
         
         // If section restriction is in effect we should only generate event objects for course which meet the restriction. 
@@ -293,12 +288,14 @@ course.factory('TemporaryStore', ['Course', function (Course) {
     };
     
     TemporaryStore.addCourse = function (course, replacement) {
-        var request = new Course(course.courseCode, undefined, "black");
         
-        request.response.then(function () {
-            request.course.tracking = false;
-            request.course.replacement = replacement;
-            TemporaryStore.storeCourse(request.course);
+        var course = new Course(course.courseCode, course.term, "black");
+        
+        course.deferred.promise.then(function (fetched_course) {
+        
+            fetched_course.tracking = false;
+            fetched_course.replacement = replacement;
+            TemporaryStore.storeCourse(fetched_course);
         });
     };
     
@@ -340,8 +337,9 @@ course.factory('TemporaryStore', ['Course', function (Course) {
         
         return course.findCoCourses(type).then(function (response) {
             response.data[0].course_data.forEach(function (course) {
+                course.term = this.term;
                 TemporaryStore.addCourse(course, false);
-            });
+            }, response.config.params);
         })
     };
     
@@ -358,8 +356,9 @@ course.factory('TemporaryStore', ['Course', function (Course) {
             response.data[0].course_data.filter(function (course) {
                 return TemporaryStore.course_code_for_replacement != course.courseCode.toString();
             }, response.config.params.type).forEach(function (course) {
+                course.term = this.term;
                 TemporaryStore.addCourse(course, true);
-            });
+            }, response.config.params);
         });
     };
     
@@ -413,9 +412,10 @@ course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSc
     
     CourseStore.retrieveCourse = function (courseCode) {
         CourseStore.num_loading_courses++;
-        var request = new Course(courseCode, CourseStore.list.term, undefined);
-        request.response.then(function () {
-            CourseStore.storeCourse(request.course);
+        var course = new Course(courseCode, CourseStore.list.term, undefined);
+        
+        course.deferred.promise.then(function (fetched_course) {
+            CourseStore.storeCourse(fetched_course);
             CourseStore.num_loading_courses--;
             CourseStore.initialized = CourseStore.num_loading_courses == 0;
         });
