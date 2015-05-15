@@ -27,7 +27,7 @@ authentication.factory('AuthService', ['$state', '$rootScope', '$window', functi
         user.set("email", email);
         user.set("password", password);
 
-        return user.signUp({importCourseCodes: courseCodes}).then(function (response) {
+        return user.signUp({newImportCourseCodes: courseCodes}).then(function (response) {
             authService.currentUser = Parse.User.current();
             authService.loggedIn = authService.currentUser != null;
             $rootScope.$broadcast("login");
@@ -103,6 +103,8 @@ authentication.directive('loginPartial', ['AuthService', function (AuthService) 
                     $scope.username = undefined;
                     $scope.password = undefined;
                     $scope.error = false;
+                    // Collapses user menu on mobile when list is set active
+                    if ($(".navbar-header .navbar-toggle").css("display") != "none") $(".navbar-header .navbar-toggle").trigger("click");
                 }).fail(function (error) {
                     $scope.error = true;
                 });
@@ -190,9 +192,11 @@ authentication.directive('registrationPartial', ['AuthService', '$http', functio
                             if (courseCodes.indexOf(courseCode) == -1) courseCodes.push(courseCode);
                         }
                         
-                        $scope.authService.register($scope.username, $scope.email, $scope.password, courseCodes).then(function (status) {
+                        $scope.authService.register($scope.username, $scope.email, $scope.password, {title: $scope.antplanner_username, courseCodes: courseCodes}).then(function (status) {
                             $scope.setInitialState();
                             $scope.result = "success";
+                            // Collapses user menu on mobile when list is set active
+                            if ($(".navbar-header .navbar-toggle").css("display") != "none") $(".navbar-header .navbar-toggle").trigger("click");
                         }, function (error) {
                             $scope.result = "error";
                             $scope.error = true;
@@ -204,6 +208,8 @@ authentication.directive('registrationPartial', ['AuthService', '$http', functio
                     $scope.authService.register($scope.username, $scope.email, $scope.password, courseCodes).then(function (status) {
                         $scope.setInitialState();
                         $scope.result = "success";
+                        // Collapses user menu on mobile when list is set active
+                        if ($(".navbar-header .navbar-toggle").css("display") != "none") $(".navbar-header .navbar-toggle").trigger("click");
                     }, function (error) {
                         $scope.result = "error";
                         $scope.error = true;
