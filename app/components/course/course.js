@@ -5,8 +5,9 @@ course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStor
     $rootScope.courseStore = CourseStore;
     $rootScope.$watch('listStore.activeList', function (newList, oldList) {
         if (newList === undefined) return;
-        if ($rootScope.courseStore.list === undefined) $rootScope.courseStore.setActiveList(newList);
-        if (oldList !== undefined && !oldList.courseCodes.equals(newList.courseCodes)) $rootScope.courseStore.setActiveList(newList);
+        else if ($rootScope.courseStore.list === undefined) $rootScope.courseStore.setActiveList(newList);
+        else if (oldList !== undefined && !oldList.courseCodes.equals(newList.courseCodes)) $rootScope.courseStore.setActiveList(newList);
+        else if (oldList === undefined && newList !== undefined) $rootScope.courseStore.setActiveList(newList);
     });
 }]);
 

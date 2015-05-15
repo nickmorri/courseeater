@@ -6,39 +6,29 @@
         </span>
 	</a>
 	<ul class="dropdown-menu dropdown-menu-large row">
-		<li class="col-sm-6">
-			<ul>
-				<li class="dropdown-header">Already have an account?</li>
-				<li class="divider"></li>
-				
-                <form class="form-signin form-user-management" ng-submit="login(username, password)" autocomplete="on">
-            		<input type="text" class="form-control form-control-username login-username" placeholder="Username" ng-model="username" required autofocus />
-            		<input type="password" class="form-control form-control-password login-password" placeholder="Password" ng-model="password" required />
-            		<input type="submit" class="btn btn-lg btn-primary btn-block form-control-submit" value="Login" />
-            		<div class="alert alert-danger alert-login" ng-show="error">
-                		<strong>Whoops!</strong> Either your username or password were incorrect. Please try again or <a href ui-sref="login.reset" class="alert-link">try resetting your password.</a>
-                	</div>
-                	<div class="alert alert-warning alert-login" ng-show="passwordResetGenerated">
-                		<strong>Reset successful.</strong> Please check your email.
-                	</div>    	
-                </form>
-                
-			</ul>
-		</li>
-		<li class="col-sm-6">
-			<ul>
-				<li class="dropdown-header">New to CourseEater?</li>
-				<li class="divider"></li>
-				<button type="button" class="btn btn-lg btn-primary btn-block btn-login-state" ui-sref="login.registration">
+	    <li class="col-sm-6" ng-switch="menu_shown">
+	        <ul ng-switch-when="login"><login-partial></login-partial></ul>
+            <ul ng-switch-when="register"><registration-partial></registration-partial></ul>
+        </li>
+        <li class="col-sm-6">
+            <ul ng-switch="menu_shown">
+                <li class="dropdown-header" ng-switch-when='login'>New to CourseEater?</li>
+                <li class="dropdown-header" ng-switch-when='register'>Already have an account?</li>
+            </ul>
+            <button type="button" class="btn btn-lg btn-primary btn-block form-control-submit" ng-click="toggle_menu($event)">
+                <span ng-if="menu_shown == 'login'">
                     Register
-                </button>
-			</ul>
-		</li>
+                </span>
+                <span ng-if="menu_shown == 'register'">
+                    Login
+                </span>
+            </button>
+        </li>
 		<li class="col-sm-6">
 		    <ul>
     		    <li class="dropdown-header">Found a bug?</li>
 				<li class="divider"></li>
-				<li><a href="https://docs.google.com/forms/d/1-V4m2t81fpaSa-PoAK8rL93PkM9xSgA7qyNWtSsSkPQ/viewform?usp=send_form" target="_blank"><span class="glyphicon glyphicon-flag"></span> Report Bug</a></li>
+				<li><a class="btn btn-lg btn-warning btn-block form-control-submit" role="button" href="https://docs.google.com/forms/d/1-V4m2t81fpaSa-PoAK8rL93PkM9xSgA7qyNWtSsSkPQ/viewform?usp=send_form" target="_blank"><span class="glyphicon glyphicon-flag"></span> Report Bug</a></li>
 		    </ul>
 		</li>
 	</ul>

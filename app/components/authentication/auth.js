@@ -61,113 +61,6 @@ authentication.controller('NavController', ['$scope', 'AuthService', function ($
     };
 }]);
 
-authentication.controller('LoginController', ['$scope', 'AuthService', '$state', function ($scope, AuthService, $state) {
-    $scope.authService = AuthService;
-    
-    if ($scope.authService.loggedIn) $state.go('track');
-    
-    $scope.error = false;
-    $scope.username = undefined;
-    $scope.password = undefined;
-
-    $scope.login = function () {
-        $scope.authService.login($scope.username, $scope.password).then(function (status) {
-            $state.go('track');
-            $scope.error = false;
-        }).fail(function (error) {
-            $scope.error = true;
-        });
-    };
-
-}]);
-
-authentication.controller('RegistrationController', ['$scope', 'AuthService', '$state', '$http', function ($scope, AuthService, $state, $http) {
-    $scope.authService = AuthService;
-    
-    $scope.error = false;
-    $scope.username = undefined;
-    $scope.email = undefined;
-    $scope.password = undefined;
-    $scope.verify_password = undefined;
-    $scope.antplanner_username = undefined;
-    
-    $scope.isRegistering = null;
-    $scope.result = null;
-    
-    $scope.error_message = "Something went wrong. Please try registering again.";
-    
-    $scope.registerButtonConfig = {
-        buttonDefaultText: 'Register',
-        buttonSubmittingText: 'Registering',
-        buttonErrorText: 'Whoops',
-        buttonSuccessText: 'Registered',
-        buttonDefaultClass: 'btn-primary',
-        buttonSuccessClass: 'btn-success',
-        buttonSizeClass: 'form-control',
-        buttonInitialIcon: 'glyphicon glyphicon-user',
-        buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
-        buttonSuccessIcon: 'glyphicon glyphicon-ok'
-    };
-    
-    $scope.importAntplannerAccount = function (username) {
-        return $http({
-            url: 'php/antplanner.php',
-            method: "GET",
-            params: {username: username}
-        });
-    };
-    
-    $scope.register = function () {
-        $scope.result = null;
-        $scope.error = false;
-        $scope.isRegistering = true;
-        
-        if ($scope.password != $scope.verify_password) {
-            $scope.result = "error";
-            $scope.error = true;
-            $scope.error_message = "Password and verification password did not match please try again."
-            return;
-        }
-        
-        var courseCodes = [];
-        
-        if ($scope.antplanner_username) {
-            $scope.importAntplannerAccount($scope.antplanner_username).then(function(response) {
-                
-                if (!response.data.success) {
-                    $scope.result = "error";
-                    $scope.error = true;
-                    $scope.error_message = "The Antplanner username entered was not retrieved. Please try again.";
-                }
-                
-                var data = JSON.parse(response.data.data);
-                for (var i = 0; i < data.length; i++) {
-                    if (courseCodes.indexOf(parseInt(data[i].groupId, 10)) == -1) {
-                        courseCodes.push(parseInt(data[i].groupId, 10));
-                    }
-                }
-                $scope.authService.register($scope.username, $scope.email, $scope.password, courseCodes).then(function (status) {
-                    $state.go('track');
-                }, function (error) {
-                    $scope.result = "error";
-                    $scope.error = true;
-                    $scope.error_message = "Something went wrong. Please try registering again.";
-                });
-            });
-        }
-        else {
-            $scope.authService.register($scope.username, $scope.email, $scope.password, courseCodes).then(function (status) {
-                $state.go('track');
-            }, function (error) {
-                $scope.result = "error";
-                $scope.error = true;
-                $scope.error_message = "Something went wrong. Please try registering again.";
-            });    
-        }
-    };
-    
-}]);
-
 authentication.controller('ResetController', ['$scope', 'AuthService', function ($scope, AuthService) {
     $scope.authService = AuthService;
     
@@ -186,4 +79,144 @@ authentication.controller('ResetController', ['$scope', 'AuthService', function 
     };
     
 }]);
+
+authentication.directive('userMenu', function () {
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'app/directives/user-menu.html'
+    }
+});
+
+authentication.directive('anonymousMenu', function () {
+    return {
+        scope: {},
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'app/directives/anonymous-menu.html',
+        link: function ($scope, element, attributes) {
+            $scope.menu_shown = "login";
+            
+            $scope.toggle_menu = function ($event) {
+                $event.preventDefault();
+                $event.stopPropagation();
+                $scope.menu_shown = $scope.menu_shown != "login" ?  "login" : "register"
+            };
+        }
+    }
+});
+
+authentication.directive('loginPartial', ['AuthService', function (AuthService) {
+    return {
+        scope: {},
+        templateUrl: 'app/partials/login-partial.html',
+        controller: ['$scope', 'AuthService', function ($scope, AuthService) {
+            $scope.authService = AuthService;
     
+            $scope.error = false;
+            $scope.username = undefined;
+            $scope.password = undefined;
+        
+            $scope.login = function () {
+                $scope.authService.login($scope.username, $scope.password).then(function (status) {
+                    $scope.error = false;
+                }).fail(function (error) {
+                    $scope.error = true;
+                });
+            };
+            
+        }]
+    };
+}]);
+
+authentication.directive('registrationPartial', ['AuthService', function (AuthService) {
+    return {
+        scope: {},
+        templateUrl: 'app/partials/registration-partial.html',
+        controller: ['$scope', 'AuthService', function ($scope, AuthService) {
+            $scope.authService = AuthService;
+    
+            $scope.error = false;
+            $scope.username = undefined;
+            $scope.email = undefined;
+            $scope.password = undefined;
+            $scope.verify_password = undefined;
+            $scope.antplanner_username = undefined;
+            
+            $scope.isRegistering = null;
+            $scope.result = null;
+            
+            $scope.error_message = "Something went wrong. Please try registering again.";
+            
+            $scope.registerButtonConfig = {
+                buttonDefaultText: 'Register',
+                buttonSubmittingText: 'Registering',
+                buttonErrorText: 'Whoops',
+                buttonSuccessText: 'Registered',
+                buttonDefaultClass: 'btn-primary',
+                buttonSuccessClass: 'btn-success',
+                buttonSizeClass: 'form-control',
+                buttonInitialIcon: 'glyphicon glyphicon-user',
+                buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
+                buttonSuccessIcon: 'glyphicon glyphicon-ok'
+            };
+            
+            $scope.importAntplannerAccount = function (username) {
+                return $http({
+                    url: 'php/antplanner.php',
+                    method: "GET",
+                    params: {username: username}
+                });
+            };
+            
+            $scope.register = function () {
+                $scope.result = null;
+                $scope.error = false;
+                $scope.isRegistering = true;
+                
+                if ($scope.password != $scope.verify_password) {
+                    $scope.result = "error";
+                    $scope.error = true;
+                    $scope.error_message = "Password and verification password did not match please try again."
+                    return;
+                }
+                
+                var courseCodes = [];
+                
+                if ($scope.antplanner_username) {
+                    $scope.importAntplannerAccount($scope.antplanner_username).then(function(response) {
+                        
+                        if (!response.data.success) {
+                            $scope.result = "error";
+                            $scope.error = true;
+                            $scope.error_message = "The Antplanner username entered was not retrieved. Please try again.";
+                        }
+                        
+                        var data = JSON.parse(response.data.data);
+                        for (var i = 0; i < data.length; i++) {
+                            if (courseCodes.indexOf(parseInt(data[i].groupId, 10)) == -1) {
+                                courseCodes.push(parseInt(data[i].groupId, 10));
+                            }
+                        }
+                        $scope.authService.register($scope.username, $scope.email, $scope.password, courseCodes).then(function (status) {
+                            
+                        }, function (error) {
+                            $scope.result = "error";
+                            $scope.error = true;
+                            $scope.error_message = "Something went wrong. Please try registering again.";
+                        });
+                    });
+                }
+                else {
+                    $scope.authService.register($scope.username, $scope.email, $scope.password, courseCodes).then(function (status) {
+                        
+                    }, function (error) {
+                        $scope.result = "error";
+                        $scope.error = true;
+                        $scope.error_message = "Something went wrong. Please try registering again.";
+                    });    
+                }
+            };
+        }]
+    }
+}]);
