@@ -1,0 +1,25 @@
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h3 class="panel-title">Delete account permanently</h3>
+	</div>
+	<form class="panel-body" ng-submit="deleteAccount()"> 
+	
+	    <div class="alert alert-success" role="alert" ng-show="success">
+    		{{message}}
+		</div>
+		
+		<div class="alert alert-danger" role="alert" ng-show="error">
+    		{{message}}
+		</div>
+	
+		<div id="deleteAccount" class="form-horizontal">
+			<div class="form-group">
+				<label for="password_delete_account" class="col-sm-2 control-label">Current password</label>
+				<div class="col-sm-10">
+					<input type="password" class="form-control update-info" ng-model="deletePassword" placeholder="Current password" />
+				</div>
+			</div>
+			<input type="submit" id="btn-delete" class="btn btn-lg btn-primary btn-block" value="Delete account" />
+		</div>
+	</form>
+</div>

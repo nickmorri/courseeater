@@ -1,14 +1,16 @@
 <li class="dropdown-header">Already have an account?</li>
 <li class="divider"></li>
 
-<form class="form-signin form-user-management" ng-submit="login()" autocomplete="on">
+<form class="form-signin form-user-management" ng-submit="login($event)" autocomplete="on" ng-show="!resettingPassword">
+
 	<input type="text" class="form-control form-control-username login-username" placeholder="Username" ng-model="username" required autofocus />
 	<input type="password" class="form-control form-control-password login-password" placeholder="Password" ng-model="password" required />
 	<input type="submit" class="btn btn-lg btn-primary btn-block form-control-submit" value="Login" />
+	
 	<div class="alert alert-danger alert-login" ng-show="error">
-		<strong>Whoops!</strong> Either your username or password were incorrect. Please try again or <a href ui-sref="login.reset" class="alert-link">try resetting your password.</a>
+		<strong>Whoops!</strong> Either your username or password were incorrect. Please try again or <a href ng-click="doReset($event)" class="alert-link">try resetting your password.</a>
 	</div>
-	<div class="alert alert-warning alert-login" ng-show="passwordResetGenerated">
-		<strong>Reset successful.</strong> Please check your email.
-	</div>    	
+
 </form>
+
+<password-reset-partial ng-if="resettingPassword"></password-reset-partial>

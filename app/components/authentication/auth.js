@@ -29,8 +29,11 @@ authentication.factory('AuthService', ['$state', '$rootScope', '$window', functi
 
         return user.signUp({importCourseCodes: courseCodes}).then(function (response) {
             authService.currentUser = Parse.User.current();
+            authService.loggedIn = authService.currentUser != null;
+            $rootScope.$broadcast("login");
         }, function (error) {
             authService.currentUser = null;
+            return error;
         });
     };
     
@@ -43,7 +46,6 @@ authentication.factory('AuthService', ['$state', '$rootScope', '$window', functi
         authService.currentUser = null;
         authService.loggedIn = authService.currentUser != null;
         $rootScope.$broadcast("logout");
-        // $state.go('login.login');
     };
     
     authService.refetchCurrentUser = function () {
@@ -55,36 +57,13 @@ authentication.factory('AuthService', ['$state', '$rootScope', '$window', functi
 
 authentication.controller('NavController', ['$scope', 'AuthService', function ($scope, AuthService) {
     $scope.authService = AuthService;
-    
-    $scope.login = function () {
-        debugger
-    };
-}]);
-
-authentication.controller('ResetController', ['$scope', 'AuthService', function ($scope, AuthService) {
-    $scope.authService = AuthService;
-    
-    $scope.error = false;
-    $scope.email = undefined;
-    $scope.passwordResetGenerated = false;
-    
-    $scope.resetPassword = function () {
-        $scope.authService.resetPassword($scope.email).then(function () {
-            $scope.passwordResetGenerated = true;
-            $scope.error = false;
-        }, function (error) {
-            $scope.passwordResetGenerated = false;
-            $scope.error = true;
-        });
-    };
-    
 }]);
 
 authentication.directive('userMenu', function () {
     return {
         restrict: 'E',
         replace: true,
-        templateUrl: 'app/directives/user-menu.html'
+        templateUrl: 'app/partials/user-menu.html'
     }
 });
 
@@ -93,7 +72,7 @@ authentication.directive('anonymousMenu', function () {
         scope: {},
         restrict: 'E',
         replace: true,
-        templateUrl: 'app/directives/anonymous-menu.html',
+        templateUrl: 'app/partials/anonymous-menu.html',
         link: function ($scope, element, attributes) {
             $scope.menu_shown = "login";
             
@@ -116,37 +95,49 @@ authentication.directive('loginPartial', ['AuthService', function (AuthService) 
             $scope.error = false;
             $scope.username = undefined;
             $scope.password = undefined;
+            
+            $scope.resettingPassword = false;
         
-            $scope.login = function () {
+            $scope.login = function ($event) {
                 $scope.authService.login($scope.username, $scope.password).then(function (status) {
+                    $scope.username = undefined;
+                    $scope.password = undefined;
                     $scope.error = false;
                 }).fail(function (error) {
                     $scope.error = true;
                 });
             };
             
+            $scope.doReset = function ($event) {
+                $event.preventDefault();
+                $event.stopPropagation();
+                $scope.resettingPassword = true;
+            };
+            
         }]
     };
 }]);
 
-authentication.directive('registrationPartial', ['AuthService', function (AuthService) {
+authentication.directive('registrationPartial', ['AuthService', '$http', function (AuthService, $http) {
     return {
         scope: {},
         templateUrl: 'app/partials/registration-partial.html',
-        controller: ['$scope', 'AuthService', function ($scope, AuthService) {
+        controller: ['$scope', 'AuthService', '$http', function ($scope, AuthService, $http) {
             $scope.authService = AuthService;
     
-            $scope.error = false;
-            $scope.username = undefined;
-            $scope.email = undefined;
-            $scope.password = undefined;
-            $scope.verify_password = undefined;
-            $scope.antplanner_username = undefined;
-            
-            $scope.isRegistering = null;
-            $scope.result = null;
-            
-            $scope.error_message = "Something went wrong. Please try registering again.";
+            $scope.setInitialState = function () {
+                $scope.error = false;
+                $scope.username = undefined;
+                $scope.email = undefined;
+                $scope.password = undefined;
+                $scope.verify_password = undefined;
+                $scope.antplanner_username = undefined;
+                
+                $scope.isRegistering = null;
+                $scope.result = null;
+                
+                $scope.error_message = "Something went wrong. Please try registering again.";
+            };
             
             $scope.registerButtonConfig = {
                 buttonDefaultText: 'Register',
@@ -193,29 +184,58 @@ authentication.directive('registrationPartial', ['AuthService', function (AuthSe
                         }
                         
                         var data = JSON.parse(response.data.data);
+                        
                         for (var i = 0; i < data.length; i++) {
-                            if (courseCodes.indexOf(parseInt(data[i].groupId, 10)) == -1) {
-                                courseCodes.push(parseInt(data[i].groupId, 10));
-                            }
+                            var courseCode = parseInt(data[i].groupId, 10);
+                            if (courseCodes.indexOf(courseCode) == -1) courseCodes.push(courseCode);
                         }
+                        
                         $scope.authService.register($scope.username, $scope.email, $scope.password, courseCodes).then(function (status) {
-                            
+                            $scope.setInitialState();
+                            $scope.result = "success";
                         }, function (error) {
                             $scope.result = "error";
                             $scope.error = true;
-                            $scope.error_message = "Something went wrong. Please try registering again.";
+                            $scope.error_message = error.message !== undefined ? error.message : "Something went wrong. Please try registering again.";
                         });
                     });
                 }
                 else {
                     $scope.authService.register($scope.username, $scope.email, $scope.password, courseCodes).then(function (status) {
-                        
+                        $scope.setInitialState();
+                        $scope.result = "success";
                     }, function (error) {
                         $scope.result = "error";
                         $scope.error = true;
                         $scope.error_message = "Something went wrong. Please try registering again.";
                     });    
                 }
+            };
+            
+            $scope.setInitialState();
+        }]
+    }
+}]);
+
+authentication.directive('passwordResetPartial', ['AuthService', function (AuthService) {
+    return {
+        scope: {},
+        templateUrl: 'app/partials/password-reset-partial.html',
+        controller: ['$scope', 'AuthService', function ($scope, AuthService) {
+            $scope.authService = AuthService;
+    
+            $scope.error = false;
+            $scope.email = undefined;
+            $scope.passwordResetGenerated = false;
+            
+            $scope.resetPassword = function () {
+                $scope.authService.resetPassword($scope.email).then(function () {
+                    $scope.passwordResetGenerated = true;
+                    $scope.error = false;
+                }, function (error) {
+                    $scope.passwordResetGenerated = false;
+                    $scope.error = true;
+                });
             };
         }]
     }

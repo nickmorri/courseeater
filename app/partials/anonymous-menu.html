@@ -14,6 +14,7 @@
             <ul ng-switch="menu_shown">
                 <li class="dropdown-header" ng-switch-when='login'>New to CourseEater?</li>
                 <li class="dropdown-header" ng-switch-when='register'>Already have an account?</li>
+                <li class="divider"></li>
             </ul>
             <button type="button" class="btn btn-lg btn-primary btn-block form-control-submit" ng-click="toggle_menu($event)">
                 <span ng-if="menu_shown == 'login'">

@@ -8,33 +8,6 @@ courseeater_app.config(['$locationProvider', '$stateProvider', '$urlRouterProvid
     
     $stateProvider
     
-        .state('login', {
-            url: '/login',
-            templateUrl: 'app/views/login/base.html',
-            abstract: true
-        })
-        
-            .state('login.login', {
-                url: '',
-                templateUrl: 'app/views/login/login.html',
-                controller: 'LoginController',
-                data: { pageTitle: 'Login'}
-            })
-            
-            .state('login.registration', {
-                url: '/registration',
-                templateUrl: 'app/views/login/registration.html',
-                controller: 'RegistrationController',
-                data: { pageTitle: 'Registration'}
-            })
-            
-            .state('login.reset', {
-                url: '/reset',
-                templateUrl: 'app/views/login/reset_password.html',
-                controller: 'ResetController',
-                data: { pageTitle: 'Password Reset'}
-            })
-    
         .state('track', {
             url: '/track',
             templateUrl: 'app/views/track/base.html',
@@ -66,7 +39,6 @@ courseeater_app.config(['$locationProvider', '$stateProvider', '$urlRouterProvid
         .state('settings', {
             url: '/settings',
             templateUrl: 'app/views/settings/base.html',
-            controller: 'SettingsController',
             data: { pageTitle: 'Settings'}
         })
 }]);
@@ -122,7 +94,7 @@ courseeater_app.directive('connectionView', function () {
     }
 });
 
-courseeater_app.directive('title', ['$rootScope', '$timeout', function($rootScope, $timeout) {
+courseeater_app.directive('title', ['$rootScope', function($rootScope) {
     return {
         link: function() {
             $rootScope.$on('$stateChangeSuccess', function(event, toState) {
