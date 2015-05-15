@@ -8,7 +8,7 @@
     	<li class="divider visible-xs-block"></li>
     	<li ng-repeat="list in courseListStore._collection" ng-class="{'active': list.active}" class="course-list-item">
     	    <a class="course-list-item-title" ng-click="setActiveList(list)">
-    		    <span class="glyphicon glyphicon-expand course-list-item-icon" ng-show="courseListStore.activeList == list"></span>
+    		    <span class="glyphicon glyphicon-check course-list-item-icon" ng-show="courseListStore.activeList == list"></span>
     		    <span class="glyphicon glyphicon-unchecked course-list-item-icon" ng-hide="courseListStore.activeList == list"></span>
     		    {{list.title}}
     		    <span class="glyphicon glyphicon-cog pull-right edit-course-list-cog" ng-show="courseListStore.activeList == list" ng-click="editList(list)"></span>
