@@ -11,7 +11,7 @@ course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStor
     });
 }]);
 
-course.factory('Course', ['$http', '$q', function ($http, $q) {
+course.factory('Course', ['$q', 'Retriever', function ($q, Retriever) {
     return function (courseCode, term, color) {
         
         var course = this;
@@ -160,12 +160,8 @@ course.factory('Course', ['$http', '$q', function ($http, $q) {
             
             var course = this;
             
-            return $http({
-                url: 'php/search.php',
-                method: "GET",
-                params: {course_code: this.courseCode, term: this.term}
-            }).then(function (response) {
-                var classData = response.data[0];
+            return Retriever.get_course(this.courseCode, this.term).then(function (response) {
+                var classData = response[0];
             
                 if (classData.course_data === undefined || classData.course_data == "null") {
                     return undefined;
@@ -210,35 +206,35 @@ course.factory('Course', ['$http', '$q', function ($http, $q) {
         };
         
         this.findCoCourses = function (type) {
-            
             var index = this.identifier.lastIndexOf(" ");
             
-            return $http({
-                url: 'php/search.php',
-                method: 'GET',
-                params: {
-                    cocourses_course_num: this.identifier.substring(index).trim(),
-                    department: this.identifier.substring(0, index).trim(),
-                    type: type,
-                    term: this.term
-                } 
-            });
+            // Add term to results before returning response
+            var process = function (response) {
+                if (response.length === 0) return [];
+                return response[0].course_data.map(function (course) {
+                    course.term = this.term;
+                    return course;
+                }, this);
+            };
+            
+            return Retriever.get_co_courses(this.identifier.substring(0, index).trim(), this.identifier.substring(index).trim(), type, this.term).then(process.bind(this));
         };
         
         this.findReplacements = function () {
-            
             var index = this.identifier.lastIndexOf(" ");
             
-            return $http({
-                url: 'php/search.php',
-                method: 'GET',
-                params: {
-                    replacement_course_num: this.identifier.substring(index).trim(),
-                    department: this.identifier.substring(0, index).trim(),
-                    type: this.type,
-                    term: this.term
-                }
-            });  
+            // Remove this from the results before returning response
+            var filter = function (response) {
+                if (response.length === 0) return [];
+                return response[0].course_data.filter(function (course) {
+                    return course.courseCode != this.courseCode;
+                }, this).map(function (course) {
+                    course.term = this.term;
+                    return course;
+                }, this);
+            };
+            
+            return Retriever.get_replacement_courses(this.identifier.substring(0, index).trim(), this.identifier.substring(index).trim(), this.type, this.term).then(filter.bind(this));
         };
         
         this.getLatestCourseData();
@@ -337,10 +333,9 @@ course.factory('TemporaryStore', ['Course', 'CourseListStore', function (Course,
         TemporaryStore.target_section = course.sec.charAt(0);
         
         return course.findCoCourses(type).then(function (response) {
-            response.data[0].course_data.forEach(function (course) {
-                course.term = this.term;
+            response.forEach(function (course) {
                 TemporaryStore.addCourse(course, false);
-            }, response.config.params);
+            });
         })
     };
     
@@ -354,12 +349,9 @@ course.factory('TemporaryStore', ['Course', 'CourseListStore', function (Course,
         TemporaryStore.target_section = course.sec.charAt(0);
         
         return course.findReplacements().then(function (response) {
-            response.data[0].course_data.filter(function (course) {
-                return TemporaryStore.course_code_for_replacement != course.courseCode.toString();
-            }, response.config.params.type).forEach(function (course) {
-                course.term = this.term;
+            response.forEach(function (course) {
                 TemporaryStore.addCourse(course, true);
-            }, response.config.params);
+            });
         });
     };
     

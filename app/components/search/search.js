@@ -27,39 +27,20 @@ search.factory('SearchStore', ['$http', 'Retriever', function ($http, Retriever)
     };
     
     SearchStore.retrieve_departments = function () {
-        $http({
-            url: 'php/search.php',
-            method: "GET",
-            params: {available_departments: "Any"}
-        }).then(function (response) {
-            
+        Retriever.get_depts_available().then(function (response) {
             // Remove 'ALL' from listing
-            response.data.splice(response.data.indexOf(" ALL"), 1);
+            if (response[0].value.indexOf("ALL") != -1) response.splice(0, 1);
             
-            SearchStore.available_types = SearchStore.available_types.concat(response.data.map(function (department) {
-                return {
-                    name: department,
-                    value: department,
-                    type: 'department'
-                };
-            }));
-
+            SearchStore.available_types = SearchStore.available_types.concat(response);
         });
     };
     
     SearchStore.retrieve_ge_categories = function () {
-        $http({
-            url: 'php/search.php',
-            method: "GET",
-            params: {available_ge_categories: "Any"}
-        }).then(function (response) {
-            SearchStore.available_types = SearchStore.available_types.concat(response.data.map(function (category) {
-                return {
-                    name: category.name,
-                    value: category.value,
-                    type: 'category'
-                } 
-            }));
+        Retriever.get_ge_available().then(function (response) {
+            // Remove 'ALL' from listing
+            if (response[0].value.indexOf("ANY") != -1) response.splice(0, 1);
+            
+            SearchStore.available_types = SearchStore.available_types.concat(response);
         });
     };
     
@@ -73,25 +54,12 @@ search.factory('SearchStore', ['$http', 'Retriever', function ($http, Retriever)
         
         SearchStore.filter = "";
         
-        SearchStore.test_beg = performance.now();
-        
-        $http({
-            url: 'php/search.php',
-            method: "GET",
-            params: parameters,
-        }).then(function (response) {
-            
-            debugger
-            
-            console.log(performance.now() - SearchStore.test_beg);
-            
-            SearchStore.results = response.data;
+        Retriever.retrieve(parameters, '2015-92').then(function (response) {
+            SearchStore.results = response;
             SearchStore.retrieving_results = false;
         });
-    }; 
-    
-    Retriever.get();
-    
+    };
+        
     SearchStore.retrieve_departments();
     SearchStore.retrieve_ge_categories();
     
