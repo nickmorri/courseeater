@@ -1,6 +1,10 @@
-var search = angular.module('courseeater.search', ['courseeater.course', 'courseeater.list', 'ui.bootstrap', 'angular.filter', 'jp.ng-bs-animated-button']);
+var search = angular.module('courseeater.search', ['courseeater.course', 'courseeater.list', 'courseeater.retrieve', 'ui.bootstrap', 'angular.filter', 'jp.ng-bs-animated-button']);
 
-search.factory('SearchStore', ['$http', function ($http) {
+search.config(function ($httpProvider) {
+    $httpProvider.defaults.useXDomain = true;
+});
+
+search.factory('SearchStore', ['$http', 'Retriever', function ($http, Retriever) {
     var SearchStore = {};
     
     SearchStore.available_types = [];
@@ -69,15 +73,24 @@ search.factory('SearchStore', ['$http', function ($http) {
         
         SearchStore.filter = "";
         
+        SearchStore.test_beg = performance.now();
+        
         $http({
             url: 'php/search.php',
             method: "GET",
             params: parameters,
         }).then(function (response) {
+            
+            debugger
+            
+            console.log(performance.now() - SearchStore.test_beg);
+            
             SearchStore.results = response.data;
             SearchStore.retrieving_results = false;
         });
     }; 
+    
+    Retriever.get();
     
     SearchStore.retrieve_departments();
     SearchStore.retrieve_ge_categories();
