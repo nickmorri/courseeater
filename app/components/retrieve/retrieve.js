@@ -29,7 +29,7 @@ retrieve.factory('Retriever', ['$http', '$q', function ($http, $q) {
         return {
             identifier: data.firstChild.textContent.trim().replace(/\s{2,}/g, ' '),
             name: data.querySelector('font').textContent,
-            prerequisites: data.querySelector('a') != null ? data.querySelector('a').href : '',
+            prerequisites: data.querySelector('a') != null ? data.querySelector('a').href : null,
             course_data: []
         };
     };
