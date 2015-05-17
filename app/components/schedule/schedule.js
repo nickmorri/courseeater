@@ -102,6 +102,18 @@ schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'Course
     
     $scope.eventSource = [];
     
+    $scope.courseClick = function (event, jsEvent, view) {
+        $modal.open({
+            templateUrl: 'app/components/schedule/directives/course-schedule-modal.html',
+            controller: 'CourseScheduleModalController',
+            resolve: {
+                course: function () {
+                    return $scope.courseStore.hasCourse(event.id) ? $scope.courseStore.getCourse(event.id) : $scope.temporaryStore.getCourse(event.id);
+                }
+            }
+        });
+    };
+    
     $scope.uiConfig = {
         calendar: {
             header: "",
@@ -110,7 +122,8 @@ schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'Course
             maxTime: "22:00:00",
             weekends: false,
             allDaySlot: false,
-            contentHeight: 640
+            contentHeight: 640,
+            eventClick: $scope.courseClick
         }
     };
     

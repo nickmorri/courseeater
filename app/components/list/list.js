@@ -19,6 +19,7 @@ list.factory('CourseList', ['$q', 'localStorageService', function ($q, localStor
         this.local = this.owner === -1;
         
         this.addCourse = function (courseCode) {
+            courseCode = parseInt(courseCode, 10);
             this.courseCodes.push(courseCode);
             if (this.local) {
                 return new $q(function (resolve, reject) {
@@ -181,9 +182,17 @@ list.factory('LocalStorageCourseListAdaptor', ['$q', 'localStorageService', func
                 return id !== list.id;
             });
             
-            courseLists[0].attributes.active = true;
-            localStorageService.set('courseLists', courseLists);
-            resolve(id);
+            if (courseLists.length == 0) {
+                Store.createNewList('Default', false, "2015-92");
+                resolve(id);
+            }
+            else {
+                courseLists[0].attributes.active = true;
+                localStorageService.set('courseLists', courseLists);
+                resolve(id);    
+            }
+            
+            
         });
     };
     
