@@ -1,1 +1,1 @@
-<strong>Final:</strong> {{course.final}}
+<strong>Final:</strong> {{course.final.weekday}}, {{course.final.month}} {{course.final.day}}, {{course.final.clock.start}}<span  ng-show="course.final.clock.am_pm.indexOf('AM') != -1">AM</span> - {{course.final.clock.end}}<span ng-show="course.final.clock.am_pm.indexOf('PM') != -1">PM</span>

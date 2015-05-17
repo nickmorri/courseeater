@@ -93,60 +93,37 @@ course.factory('Course', ['$q', 'Retriever', function ($q, Retriever) {
         
         this.makeFinal = function () {
             if (this.finalEvent !== undefined) return this.finalEvent;
+            if (this.final == null) return undefined;
             
-            var starting_day, final_string, title, day_held, time, start, end, end_front, end_back;
+            var day_held, start, end, end_front, end_back;
+
+            // Course start time parts
+            start_front = parseInt(this.final.clock.start.split(":")[0], 10);
+            start_back = this.final.clock.start.split(":")[1].slice(0, 2);
             
-            // Static value that currently has to be manually changed each quarter..
-            starting_day = "2015-06-";
+            // Course end time parts
+            end_front = parseInt(this.final.clock.end.split(":")[0], 10);
+            end_back = this.final.clock.end.split(":")[1].slice(0, 2);
             
-            if (this.final == undefined || this.final.indexOf("TBA") !== -1) {
-                return undefined;
-            }
-            else {
-                final_string = this.final;
-            }
+            // Adjust to a 24 hour clock
+            if (this.final.clock.am_pm == "PM" && end_front !== 12) end_front += 12;
+            if (this.final.clock.start == "PM" && start_front !== 12) start_front += 12;
+            if (end_front > 12 && start_front !== 12) start_front += 12;
             
-            // Title processing
-            title = this.identifier.toUpperCase() + " - " + this.type.toUpperCase();
-            // Day processing
-            day_held = starting_day + final_string.split(", ")[1].split(" ")[1];
-            
-            if (day_held.split("-")[2].length == 1) {
-                day_held = [day_held.slice(0, day_held.length - 1), "0", day_held.slice(day_held.length - 1)].join('');
-            }
-            
-            // Time parsing
-            time = final_string.split("-");
-            start = time[0].split(", ")[2];
-            start = parseInt(start.split(":")[0], 10);
-            end = time[1];
-            if (end.indexOf("am") !== -1) {
-                end = end.split("am")[0];
-                end_front = parseInt(end.split(":")[0], 10);
-                end_back = parseInt(end.split(":")[1], 10);
-                if (end_back === 0) {
-                    end_back = "00";
-                }
-                start = "0" + start;
-            } else {
-                end = end.split("pm")[0];
-                end_front = parseInt(end.split(":")[0], 10);
-                end_back = parseInt(end.split(":")[1], 10);
-                if (end_front !== 12) {
-                    start += 12;
-                    end_front += 12;
-                }
-                if (end_back === 0) {
-                    end_back = "00";
-                }
-            }
-            start = "T" + start + ":" + time[0].split(", ")[2].split(":")[1] + ":00";
+            // Formatting of time string
+            if (start_front < 10) start_front = "0" + start_front;
+            if (end_front < 10) end_front = "0" + end_front;
+            start = "T" + start_front + ":" + start_back + ":00";
             end = "T" + end_front + ":" + end_back + ":00";
+            
+            var today = new Date();
+            
+            day_held = today.getFullYear() + "-" + this.final.month_index + "-" + this.final.day;
             
             //Event object creation
             this.finalEvent = {
                 id: this.courseCode,
-                title: title,
+                title: this.identifier.toUpperCase() + " - " + this.type.toUpperCase(),
                 start: day_held + start + "Z",
                 end: day_held + end + "Z",
                 backgroundColor: this.color

@@ -60,12 +60,6 @@ list.factory('CourseList', ['$q', 'localStorageService', function ($q, localStor
             }
         };
         
-        this.replaceCourse = function (oldCourseCode, newCourseCode) {
-            return this.removeCourse(oldCourseCode).then(function () {
-                return this.addCourse(newCourseCode);
-            });
-        };
-        
     };
 }]);
 

@@ -106,13 +106,41 @@ schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'Course
         calendar: {
             header: "",
             defaultView: "agendaWeek",
-            defaultDate: "2015-06-08",
             minTime: "08:00:00",
             maxTime: "22:00:00",
             weekends: false,
             allDaySlot: false,
             contentHeight: 640
         }
+    };
+    
+    $scope.findFinalWeekStart = function (finals) {
+        if ($scope.eventSource[0].length == 0) return;
+        var earliestFinal = $scope.eventSource[0].reduce(function (previous, current) {
+            var previousDay = parseInt(previous.end.split('T')[0].split('-')[2], 10);
+            var currentDay = parseInt(current.end.split('T')[0].split('-')[2], 10);
+            return currentDay < previousDay ? current : previous;
+        });
+        
+        var unordered_date = earliestFinal.end.split('T')[0].split('-');
+        
+        var year = parseInt(unordered_date[0], 10);
+        var month = parseInt(unordered_date[1], 10);
+        var day = parseInt(unordered_date[2], 10);
+        
+        var date = new Date(year, month - 1, day);
+        
+        function getMonday(d) {
+            d = new Date(d);
+            var day = d.getDay(),
+                diff = d.getDate() - day + (day == 0 ? -6:1); // adjust when day is sunday
+            return new Date(d.setDate(diff));
+        }
+        
+        var monday = getMonday(date);
+        
+        $scope.uiConfig.calendar.defaultDate = monday.getFullYear() + "-" + (monday.getMonth() + 1)  + "-" + monday.getDate();;
+        
     };
     
     $scope.makeImage = function () {
@@ -149,6 +177,7 @@ schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'Course
         if (newValue !== undefined || newValue !== oldValue) {
             $scope.eventSource.clear();
             $scope.eventSource.push(newValue);
+            $scope.findFinalWeekStart();
         }
     });
     

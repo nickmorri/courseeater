@@ -45,6 +45,29 @@ retrieve.factory('Retriever', ['$http', '$q', function ($http, $q) {
             }) : [element.innerText]
         };
         
+        var process_clock = function (time) {
+            if (time.indexOf("TBA") != -1) return null
+            // Remove whitespace around time string
+            var start_end = time.trim().split("-");                
+            var start = start_end[0].trim();
+            var end = start_end[1].trim();
+            
+            var isBeforeNoon = start.split(':')[0] >= 8 && start.split(':')[0] < 12;
+            
+            var isAfternoon = end.indexOf('p') != -1;
+            
+            var morningClass = !isAfternoon;
+            
+            if (morningClass) am_pm = "AM";
+            else if (isBeforeNoon && isAfternoon) am_pm = "AM-PM";
+            else am_pm = "PM";
+            return {
+                start: start.replace('pm', '').replace('p', ''),
+                end: end.replace('pm', '').replace('p', ''),
+                am_pm: am_pm
+            }
+        };
+        
         var process_time = function (time) {
             // Seperate days and time by &nbsp character
             
@@ -63,27 +86,8 @@ retrieve.factory('Retriever', ['$http', '$q', function ($http, $q) {
             if (days.indexOf("Th") != -1) held_days.push("Thu");
             if (days.indexOf("F") != -1) held_days.push("Fri");
             
-            // Remove whitespace around time string
-            var start_end = days_time[1].trim().split("-");                
-            var start = start_end[0].trim();
-            var end = start_end[1].trim();
-            
-            var isBeforeNoon = start.split(':')[0] >= 8 && start.split(':')[0] < 12;
-            
-            var isAfternoon = end.indexOf('p') != -1;
-            
-            var morningClass = !isAfternoon;
-            
-            if (morningClass) am_pm = "AM";
-            else if (isBeforeNoon && isAfternoon) am_pm = "AM-PM";
-            else am_pm = "PM";
-            
             return {
-                clock: {
-                    start: start.replace('p', ''),
-                    end: end.replace('p', ''),
-                    am_pm: am_pm
-                },
+                clock: process_clock(days_time[1]),
                 days: held_days
             };
         };
@@ -93,7 +97,38 @@ retrieve.factory('Retriever', ['$http', '$q', function ($http, $q) {
         };
         
         var process_final = function (element) {
-            return element.textContent.trim() != "" ? element.textContent.trim() : null
+            if (element.textContent.trim() == "") return null;
+            
+            var split_final = element.textContent.trim().split(",");
+            
+            if (split_final[0].indexOf("TBA") != -1) return null;
+            
+            var weekday = split_final[0].trim();
+            var split_date = split_final[1].trim().split(" ");
+            var month = split_date[0];
+            var day = split_date[1].length == 2 ? split_date[1] : "0" + split_date[1];
+
+            var month_index;
+            
+            switch (month) {
+                case 'Mar':
+                    month_index = "03";
+                    break;
+                case 'Jun':
+                    month_index = "06";
+                    break;
+                case 'Dec':
+                    month_index = "12";
+                    break;
+            }
+            
+            return {
+                weekday: weekday,
+                month: month,
+                month_index: month_index,
+                day: day,
+                clock: process_clock(split_final[2])
+            };
         };
         
         var process_textbook_url = function (element) {
