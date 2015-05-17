@@ -96,7 +96,7 @@ list.factory('ParseCourseListAdaptor', ['AuthService', function (AuthService) {
     };
     
     Store.upgradeCourseList = function (list) {
-        return Parse.Cloud.run('createCourseList', {title: '[Imported]' + list.title, shared: list.shared, term: list.term, courseCodes: list.courseCodes});
+        return Parse.Cloud.run('createCourseList', {title: list.title, shared: list.shared, term: list.term, courseCodes: list.courseCodes});
     };
     
     Store.initialize = function () {};
