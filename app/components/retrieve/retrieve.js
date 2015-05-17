@@ -42,7 +42,13 @@ retrieve.factory('Retriever', ['$http', '$q', function ($http, $q) {
                 return node.nodeName == "#text";
             }).map(function (node) {
                 return node.textContent;
-            }) : [element.innerText]
+            }).filter(function (instructor) {
+                if (this[instructor] === undefined) {
+                    this[instructor] = true;
+                    return true;
+                }
+                else return false;
+            }, {}) : [element.innerText]
         };
         
         var process_clock = function (time) {
