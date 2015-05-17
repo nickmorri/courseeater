@@ -1,4 +1,4 @@
-<span ng-hide="time">
+<span ng-hide="time != null && time != 'TBA'">
     Course time is TBA
 </span>
 <span ng-show="time.am_pm == 'AM-PM'">

@@ -77,7 +77,10 @@ retrieve.factory('Retriever', ['$http', '$q', function ($http, $q) {
         var process_time = function (time) {
             // Seperate days and time by &nbsp character
             
-            if (time.indexOf("TBA") != -1) return "TBA";
+            if (time.indexOf("TBA") != -1) return {
+                clock: "TBA",
+                days: []
+            };
             
             var days_time = time.split(/\u00a0/g);
             
