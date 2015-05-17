@@ -26,6 +26,7 @@ store.factory('TemporaryStore', ['Course', 'CourseListStore', function (Course, 
         TemporaryStore.section_restricted = true;
         TemporaryStore.target_section = undefined;
         TemporaryStore.excluded_course_codes = [];
+        TemporaryStore.no_results = false;
     };
         
     TemporaryStore.storeCourse = function (course) {
@@ -89,9 +90,15 @@ store.factory('TemporaryStore', ['Course', 'CourseListStore', function (Course, 
         TemporaryStore.target_section = course.sec.charAt(0);
         
         return course.findCoCourses(type).then(function (response) {
-            response.forEach(function (course) {
-                TemporaryStore.addCourse(course, false);
-            });
+            if (response.length == 0) {
+                TemporaryStore.no_results = true;
+            }
+            else {
+                TemporaryStore.no_results = false;
+                response.forEach(function (course) {
+                    TemporaryStore.addCourse(course, false);
+                });
+            }
         })
     };
     
@@ -105,9 +112,15 @@ store.factory('TemporaryStore', ['Course', 'CourseListStore', function (Course, 
         TemporaryStore.target_section = course.sec.charAt(0);
         
         return course.findReplacements().then(function (response) {
-            response.forEach(function (course) {
-                TemporaryStore.addCourse(course, true);
-            });
+            if (response.length == 0) {
+                TemporaryStore.no_results = true;
+            }
+            else {
+                TemporaryStore.no_results = false;
+                response.forEach(function (course) {
+                    TemporaryStore.addCourse(course, true);
+                });
+            }
         });
     };
     
