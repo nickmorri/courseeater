@@ -281,7 +281,6 @@ course.factory('ButtonConfiguration', function () {
             buttonDefaultClass: 'btn-default',
             buttonSubmittingClass: 'btn-primary',
             buttonSuccessClass: 'btn-success',
-            buttonSizeClass: 'col-xs-10',
             buttonInitialIcon: 'glyphicon glyphicon-minus',
             buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
             buttonSuccessIcon: 'glyphicon glyphicon-ok'
