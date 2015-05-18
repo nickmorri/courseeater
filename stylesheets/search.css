@@ -4,11 +4,18 @@
     overflow-x: hidden;
 }
 .class-search-item {
-    padding-top: 2px;
-    padding-bottom: 2px;
+    margin-bottom: 10px !important;
+    border-radius: 0px !important;
+    border: 1px solid #ddd !important;
 }
 .course-search-item {
-    padding: 2px;
+    margin-bottom: 15px;
+}
+.class-label {
+    font-size: 90% !important;
+}
+.class-name {
+    line-height: 1.4 !important;
 }
 .course-search-item-detail {
     white-space: nowrap;
