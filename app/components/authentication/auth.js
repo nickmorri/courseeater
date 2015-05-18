@@ -164,6 +164,8 @@ authentication.directive('registrationPartial', ['AuthService', '$http', functio
             };
             
             $scope.register = function () {
+                
+                debugger
                 $scope.result = null;
                 $scope.error = false;
                 $scope.isRegistering = true;
