@@ -14,7 +14,9 @@ retrieve.factory('Retriever', ['$http', '$q', function ($http, $q) {
     };
     
     Retriever.get = function (URL) {
-        return $http.get(URL).then(function (response) {
+        return $http.get(URL).then(function (response) {    
+            return response;
+        }).then(function (response) {
             var parser = new DOMParser();
 
             return Retriever.process_response(Array.prototype.slice.call(parser.parseFromString(response.data, "text/html").querySelectorAll('tr[valign="top"]')));

@@ -181,6 +181,9 @@ store.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSco
     };
     
     CourseStore.retrieveCourse = function (courseCode) {
+        // TODO: Quick fix for null coursecodes in IE
+        if (courseCode == null) return;
+        
         CourseStore.num_loading_courses++;
         var course = new Course(parseInt(courseCode, 10), CourseStore.list.term, undefined);
         
