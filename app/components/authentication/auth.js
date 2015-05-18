@@ -26,8 +26,9 @@ authentication.factory('AuthService', ['$state', '$rootScope', '$window', functi
         user.set("username", username);
         user.set("email", email);
         user.set("password", password);
-
-        return user.signUp({newImportCourseCodes: courseCodes}).then(function (response) {
+        user.set("newImportCourseCodes", courseCodes);
+        
+        return user.signUp().then(function (response) {
             authService.currentUser = Parse.User.current();
             authService.loggedIn = authService.currentUser != null;
             $rootScope.$broadcast("login");
@@ -163,6 +164,8 @@ authentication.directive('registrationPartial', ['AuthService', '$http', functio
             };
             
             $scope.register = function () {
+                
+                debugger
                 $scope.result = null;
                 $scope.error = false;
                 $scope.isRegistering = true;
@@ -192,6 +195,8 @@ authentication.directive('registrationPartial', ['AuthService', '$http', functio
                             if (courseCodes.indexOf(courseCode) == -1) courseCodes.push(courseCode);
                         }
                         
+                        
+                        
                         $scope.authService.register($scope.username, $scope.email, $scope.password, {title: $scope.antplanner_username, courseCodes: courseCodes}).then(function (status) {
                             $scope.setInitialState();
                             $scope.result = "success";
@@ -205,7 +210,7 @@ authentication.directive('registrationPartial', ['AuthService', '$http', functio
                     });
                 }
                 else {
-                    $scope.authService.register($scope.username, $scope.email, $scope.password, courseCodes).then(function (status) {
+                    $scope.authService.register($scope.username, $scope.email, $scope.password).then(function (status) {
                         $scope.setInitialState();
                         $scope.result = "success";
                         // Collapses user menu on mobile when list is set active
