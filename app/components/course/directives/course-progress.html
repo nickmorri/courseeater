@@ -1,0 +1,19 @@
+<progressbar animate="true" value="100" type="primary" ng-show="course.fetchingRemoteData">
+    <span class="progressbar-text">loading...</span>
+</progressbar>
+
+<progressbar animate="false" value="100" type="primary" ng-hide="course.fetchingRemoteData || course.totalEnr != 0">
+    <span class="progressbar-text">All {{course.max}} seats open</span>
+</progressbar>
+
+<progressbar animate="false" value="100" type="warning" ng-show="course.wl != null && course.wl > 0 && course.fetchingRemoteData">
+    <span class="progressbar-text">{{course.wl}} on waitlist</span>
+</progressbar>
+
+<progressbar animate="false" value="100" type="danger" ng-hide="course.fetchingRemoteData || course.totalEnr != course.max || course.max == 0">
+    <span class="progressbar-text">All {{course.max}} seats taken</span>
+</progressbar>
+
+<progressbar animate="false" type="success" value="course.max - course.totalEnr" max="course.max" ng-hide="course.totalEnr == 0 || course.fetchingRemoteData || course.max == course.totalEnr">
+    <span class="progressbar-text">{{course.max - course.totalEnr}} of {{course.max}} left</span>
+<progressbar>

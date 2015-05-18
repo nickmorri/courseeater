@@ -12,20 +12,15 @@ schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListS
     $scope.eventSource = [];
     
     $scope.courseClick = function (event, jsEvent, view) {
-        var course = $scope.courseStore.getCourse(event.id);
-        
-        if (course === undefined) course = $scope.temporaryStore.getCourse(event.id);
-        
-        var modalInstance = $modal.open({
+        $modal.open({
             templateUrl: 'app/components/schedule/directives/course-schedule-modal.html',
             controller: 'CourseScheduleModalController',
             resolve: {
                 course: function () {
-                    return course;
+                    return $scope.courseStore.hasCourse(event.id) ? $scope.courseStore.getCourse(event.id) : $scope.temporaryStore.getCourse(event.id);
                 }
             }
         });
-        
     };
     
     $scope.uiConfig = {
@@ -45,33 +40,7 @@ schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListS
     };
     
     $scope.makeImage = function () {
-    	html2canvas($("#calendar"), {
-    		onrendered: function(canvas) {
-    			var destinationCanvas, destinationContext, today, link;
-    		
-    			destinationCanvas = document.createElement('canvas');
-    			destinationCanvas.width = canvas.width;
-    			destinationCanvas.height = canvas.height;
-    			
-    			destinationContext = destinationCanvas.getContext("2d");
-    			destinationContext.rect(0, 0, canvas.width, canvas.height);
-    			destinationContext.fillStyle = "white";
-    			destinationContext.fill();
-    
-    			destinationContext.drawImage(canvas, 0, 0, canvas.width, canvas.height);
-    			
-    			destinationContext.font = '10pt Helvetica';
-    			destinationContext.fillStyle = "black";
-    			destinationContext.fillText("http://courseeater.com", canvas.width - 140, canvas.height - 8);
-    			
-    			today = new Date();
-    			
-    			link = document.createElement("a");
-    			link.download = "Schedule | CourseEater - " + today.toLocaleDateString("en-US") + ".png";
-    			link.href = destinationCanvas.toDataURL();
-    			link.click();
-    	    }
-    	});
+    	makeImage("#calendar", 'Schedule');
     };
     
     $scope.$watch('courseStore.events', function (newValue, oldValue) {
@@ -95,6 +64,7 @@ schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListS
     });
     
     $scope.temporaryStore.clear();
+    
     if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
     
 }]);
@@ -107,30 +77,23 @@ schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'Course
     $scope.eventSource = [];
     
     $scope.courseClick = function (event, jsEvent, view) {
-        var course = $scope.courseStore.getCourse(event.id);
-        
-        if (course === undefined) course = $scope.temporaryStore.getCourse(event.id);
-        
-        var modalInstance = $modal.open({
+        $modal.open({
             templateUrl: 'app/components/schedule/directives/course-schedule-modal.html',
             controller: 'CourseScheduleModalController',
             resolve: {
                 course: function () {
-                    return course;
+                    return $scope.courseStore.hasCourse(event.id) ? $scope.courseStore.getCourse(event.id) : $scope.temporaryStore.getCourse(event.id);
                 }
             }
         });
-        
     };
     
     $scope.uiConfig = {
         calendar: {
-            defaultDate: getWeekday(0),
             header: "",
             defaultView: "agendaWeek",
             minTime: "08:00:00",
             maxTime: "22:00:00",
-            columnFormat: { week: "ddd" },
             weekends: false,
             allDaySlot: false,
             contentHeight: 640,
@@ -138,40 +101,44 @@ schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'Course
         }
     };
     
-    $scope.makeImage = function () {
-    	html2canvas($("#finals_calendar"), {
-    		onrendered: function(canvas) {
-    			var destinationCanvas, destinationContext, today, link;
-    		
-    			destinationCanvas = document.createElement('canvas');
-    			destinationCanvas.width = canvas.width;
-    			destinationCanvas.height = canvas.height;
-    			
-    			destinationContext = destinationCanvas.getContext("2d");
-    			destinationContext.rect(0, 0, canvas.width, canvas.height);
-    			destinationContext.fillStyle = "white";
-    			destinationContext.fill();
+    $scope.findFinalWeekStart = function (finals) {
+        if ($scope.eventSource[0].length == 0) return;
+        var earliestFinal = $scope.eventSource[0].reduce(function (previous, current) {
+            var previousDay = parseInt(previous.end.split('T')[0].split('-')[2], 10);
+            var currentDay = parseInt(current.end.split('T')[0].split('-')[2], 10);
+            return currentDay < previousDay ? current : previous;
+        });
+        
+        var unordered_date = earliestFinal.end.split('T')[0].split('-');
+        
+        var year = parseInt(unordered_date[0], 10);
+        var month = parseInt(unordered_date[1], 10);
+        var day = parseInt(unordered_date[2], 10);
+        
+        var date = new Date(year, month - 1, day);
+        
+        function getMonday(d) {
+            d = new Date(d);
+            var day = d.getDay(),
+                diff = d.getDate() - day + (day == 0 ? -6:1); // adjust when day is sunday
+            return new Date(d.setDate(diff));
+        }
+        
+        var monday = getMonday(date);
+        
+        $scope.uiConfig.calendar.defaultDate = monday.getFullYear() + "-" + (monday.getMonth() + 1)  + "-" + monday.getDate();;
+        
+    };
     
-    			destinationContext.drawImage(canvas, 0, 0, canvas.width, canvas.height);
-    			
-    			destinationContext.font = '10pt Helvetica';
-    			destinationContext.fillStyle = "black";
-    			destinationContext.fillText("http://courseeater.com", canvas.width - 140, canvas.height - 8);
-    			
-    			today = new Date();
-    			
-    			link = document.createElement("a");
-    			link.download = "Finals | CourseEater - " + today.toLocaleDateString("en-US") + ".png";
-    			link.href = destinationCanvas.toDataURL();
-    			link.click();
-    	    }
-    	});
+    $scope.makeImage = function () {
+    	makeImage("#finals_calendar", 'Finals');
     };
     
     $scope.$watch('courseStore.finals', function (newValue, oldValue) {
         if (newValue !== undefined || newValue !== oldValue) {
             $scope.eventSource.clear();
             $scope.eventSource.push(newValue);
+            $scope.findFinalWeekStart();
         }
     });
     
@@ -202,8 +169,7 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
     
     $scope.replaceCourse = function (course) {
         course.isSubmitting = true;
-        var originalCourse = $scope.courseStore.getEquivalentCourse(course);
-        $scope.courseStore.replaceCourse(originalCourse.courseCode, course.courseCode).then(function () {
+        $scope.courseStore.replaceCourse($scope.temporaryStore.course_code_for_replacement, course.courseCode).then(function () {
             return $scope.temporaryStore.clear();
         }).then(function () {
             $scope.$close()
@@ -212,33 +178,15 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
     };
     
     $scope.searchForCocourses = function (course, type) {
-        $scope.temporaryStore.searchForCocourses(course, type, $scope.displaySearch)  
+        $scope.temporaryStore.searchForCocourses(course, type).then($scope.displaySearch);
     };
     
     $scope.searchForReplacements = function (course, type) {
-        $scope.temporaryStore.searchForReplacements(course, type, $scope.displaySearch)  
+        $scope.temporaryStore.searchForReplacements(course, type).then($scope.displaySearch);
     };
     
     $scope.displaySearch = function (results, replacement) {
-        if (results.length == 0) {
-            var modalInstance = $modal.open({
-                templateUrl: 'app/components/course/directives/course-search-modal.html',
-                controller: 'CourseSearchModalController'
-            });
-    
-            TemporaryStore.target_section = undefined;
-            
-        }
-        else {
-            for (var i = 0; i < results.length; i++) {
-                if (!CourseStore.hasCourse(results[i].attributes.courseCode)) {
-                    $scope.temporaryStore.addCourse(results[i], replacement);
-                }
-            }
-            
-            TemporaryStore.filterEvents(true);    
-        }
-        
+        TemporaryStore.filterCourses(true);
         $scope.$close();
     };
     

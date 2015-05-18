@@ -7,8 +7,8 @@
     </div>
 </div>
 <div class="modal-body" ng-hide="temporaryStore.empty()">
-    <course-search-view class="course-search-view" ng-repeat="course in filteredItems = (temporaryStore.courses | section:temporaryStore.target_section:temporaryStore.section_restricted)"></course-search-view>
+    <course-search class="course-search-view" ng-repeat="course in filteredItems = (temporaryStore.courses | section:temporaryStore.target_section:temporaryStore.section_restricted) | orderBy: 'courseCode'"></course-search>
     <div class="alert alert-info alert-section" ng-show="filteredItems.length == 0">
-        No results while section restricted to section {{temporaryStore.target_section}}. Ensure section matches desired section if you <a href ng-click="temporaryStore.filterEvents(false)">remove filter</a>.
+        No results while section restricted to section {{temporaryStore.target_section}}. Ensure section matches desired section if you <a href ng-click="temporaryStore.filterCourses(false)">remove filter</a>.
     </div>
 </div>

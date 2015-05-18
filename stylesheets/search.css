@@ -1,0 +1,26 @@
+.scrollable-menu {
+    height: auto;
+    max-height: 200px;
+    overflow-x: hidden;
+}
+.class-search-item {
+    margin-bottom: 10px !important;
+    border-radius: 0px !important;
+    border: 1px solid #ddd !important;
+}
+.course-search-item {
+    margin-bottom: 15px;
+}
+.class-label {
+    font-size: 90% !important;
+}
+.class-name {
+    line-height: 1.4 !important;
+}
+.course-search-item-detail {
+    white-space: nowrap;
+    overflow-x: scroll;
+}
+.label-search-item-identifier {
+    width: 60px;
+}

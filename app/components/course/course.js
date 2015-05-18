@@ -3,55 +3,25 @@ var course = angular.module('courseeater.course', ['ui.bootstrap']);
 course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStore, CourseListStore, $rootScope) {
     $rootScope.listStore = CourseListStore;
     $rootScope.courseStore = CourseStore;
-    $rootScope.$watch('listStore.activeList', function (newValue, oldValue) {
-        if (oldValue === undefined && newValue === undefined) {
-            // Do nothing
-        }
-        else if (oldValue === undefined && newValue !== undefined) {
-            $rootScope.courseStore.setCourseCodes(newValue);
-        }
-        else if (!newValue.courseCodes.equals(oldValue.courseCodes)) {
-            $rootScope.courseStore.setCourseCodes(newValue);
-        }
+    $rootScope.$watch('listStore.activeList', function (newList, oldList) {
+        if (newList === undefined) return;
+        else if ($rootScope.courseStore.list === undefined) $rootScope.courseStore.setActiveList(newList);
+        else if (oldList !== undefined && !oldList.courseCodes.equals(newList.courseCodes)) $rootScope.courseStore.setActiveList(newList);
+        else if (oldList === undefined && newList !== undefined) $rootScope.courseStore.setActiveList(newList);
     });
 }]);
 
-course.factory('Course', ['$http', function ($http) {
-    return function (data, color) {
+course.factory('Course', ['$q', 'Retriever', function ($q, Retriever) {
+    return function (courseCode, term, color) {
+        
         var course = this;
         
         // Course relevant data
-        this.courseCode = data.attributes.courseCode;
-        this.courseIdentifier = data.attributes.courseIdentifier;
-        this.courseName = data.attributes.courseName.replace(/&nbsp;/g, '');
-        this.days = data.attributes.days;
-        this.finalExam = data.attributes.final;
-        this.instructor = data.attributes.instructor;
-        this.localEnr = data.attributes.localEnr;
-        this.max = data.attributes.max;
-        this.nor = data.attributes.nor;
-        this.placeBuilding = data.attributes.placeBuilding;
-        this.placeURL = data.attributes.placeURL;
-        this.prerequisites = data.attributes.prerequisities;
-        this.req = data.attributes.req;
-        this.rstr = data.attributes.rstr;
-        this.sec = data.attributes.sec;
-        this.status = data.attributes.status;
-        this.textboooks = data.attributes.textbooks;
-        this.time = data.attributes.time;
-        this.totalEnr = data.attributes.totalEnr;
-        this.type = data.attributes.type.toUpperCase();
-        this.units = data.attributes.units;
-        this.web = data.attributes.web;
-        this.wl = data.attributes.wl;
-        this.term = data.attributes.term;
-
-        if (this.finalExam === "NONE") this.finalExam = undefined;
-
-        // Parse object relevant data
-        this.id = data.id;
-        this.updatedAt = data.updatedAt;
-        this.timeSinceUpdate = new Date().getTime() - new Date(this.updatedAt).getTime();
+        this.courseCode = courseCode;
+        this.term = term;
+        
+        // Set to true on first retrieval of remote data
+        this.initialized = false;
         
         // Used to decide which buttons to display in search modals
         this.tracking = true;
@@ -62,49 +32,53 @@ course.factory('Course', ['$http', function ($http) {
         this.isSubmitting = null;
         this.result = null;
         
+        // Asyncronous variable
+        this.deferred = $q.defer();
+        
         // FullSchedule Calendar configuration
         this.color = color;
         this.events = undefined;
         
         this.makeEvent = function () {
+            // If event objects have already been created
             if (this.events !== undefined) return this.events;
             
-            var title, days, heldDays, time, start, end, event, i, endFront, endBack, startFront, startBack;
-            if (this.time.indexOf("TBA") !== -1) return [];
+            var title, start, end, end_front, end_back, start_front, start_back, days_held;
+            
+            // When course time is not available
+            if (this.time == null) return [];
+            
             // Title processing
-            title = this.courseIdentifier.toUpperCase() + " - " + this.type.toUpperCase();
-            // Day parsing
-            days = this.days;
-            heldDays = [];
-            if (days.indexOf("M") > -1) heldDays.push(getWeekday(0));
-            if (days.indexOf("Tu") > -1) heldDays.push(getWeekday(1));
-            if (days.indexOf("W") > -1) heldDays.push(getWeekday(2));
-            if (days.indexOf("Th") > -1) heldDays.push(getWeekday(3));
-            if (days.indexOf("F") > -1) heldDays.push(getWeekday(4));
+            title = this.identifier.toUpperCase() + " - " + this.type.toUpperCase();
+            
             // Time parsing
-            time = this.time.split(" to ");
-            start = time[0];
-            end = time[1];
-            // Removing spaces
-            if (time[0][0] === " ") start = start.slice(1);
-            if (time[1][0] === " ") end = end.slice(1);
-            // Further breaking things down into 4 distinct parts.
-            startFront = parseInt(start.split(":")[0], 10);
-            startBack = start.split(":")[1].slice(0, 2);
-            endFront = parseInt(end.split(":")[0], 10);
-            endBack = end.split(":")[1].slice(0, 2);
-            // Processing of these parts
-            if (end.indexOf("PM") !== -1 && endFront !== 12) endFront += 12;
-            if (start.indexOf("PM") !== -1 && startFront !== 12) startFront += 12;
-            if (endFront > 12 && startFront !== 12) startFront += 12;
-            if (startFront < 10) startFront = "0" + startFront;
-            if (endFront < 10) endFront = "0" + endFront;
-            // Formatting these four parts for the FullCalendar library
-            start = "T" + startFront + ":" + startBack + ":00";
-            end = "T" + endFront + ":" + endBack + ":00";
+
+            // Course start time parts
+            start_front = parseInt(this.time.start.split(":")[0], 10);
+            start_back = this.time.start.split(":")[1].slice(0, 2);
+            
+            // Course end time parts
+            end_front = parseInt(this.time.end.split(":")[0], 10);
+            end_back = this.time.end.split(":")[1].slice(0, 2);
+            
+            // Adjust to a 24 hour clock
+            if (this.time.am_pm == "PM" && end_front !== 12) end_front += 12;
+            if (this.time.start == "PM" && start_front !== 12) start_front += 12;
+            if (end_front > 12 && start_front !== 12) start_front += 12;
+            
+            // Formatting of time string
+            if (start_front < 10) start_front = "0" + start_front;
+            if (end_front < 10) end_front = "0" + end_front;
+            start = "T" + start_front + ":" + start_back + ":00";
+            end = "T" + end_front + ":" + end_back + ":00";
+            
+            // Day parsing
+            days_held = this.days.map(function (day, index) {
+                return getWeekday(this.indexOf(day));
+            }, ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
             
             // Event object creation
-            this.events = heldDays.map(function (day) {
+            this.events = days_held.map(function (day) {
                 return {
                     id: this.courseCode,
                     title: title,
@@ -119,375 +93,132 @@ course.factory('Course', ['$http', function ($http) {
         
         this.makeFinal = function () {
             if (this.finalEvent !== undefined) return this.finalEvent;
+            if (this.final == null) return undefined;
             
-            var finalString, title, heldDay, time, start, end, endFront, endBack;
+            var day_held, start, end, end_front, end_back;
+
+            // Course start time parts
+            start_front = parseInt(this.final.clock.start.split(":")[0], 10);
+            start_back = this.final.clock.start.split(":")[1].slice(0, 2);
             
-            if (this.finalExam === undefined || this.finalExam.indexOf("TBA") !== -1) return undefined;
-            else finalString = this.finalExam;
+            // Course end time parts
+            end_front = parseInt(this.final.clock.end.split(":")[0], 10);
+            end_back = this.final.clock.end.split(":")[1].slice(0, 2);
             
-            // Title processing
-            title = this.courseIdentifier.toUpperCase() + " - " + this.type.toUpperCase();
-            // Day processing
+            // Adjust to a 24 hour clock
+            if (this.final.clock.am_pm == "PM" && end_front !== 12) end_front += 12;
+            if (this.final.clock.start == "PM" && start_front !== 12) start_front += 12;
+            if (end_front > 12 && start_front !== 12) start_front += 12;
             
-            switch (finalString.split(",")[0]) {
-                case "Mon":
-                    heldDay = getWeekday(0);
-                    break;
-                
-                case "Tue":
-                    heldDay = getWeekday(1);
-                    break;
-                
-                case "Wed":
-                    heldDay = getWeekday(2);
-                    break;
-                
-                case "Thu":
-                    heldDay = getWeekday(3);
-                    break;
-                
-                case "Fri":
-                    heldDay = getWeekday(4);
-                    break;
-                
-                default:
-                    return undefined;
-            }
+            // Formatting of time string
+            if (start_front < 10) start_front = "0" + start_front;
+            if (end_front < 10) end_front = "0" + end_front;
+            start = "T" + start_front + ":" + start_back + ":00";
+            end = "T" + end_front + ":" + end_back + ":00";
             
-            // Title processing
-            title = this.courseIdentifier.toUpperCase() + " - " + this.type.toUpperCase();
-            // Time parsing
-            time = finalString.split("-");
-            start = time[0].split(", ")[2];
-            start = parseInt(start.split(":")[0], 10);
-            end = time[1];
-            if (end.indexOf("am") !== -1) {
-                end = end.split("am")[0];
-                endFront = parseInt(end.split(":")[0], 10);
-                endBack = parseInt(end.split(":")[1], 10);
-                if (endBack === 0) {
-                    endBack = "00";
-                }
-                start = "0" + start;
-            } else {
-                end = end.split("pm")[0];
-                endFront = parseInt(end.split(":")[0], 10);
-                endBack = parseInt(end.split(":")[1], 10);
-                if (endFront !== 12) {
-                    start += 12;
-                    endFront += 12;
-                }
-                if (endBack === 0) {
-                    endBack = "00";
-                }
-            }
-            start = "T" + start + ":" + time[0].split(", ")[2].split(":")[1] + ":00";
-            end = "T" + endFront + ":" + endBack + ":00";
+            var today = new Date();
+            
+            day_held = today.getFullYear() + "-" + this.final.month_index + "-" + this.final.day;
             
             //Event object creation
             this.finalEvent = {
                 id: this.courseCode,
-                title: title,
-                start: heldDay + start + "Z",
-                end: heldDay + end + "Z",
-                backgroundColor: color
+                title: this.identifier.toUpperCase() + " - " + this.type.toUpperCase(),
+                start: day_held + start + "Z",
+                end: day_held + end + "Z",
+                backgroundColor: this.color
             };
             
             return this.finalEvent;
         };
         
-        this.checkLatestCourseData = function () {
+        this.getLatestCourseData = function () {
             this.fetchingRemoteData = true;
             
-            return $http({
-                url: 'php/scrape.php',
-                method: "GET",
-                params: {course_code: this.courseCode, term: this.term}
+            var course = this;
+            
+            return Retriever.get_course(this.courseCode, this.term).then(function (response) {
+                var classData = response[0];
+            
+                if (classData.course_data === undefined || classData.course_data == "null") {
+                    return undefined;
+                }
+                
+                var courseData = classData.course_data[0];
+            
+                course.name = classData.name;
+                course.identifier = classData.identifier;
+                
+                course.cocoursesURL = classData.cocourses;
+                course.prerequistesURL = classData.prerequisites;
+                course.comments = classData.comments;
+                
+                course.type = courseData.type;
+                course.sec = courseData.sec;
+                
+                course.placeURL = courseData.placeURL;
+                course.place = courseData.place;
+                
+                course.days = courseData.time.days;
+                course.time = courseData.time.clock;
+                
+                course.localEnr = courseData.localEnr;
+                course.totalEnr = courseData.totalEnr;
+                course.max = courseData.max;
+                course.wl = courseData.wl;
+                course.final = courseData.final;
+                
+                course.req = courseData.req;
+                course.rstr = courseData.rstr;
+                course.status = courseData.status;
+                course.initialized = true;
+                
+                course.fetchingRemoteData = false;
+                
+                course.instructor = courseData.instructor;
+                
+                course.deferred.resolve(course);
             });
+            
         };
         
-        this.processLatestData = function (response) {
-            try {
-                course.totalEnr = parseInt(response.data.enr.split("/")[1], 10);
-            } catch (e) {
-                debugger
-            }
+        this.findCoCourses = function (type) {
+            var index = this.identifier.lastIndexOf(" ");
             
-            if (isNaN(course.totalEnr)) course.totalEnr = parseInt(response.data.enr);
+            // Add term to results before returning response
+            var process = function (response) {
+                if (response.length === 0) return [];
+                return response[0].course_data.map(function (course) {
+                    course.term = this.term;
+                    return course;
+                }, this);
+            };
             
-            course.max = parseInt(response.data.max);
-            course.wl = parseInt(response.data.wl);
-            if (isNaN(course.wl)) course.wl = response.data.wl;
-            course.final = response.data.final;
-            course.instructor = response.data.instructor;
-            
-            course.place = response.data.place;
-            course.req = response.data.req;
-            course.rstr = response.data.rstr;
-            course.status = response.data.status;
-            
-            
-            
-            if (course.wl == "n/a") course.wl = 0;
-            
-            course.fetchingRemoteData = false;
+            return Retriever.get_co_courses(this.identifier.substring(0, index).trim(), this.identifier.substring(index).trim(), type, this.term).then(process.bind(this));
         };
-
-        this.checkLatestCourseData().then(course.processLatestData);
         
-    };
-}]);
-
-course.factory('TemporaryStore', ['Course', function (Course) {
-    var TemporaryStore = [];
-    
-    TemporaryStore.courses = {};
-    TemporaryStore.events = [];
-    
-    TemporaryStore.section_restricted = true;
-    TemporaryStore.target_section = undefined;
-    
-    TemporaryStore.empty = function () {
-        return Object.keys(TemporaryStore.courses).length === 0;
-    };
-    
-    TemporaryStore.size = function () {
-        return Object.keys(TemporaryStore.courses).length;
-    };
-    
-    TemporaryStore.clear = function () {
-        TemporaryStore.courses = {};
-        TemporaryStore.events = [];
-        TemporaryStore.section_restricted = true;
-        TemporaryStore.target_section = undefined;
-    };
-    
-    TemporaryStore.addCourse = function (course, replacement) {
-        temporaryCourse = new Course(course, "black");
-        temporaryCourse.tracking = false;
-        temporaryCourse.replacement = replacement;
-        TemporaryStore.courses[temporaryCourse.courseCode] = temporaryCourse;
-        TemporaryStore.events = TemporaryStore.events.concat(temporaryCourse.makeEvent());
-    };
-    
-    TemporaryStore.getCourse = function (courseCode) {
-        return TemporaryStore.courses[courseCode];
-    };
-    
-    TemporaryStore.filterEvents = function (filter) {
-        
-        TemporaryStore.section_restricted = filter; 
+        this.findReplacements = function () {
+            var index = this.identifier.lastIndexOf(" ");
             
-        TemporaryStore.events = [];
-        
-        if (TemporaryStore.section_restricted) {
-            for (var course in TemporaryStore.courses) {
-                if (TemporaryStore.courses[course].sec.indexOf(TemporaryStore.target_section) == 0) {
-                    TemporaryStore.events = TemporaryStore.events.concat(TemporaryStore.courses[course].makeEvent());
-                }
-            }    
-        }
-        else {
-            for (course in TemporaryStore.courses) {
-                TemporaryStore.events = TemporaryStore.events.concat(TemporaryStore.courses[course].makeEvent());
-            }   
-        }
-    };
-    
-    TemporaryStore.searchForCocourses = function (course, type, callback) {
-        TemporaryStore.clear();
-        TemporaryStore.target_section = course.sec.charAt(0);
-        
-        var query = new Parse.Query("Course");
-        query.equalTo("courseIdentifier", course.courseIdentifier);
-        query.equalTo("term", course.term);
-        query.equalTo("type", type.toTitleCase());
-        query.find().then(function (results) {
-            callback(results, false, course.sec);
-        });
-    };
-    
-    TemporaryStore.searchForReplacements = function (course, type, callback) {
-        TemporaryStore.clear();
-        TemporaryStore.target_section = course.sec.charAt(0);
-        
-        var query = new Parse.Query("Course");
-        query.equalTo("courseIdentifier", course.courseIdentifier);
-        query.equalTo("term", course.term);
-        query.notEqualTo("courseCode", course.courseCode);
-        query.equalTo("type", type.toTitleCase());
-        query.find().then(function (results) {
-            callback(results, true, course.sec);
-        });
-    };
-    
-    return TemporaryStore;
-    
-}]);
-
-course.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootScope) {
-    var CourseStore = {};
-    
-    CourseStore.list = undefined;
-    CourseStore.courseCodes = undefined;
-    
-    CourseStore.initialized = false;
-    CourseStore._collection = {};
-    
-    // FullCalendar EventSources
-    CourseStore.events = [];
-    CourseStore.finals = [];
-    
-    // FullCalendar event colors
-    CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
-    
-    CourseStore.setCourseCodes = function (list) {
-        CourseStore.clear()
-        CourseStore.list = list;
-        CourseStore.fetchCourses();
-    };
-    
-    CourseStore.fetchCourses = function () {
-        CourseStore.clearSchedule();
-        
-        CourseStore.list.courseCodes.forEach(function (courseCode) {
-            var query = new Parse.Query("Course");
-            query.equalTo("courseCode", courseCode);
-            query.equalTo("term", this.list.term);
-            query.descending("updatedAt");
-            query.find().then(this.makeCourse);
-        }, CourseStore);
-        
-        CourseStore.initialized = true;
-    };
-    
-    CourseStore.empty = function () {
-        return Object.keys(CourseStore._collection).length === 0;
-    };
-    
-    CourseStore.hasCourse = function (courseCode) {
-        return CourseStore.getCourse(courseCode) !== undefined;
-    };
-    
-    CourseStore.getCourse = function (courseCode) {
-        for (var className in CourseStore._collection) {
-            return CourseStore._collection[className].courses.find(function (course) {
-                return course.courseCode === courseCode;
-            });
-        }
-        return undefined;
-    };
-    
-    CourseStore.getEquivalentCourse = function (course) {
-        var courseGroup = CourseStore._collection[course.courseIdentifier];
-        for (var i = 0; i < courseGroup.courses.length; i++) {
-            if (courseGroup.courses[i].type == course.type) return courseGroup.courses[i];
-        }
-    };
-    
-    CourseStore.putCourse = function (course) {
-        if (CourseStore._collection[course.courseIdentifier] !== undefined) {
-            var existingCourse = CourseStore.getCourse(course.courseCode);
+            // Remove this from the results before returning response
+            var filter = function (response) {
+                if (response.length === 0) return [];
+                return response[0].course_data.filter(function (course) {
+                    return course.courseCode != this.courseCode;
+                }, this).map(function (course) {
+                    course.term = this.term;
+                    return course;
+                }, this);
+            };
             
-            if (existingCourse) existingCourse = course;
-            else {
-                CourseStore._collection[course.courseIdentifier].courses.push(course);    
-            }
-            
-            if (course.type == "LEC") CourseStore._collection[course.courseIdentifier].mainCourse = course;
-        }
-        else {
-            CourseStore._collection[course.courseIdentifier] = {};
-            CourseStore._collection[course.courseIdentifier].className = course.courseName;
-            CourseStore._collection[course.courseIdentifier].classIdentifier = course.courseIdentifier;
-            CourseStore._collection[course.courseIdentifier].courses = [course];
-            CourseStore._collection[course.courseIdentifier].mainCourse = course;
-        }
-    };
-    
-    CourseStore.putEvent = function (event) {
-        CourseStore.events = CourseStore.events.concat(event);
-    };
-    
-    CourseStore.putFinal = function (event) {
-        if (event !== undefined && CourseStore.finals.every(function (finalEvent) {
-            return finalEvent.id !== event.id
-        })) CourseStore.finals = CourseStore.finals.concat(event);
-    };
-    
-    CourseStore.makeCourse = function (course) {
-        var course = new Course(course[0], CourseStore.getColor(course[0].attributes.courseName));
-        CourseStore.putCourse(course);
-        CourseStore.putEvent(course.makeEvent());
-        CourseStore.putFinal(course.makeFinal());
-    };
-    
-    CourseStore.clearSchedule = function () {
-        CourseStore.colors = ["red", "green", "blue", "purple", "orange", "brown", "burlywood", "cadetblue", "coral", "darkcyan", "darkgoldenrod", "darkolivegreen"];
-        CourseStore.events = [];
-        CourseStore.finals = [];
-    };
-    
-    CourseStore.clear = function () {
-        CourseStore.list = undefined;
-        CourseStore.courseCodes = [];
-        CourseStore.initialized = false;    
-        CourseStore._collection = {};
-        CourseStore.clearSchedule();
-    };
+            return Retriever.get_replacement_courses(this.identifier.substring(0, index).trim(), this.identifier.substring(index).trim(), this.type, this.term).then(filter.bind(this));
+        };
         
-    CourseStore.addCourse = function (courseCode) {
-        return Parse.Cloud.run('addCourseNew', {courseCode : courseCode}).then(function (list) {
-            CourseStore.setCourseCodes(list.attributes)
-        });
-    };
-    
-    CourseStore.removeCourse = function (courseCode) {
-        return Parse.Cloud.run('removeCourseNew', {courseCode : courseCode}).then(function (list) {
-            CourseStore._removeCourseFromCollection(courseCode);
-            CourseStore.setCourseCodes(list.attributes);
-        });
-    };
-    
-    CourseStore._removeCourseFromCollection = function (courseCode) {
-        for (var className in CourseStore._collection) {
-            var courses = CourseStore._collection[className].courses;
-            for (var i = 0; i < courses.length; i++) {
-                if (courses[i].courseCode === courseCode) {
-                    return CourseStore._collection[className].courses.splice(i, 1);
-                }
-            }
-        }
-
-        return undefined;
-    };
+        this.getLatestCourseData();
         
-    CourseStore.replaceCourse = function (oldCourseCode, newCourseCode) {
-        return Parse.Cloud.run('removeCourseNew', {courseCode : oldCourseCode}).then(function () {
-            return Parse.Cloud.run('addCourseNew', {courseCode : newCourseCode}).then(function (list) {
-                CourseStore._removeCourseFromCollection(oldCourseCode);
-                CourseStore.fetchCourses(list.attributes);
-            });
-        });
-    };
-    
-    CourseStore.getColor = function (courseIdentifier) {
-        if (CourseStore._collection[courseIdentifier] !== undefined) {
-            return CourseStore._collection[courseIdentifier].mainCourse.color;
-        }
+        return this;
         
-        // Random color for a class
-        var hash = Math.abs(courseIdentifier.hash()) % CourseStore.colors.length;
-        return CourseStore.colors.splice(CourseStore.colors.indexOf(CourseStore.colors[hash]), 1)[0];
     };
-    
-    // Listen for logout event and clear data store on event
-    $rootScope.$on('logout', function () {
-        CourseStore.clear();
-    });
-    
-    return CourseStore;
-    
 }]);
 
 course.factory('ButtonConfiguration', function () {
@@ -515,7 +246,8 @@ course.factory('ButtonConfiguration', function () {
             buttonSizeClass: 'col-xs-12',
             buttonInitialIcon: 'glyphicon glyphicon-plus',
             buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
-            buttonSuccessIcon: 'glyphicon glyphicon-ok'
+            buttonSuccessIcon: 'glyphicon glyphicon-ok',
+            animationCompleteTime: '0'
         },
         removeOptions: {
             buttonDefaultText: 'Remove',
@@ -527,7 +259,8 @@ course.factory('ButtonConfiguration', function () {
             buttonSizeClass: 'col-xs-12',
             buttonInitialIcon: 'glyphicon glyphicon-minus',
             buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
-            buttonSuccessIcon: 'glyphicon glyphicon-ok'
+            buttonSuccessIcon: 'glyphicon glyphicon-ok',
+            animationCompleteTime: '0'
         },
         replaceOptions: {
             buttonDefaultText: 'Replace',
@@ -548,7 +281,6 @@ course.factory('ButtonConfiguration', function () {
             buttonDefaultClass: 'btn-default',
             buttonSubmittingClass: 'btn-primary',
             buttonSuccessClass: 'btn-success',
-            buttonSizeClass: 'col-xs-10',
             buttonInitialIcon: 'glyphicon glyphicon-minus',
             buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
             buttonSuccessIcon: 'glyphicon glyphicon-ok'
@@ -582,49 +314,132 @@ course.directive('courseView', function () {
     }
 });
 
-course.directive('courseTitleView', function () {
+course.directive('courseMiniView', function () {
     return {
-        templateUrl: "app/components/course/directives/course-title-view.html"
+        templateUrl: "app/components/course/directives/course-mini-view.html"
+    }
+})
+
+course.directive('courseTitle', function () {
+    return {
+        templateUrl: "app/components/course/directives/course-title.html"
     }
 });
 
-course.directive('courseInfoView', function () {
+course.directive('courseInfo', function () {
      return {
-        templateUrl: "app/components/course/directives/course-info-view.html"
+        templateUrl: "app/components/course/directives/course-info.html"
     }
 });
 
-course.directive('courseActionsView', function () {
+course.directive('courseCode', function () {
     return {
-        templateUrl: "app/components/course/directives/course-actions-view.html"
+        templateUrl: 'app/components/course/directives/course-code.html'
     }
 });
 
-course.directive('courseSearchView', function () {
+course.directive('courseName', function () {
     return {
-        templateUrl: 'app/components/course/directives/course-search-view.html'
+        templateUrl: 'app/components/course/directives/course-name.html'
     }
 });
 
-course.directive('courseHeldDaysView', function () {
+course.directive('courseInstructor', ['$http', function ($http) {
     return {
-        templateUrl: "app/components/course/directives/course-held-days-view.html"
-    }
-});
-
-course.directive('courseProgressView', function () {
-    return {
-        templateUrl: "app/components/course/directives/course-progress-view.html"
-    }
-});
-
-course.filter('section', function() {
-    return function (input, sec, enabled) {
-        if (enabled) {
-            var output = [];
-            for (course in input) if (input[course].sec.indexOf(sec) == 0) output.push(input[course]);
-            return output;
+        scope: {
+            instructor: "="  
+        },
+        templateUrl: 'app/components/course/directives/course-instructor.html',
+        link: function (scope, element, attributes) {
+            
+            var instructor_data = {};
+            
+            if (scope.instructor == "") return scope.instructor === undefined;
+            
+            else if (scope.instructor.indexOf("STAFF") !== -1) {                
+                instructor_data.first_name = "STAFF";
+                instructor_data.last_name = "STAFF";
+                instructor_data.staff = true;
+            }
+            else {
+                var split_name = scope.instructor.split(",");
+                instructor_data.first_name = split_name[1].trim();
+                instructor_data.last_name = split_name[0].trim();
+                instructor_data.staff = false;
+            }
+            
+            if (!instructor_data.staff && Object.keys(instructor_data).length > 0) {
+                $http({
+                    url: 'php/ratemyprofessor.php',
+                    method: 'GET',
+                    params: {last_name: instructor_data.last_name}
+                }).then(function (response) {
+                    var potential_match = response.data.response.docs.find(function (potential) {
+                        return potential.teacherlastname_t.toUpperCase() == this.toUpperCase();
+                    }, response.config.params.last_name);
+                    if (potential_match !== undefined) {
+                        instructor_data.rmp_id = potential_match.pk_id;
+                        instructor_data.rmp_avg_rating = potential_match.averageratingscore_rf;
+                        instructor_data.rmp_num_rating = potential_match.total_number_of_ratings_i;
+                    }
+                    scope.instructor = instructor_data;
+                });
+            }
+            scope.instructor = instructor_data;
         }
-        else return input;    
-    };
+    }
+}]);
+
+course.directive('courseActions', function () {
+    return {
+        templateUrl: "app/components/course/directives/course-actions.html"
+    }
+});
+
+course.directive('courseMiniActions', function () {
+    return {
+        templateUrl: "app/components/course/directives/course-mini-actions.html",
+    }
+});
+
+course.directive('courseSearch', function () {
+    return {
+        templateUrl: 'app/components/course/directives/course-search.html'
+    }
+});
+
+course.directive('courseHeldDays', function () {
+    return {
+        scope: {
+            days: "="
+        },
+        templateUrl: "app/components/course/directives/course-held-days.html"
+    }
+});
+
+course.directive('courseTime', function () {
+    return {
+        scope: {
+            time: "="
+        },
+        templateUrl: "app/components/course/directives/course-time.html"
+    }
+});
+
+course.directive('coursePlace', function () {
+    return {
+        templateUrl: "app/components/course/directives/course-place.html"
+    }
+});
+
+course.directive('courseProgress', function () {
+    return {
+        templateUrl: "app/components/course/directives/course-progress.html"
+    }
+});
+
+course.directive('courseFinal', function () {
+    return {
+        templateUrl: "app/components/course/directives/course-final.html"
+    }
 });

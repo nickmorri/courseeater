@@ -17,6 +17,11 @@
     				</a>
 				</li>
 				<li ui-sref-active-eq="active">
+				    <a href ui-sref="search">
+    				    <span class="glyphicon glyphicon-search"></span> Search
+    				</a>
+				</li>
+				<li ui-sref-active-eq="active">
 				    <a href ui-sref="schedule">
     				    <span class="glyphicon glyphicon-time"></span> Schedule
     				</a>
@@ -30,7 +35,8 @@
 			<ul class="nav navbar-nav navbar-right">
     			<connection-view></connection-view>
 				<course-list-view></course-list-view>
-				<user-menu></user-menu>	
+				<user-menu ng-show="authService.loggedIn"></user-menu>
+				<anonymous-menu ng-hide="authService.loggedIn"></anonymous-menu>
 			</ul>
 		</div>
 	</div>

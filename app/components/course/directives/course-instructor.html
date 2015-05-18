@@ -1,0 +1,12 @@
+<span ng-if="instructor">
+    <a ng-if="!instructor.staff && instructor.rmp_id !== undefined" href="http://www.ratemyprofessors.com/ShowRatings.jsp?tid={{instructor.rmp_id}}" target="_blank">
+        <span class="glyphicon glyphicon-link"></span>
+        {{instructor.last_name}}, {{instructor.first_name}}
+        <span class="badge" popover="Average rating of {{instructor.rmp_avg_rating}} from {{instructor.rmp_num_rating}} RateMyProfessors reviews." popover-trigger="mouseenter" popover-append-to-body="true">{{instructor.rmp_avg_rating}}</span>
+    </a>
+    <a ng-if="instructor.rmp_id === undefined && !instructor.staff" href="http://www.ratemyprofessors.com/search.jsp?queryoption=HEADER&queryBy=teacherName&schoolName=University+of+California+Irvine&schoolID=1074&query={{instructor.last_name}}" target="_blank">
+        <span class="glyphicon glyphicon-link"></span>
+        {{instructor.last_name}}, {{instructor.first_name}}
+    </a>
+    <span ng-if="instructor.staff" class="disabled">STAFF</span>
+</span>

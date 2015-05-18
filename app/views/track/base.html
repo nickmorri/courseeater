@@ -19,11 +19,13 @@
     <div class="container" ng-show="courseStore.initialized">
         <div class="container" ng-show="courseStore.empty()">
             <h1>You don't have any courses added :(</h1>
+            <h3 class="body-copy">Try <a href ui-sref="search">searching</a> for courses.</h3>
         </div>
         <div ng-hide="courseStore.empty()" class="row">
-            <class-view class="col-lg-4 col-md-4 col-sm-6 col-xs-12" ng-repeat="class in courseStore._collection"></class-view>    
+            <class-view class="col-lg-4 col-md-4 col-sm-6 col-xs-12" ng-repeat="class in courseStore.getCourses() | groupBy: 'identifier'"></class-view>
         </div>
     </div>
+    
     <div class="container" ng-hide="courseStore.initialized">
         <div class="spinner"></div>
     </div>

@@ -32,3 +32,13 @@ a:hover, a:visited, a:link, a:active {
 .container-settings {
     padding-top: 0px;
 }
+/* Search input */
+.form-control-search-filter {
+    height: 34px !important;
+}
+.btn-group-search-type {
+    display: block;
+}
+.input-group-addon {
+    border-radius: 0px;
+}

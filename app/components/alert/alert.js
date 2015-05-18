@@ -57,20 +57,15 @@ alert.controller('AlertController', ['$scope', '$modal', 'AlertStore', 'CourseLi
     $scope.courseListStore = CourseListStore;
     
     
-    $scope.newCourseList = function (index) {
-        
+    $scope.newCourseList = function (targetList) {
         var modalInstance = $modal.open({
             templateUrl: 'app/components/list/directives/course-list-modal.html',
             controller: 'CourseListModalController',
             resolve: {
                 list: function () {
-                    return undefined;
+                    return targetList;
                 }
             }
-        });
-        
-        modalInstance.result.then(function () {
-            $scope.alertStore.removeMessage(index);
         });
     };
 }]);

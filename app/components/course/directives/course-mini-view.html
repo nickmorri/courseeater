@@ -1,0 +1,29 @@
+<div class="col-xs-12 col-md-3 course-search-item">
+    <div class="panel panel-{{course.type}}">
+        <div class="panel-heading">
+            <div class="mini-panel-title">
+                {{course.type}} {{course.sec}} <span class="pull-right">{{course.courseCode}}</span>
+            </div>
+        </div>
+        <div class="panel-body">
+            <ul class="list-group">
+                <li class="list-group-item course-search-item-detail">
+                    <course-instructor ng-repeat="instructor in course.instructor" instructor="instructor"></course-instructor>
+                    </span>
+                </li>
+                <li class="list-group-item course-search-item-detail">
+                    <course-time time="course.time.clock"></course-time>
+                </li>
+                <li class="list-group-item course-search-item-detail">
+                    <course-held-days days="course.time.days"></course-held-days>
+                </li>
+                <li class="list-group-item course-search-item-detail">
+                    <course-progress></course-progress>
+                </li>
+                <li class="list-group-item course-search-item-detail">
+                    <course-mini-actions></course-mini-actions>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
