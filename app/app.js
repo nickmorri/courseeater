@@ -65,32 +65,16 @@ courseeater_app.controller('HeadController', ['$scope', '$state', function ($sco
 }]);
 
 courseeater_app.controller('NavController',['$scope', '$state', function ($scope, $timeout, $state) {
-    $scope.connected = navigator.onLine;
     $scope.state = $state;
     
     $scope.isPage = function (page) {
         return $scope.state.is(page);
     };
-    
-    $scope.checkConnection = function (status) {
-        $scope.connected = status;
-    };
-    
-    $scope.$watch('online', $scope.checkConnection);
-    
 }]);
 
 courseeater_app.directive('navigationView', function () {
     return {
         templateUrl: 'app/directives/navigation.html'
-    }
-});
-
-courseeater_app.directive('connectionView', function () {
-    return {
-        restrict: 'E',
-        replace: true,
-        templateUrl: 'app/directives/connection-view.html'
     }
 });
 
