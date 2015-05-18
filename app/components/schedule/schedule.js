@@ -126,7 +126,11 @@ schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'Course
         
         var monday = getMonday(date);
         
-        $scope.uiConfig.calendar.defaultDate = monday.getFullYear() + "-" + (monday.getMonth() + 1)  + "-" + monday.getDate();;
+        var year = monday.getFullYear();
+        var month = (monday.getMonth() + 1);
+        var day = monday.getDate().length == 2 ? monday.getDate() : ("0" + monday.getDate());
+        
+        $scope.uiConfig.calendar.defaultDate = year + "-" + month + "-" + day;
         
     };
     
