@@ -91,6 +91,36 @@ if (!String.prototype.startsWith) {
     };
 }
 
+var makeImage = function (element, file_name) {
+	html2canvas(angular(element), {
+		onrendered: function(canvas) {
+			var destinationCanvas, destinationContext, today, link;
+		
+			destinationCanvas = document.createElement('canvas');
+			destinationCanvas.width = canvas.width;
+			destinationCanvas.height = canvas.height;
+			
+			destinationContext = destinationCanvas.getContext("2d");
+			destinationContext.rect(0, 0, canvas.width, canvas.height);
+			destinationContext.fillStyle = "white";
+			destinationContext.fill();
+
+			destinationContext.drawImage(canvas, 0, 0, canvas.width, canvas.height);
+			
+			destinationContext.font = '10pt Helvetica';
+			destinationContext.fillStyle = "black";
+			destinationContext.fillText("CourseEater.com", canvas.width - 140, canvas.height - 8);
+			
+			today = new Date();
+			
+			link = document.createElement("a");
+			link.download = file_name + " | CourseEater - " + today.toLocaleDateString("en-US") + ".png";
+			link.href = destinationCanvas.toDataURL();
+			link.click();
+	    }
+	});
+};
+
 // Third party code
 
 var google_analytics = function () {
