@@ -92,7 +92,7 @@ if (!String.prototype.startsWith) {
 }
 
 var makeImage = function (element, file_name) {
-	html2canvas(angular(element), {
+	html2canvas($(element), {
 		onrendered: function(canvas) {
 			var destinationCanvas, destinationContext, today, link;
 		
