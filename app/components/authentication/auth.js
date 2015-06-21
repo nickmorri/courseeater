@@ -1,4 +1,4 @@
-var authentication = angular.module('courseeater.auth', ['parse-angular', 'parse.service', 'jp.ng-bs-animated-button']);
+var authentication = angular.module('courseeater.auth', ['parse-angular', 'parse.service', 'jp.ng-bs-animated-button', 'courseeater.retrieve']);
 
 authentication.factory('AuthService', ['$state', '$rootScope', '$window', function ($state, $rootScope, $window) {
     var authService = {};
@@ -121,7 +121,7 @@ authentication.directive('loginPartial', ['AuthService', function (AuthService) 
     };
 }]);
 
-authentication.directive('registrationPartial', ['AuthService', '$http', function (AuthService, $http) {
+authentication.directive('registrationPartial', ['AuthService', 'AntplannerRetriever', function (AuthService, AntplannerRetriever) {
     return {
         scope: {},
         templateUrl: 'app/partials/registration-partial.html',
@@ -156,16 +156,12 @@ authentication.directive('registrationPartial', ['AuthService', '$http', functio
             };
             
             $scope.importAntplannerAccount = function (username) {
-                return $http({
-                    url: 'php/antplanner.php',
-                    method: "GET",
-                    params: {username: username}
-                });
+                return AntplannerRetriever.retrieve(username);
             };
             
             $scope.register = function () {
                 
-                debugger
+
                 $scope.result = null;
                 $scope.error = false;
                 $scope.isRegistering = true;
@@ -177,26 +173,8 @@ authentication.directive('registrationPartial', ['AuthService', '$http', functio
                     return;
                 }
                 
-                var courseCodes = [];
-                
                 if ($scope.antplanner_username) {
-                    $scope.importAntplannerAccount($scope.antplanner_username).then(function(response) {
-                        
-                        if (!response.data.success) {
-                            $scope.result = "error";
-                            $scope.error = true;
-                            $scope.error_message = "The Antplanner username entered was not retrieved. Please try again.";
-                        }
-                        
-                        var data = JSON.parse(response.data.data);
-                        
-                        for (var i = 0; i < data.length; i++) {
-                            var courseCode = parseInt(data[i].groupId, 10);
-                            if (courseCodes.indexOf(courseCode) == -1) courseCodes.push(courseCode);
-                        }
-                        
-                        
-                        
+                    $scope.importAntplannerAccount($scope.antplanner_username).then(function(courseCodes) {
                         $scope.authService.register($scope.username, $scope.email, $scope.password, {title: $scope.antplanner_username, courseCodes: courseCodes}).then(function (status) {
                             $scope.setInitialState();
                             $scope.result = "success";
@@ -207,6 +185,10 @@ authentication.directive('registrationPartial', ['AuthService', '$http', functio
                             $scope.error = true;
                             $scope.error_message = error.message !== undefined ? error.message : "Something went wrong. Please try registering again.";
                         });
+                    }, function (error) {
+                        $scope.result = "error";
+                        $scope.error = true;
+                        $scope.error_message = "The Antplanner username entered was not retrieved. Please try again.";
                     });
                 }
                 else {

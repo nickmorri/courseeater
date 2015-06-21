@@ -1,6 +1,6 @@
 var retrieve = angular.module('courseeater.retrieve', []);
 
-retrieve.factory('Retriever', ['$http', '$q', function ($http, $q) {
+retrieve.factory('ScheduleRetriever', ['$http', '$q', function ($http, $q) {
     var Retriever = {};
     
     Retriever.host = 'https://development.courseeater.com';
@@ -288,6 +288,60 @@ retrieve.factory('Retriever', ['$http', '$q', function ($http, $q) {
     
     Retriever.get_ge = function (category, term) {
         return Retriever.get(Retriever.build_ge_url(category, term));
+    };
+    
+    return Retriever;
+}])
+
+retrieve.factory('InstructorRetriever', ['$http', '$q', function ($http, $q) {
+    var Retriever = {};
+    
+    Retriever.host = 'https://development.courseeater.com';
+    Retriever.port = 5000;
+    
+    Retriever.school_id = 1074;
+    
+    /* General operations */
+    
+    Retriever.retrieve = function (last_name, first_name) {
+        return $http.get(Retriever.build_base_url(last_name)).then(function (response) {
+            return response.data.response.docs.find(function (potential) {
+                return potential.teacherlastname_t.toUpperCase() == this.last_name.toUpperCase() && potential.teacherfirstname_t.toUpperCase()[0] == this.first_name.toUpperCase()[0];
+            }, {last_name: last_name, first_name: first_name});
+        });
+    };
+    
+    Retriever.build_base_url = function (last_name) {
+        return Retriever.host + ':' + Retriever.port + '/typeahead/suggest/?solrformat=true&rows=10&q=' + encodeURIComponent(last_name) + '+AND+schoolid_s%3A' + encodeURIComponent(Retriever.school_id) + '&defType=edismax&qf=teacherfullname_t%5E1000+autosuggest&bf=pow(total_number_of_ratings_i%2C2.1)&sort=total_number_of_ratings_i+desc&siteName=rmp&rows=20&start=0&fl=pk_id+teacherfirstname_t+teacherlastname_t+total_number_of_ratings_i+averageratingscore_rf+schoolid_s'; 
+    };
+    
+    return Retriever;
+}]);
+
+retrieve.factory('AntplannerRetriever', ['$http', '$q', function ($http, $q) {
+    var Retriever = {};
+    
+    Retriever.host = 'https://development.courseeater.com';
+    Retriever.port = 5500;
+    
+    /* General operations */
+    
+    Retriever.retrieve = function (username) {
+        return $http.get(Retriever.build_base_url(username)).then(function (response) {
+            return JSON.parse(response.data.data).map(function (item) {
+                return parseInt(item.groupId, 10);
+            }).filter(function (courseCode) {
+                if (this.hasOwnProperty(courseCode)) return false;
+                else {
+                    this[courseCode] = true;
+                    return true;
+                }
+            }, {});
+        });
+    };
+    
+    Retriever.build_base_url = function (username) {
+        return Retriever.host + ':' + Retriever.port + '/schedule/load?username=' + encodeURIComponent(username); 
     };
     
     return Retriever;

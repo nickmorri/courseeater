@@ -11,7 +11,7 @@ course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStor
     });
 }]);
 
-course.factory('Course', ['$q', 'Retriever', function ($q, Retriever) {
+course.factory('Course', ['$q', 'ScheduleRetriever', 'InstructorRetriever', function ($q, ScheduleRetriever, InstructorRetriever) {
     return function (courseCode, term, color) {
         
         var course = this;
@@ -137,7 +137,7 @@ course.factory('Course', ['$q', 'Retriever', function ($q, Retriever) {
             
             var course = this;
             
-            return Retriever.get_course(this.courseCode, this.term).then(function (response) {
+            return ScheduleRetriever.get_course(this.courseCode, this.term).then(function (response) {
                 var classData = response[0];
             
                 if (classData.course_data === undefined || classData.course_data == "null") {
@@ -177,9 +177,41 @@ course.factory('Course', ['$q', 'Retriever', function ($q, Retriever) {
                 
                 course.instructor = courseData.instructor;
                 
+                course.getInstructorData();
+                
                 course.deferred.resolve(course);
             });
             
+        };
+        
+        this.getInstructorData = function () {
+            this.instructor = this.instructor.map(function (instructor) {
+                var instructor_data = {};
+            
+                if (instructor == "") return undefined;
+                
+                else if (instructor.indexOf("STAFF") !== -1) {                
+                    instructor_data.first_name = "STAFF";
+                    instructor_data.last_name = "STAFF";
+                    instructor_data.staff = true;
+                }
+                else {
+                    var split_name = instructor.split(",");
+                    instructor_data.first_name = split_name[1].trim();
+                    instructor_data.last_name = split_name[0].trim();
+                    instructor_data.staff = false;
+                }
+                
+                if (!instructor_data.staff && Object.keys(instructor_data).length > 0) {
+                    InstructorRetriever.retrieve(instructor_data.last_name, instructor_data.first_name).then(function (result) {
+                        if (result === undefined) return undefined;
+                        instructor_data.rmp_id = result.pk_id;
+                        instructor_data.rmp_avg_rating = result.averageratingscore_rf;
+                        instructor_data.rmp_num_rating = result.total_number_of_ratings_i;
+                    });
+                }
+                return instructor_data;
+            });
         };
         
         this.findCoCourses = function (type) {
@@ -344,51 +376,14 @@ course.directive('courseName', function () {
     }
 });
 
-course.directive('courseInstructor', ['$http', function ($http) {
+course.directive('courseInstructor', function () {
     return {
         scope: {
             instructor: "="  
         },
-        templateUrl: 'app/components/course/directives/course-instructor.html',
-        link: function (scope, element, attributes) {
-            
-            var instructor_data = {};
-            
-            if (scope.instructor == "") return scope.instructor === undefined;
-            
-            else if (scope.instructor.indexOf("STAFF") !== -1) {                
-                instructor_data.first_name = "STAFF";
-                instructor_data.last_name = "STAFF";
-                instructor_data.staff = true;
-            }
-            else {
-                var split_name = scope.instructor.split(",");
-                instructor_data.first_name = split_name[1].trim();
-                instructor_data.last_name = split_name[0].trim();
-                instructor_data.staff = false;
-            }
-            
-            if (!instructor_data.staff && Object.keys(instructor_data).length > 0) {
-                $http({
-                    url: 'php/ratemyprofessor.php',
-                    method: 'GET',
-                    params: {last_name: instructor_data.last_name}
-                }).then(function (response) {
-                    var potential_match = response.data.response.docs.find(function (potential) {
-                        return potential.teacherlastname_t.toUpperCase() == this.toUpperCase();
-                    }, response.config.params.last_name);
-                    if (potential_match !== undefined) {
-                        instructor_data.rmp_id = potential_match.pk_id;
-                        instructor_data.rmp_avg_rating = potential_match.averageratingscore_rf;
-                        instructor_data.rmp_num_rating = potential_match.total_number_of_ratings_i;
-                    }
-                    scope.instructor = instructor_data;
-                });
-            }
-            scope.instructor = instructor_data;
-        }
+        templateUrl: 'app/components/course/directives/course-instructor.html'
     }
-}]);
+});
 
 course.directive('courseActions', function () {
     return {
