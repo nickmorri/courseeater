@@ -1,0 +1,26 @@
+{
+  "name": "CourseEater",
+  "version": "1.0.0",
+  "dependencies": {
+    "angular": "~1.4.1",
+    "angular-route": "1.2.16",
+    "angular-mocks": "1.2.16",
+    "jquery": "~2.1.4",
+    "underscore": "1.6.0",
+    "angular-local-storage": "~0.2.2",
+    "bootstrap": "~3.3.5",
+    "angular-ui-router": "~0.2.15",
+    "angular-ui-bootstrap": "~0.13.0",
+    "angular-filter": "~0.5.4",
+    "moment": "~2.10.3",
+    "fullcalendar": "~2.3.2",
+    "angular-ui-calendar": "~1.0.0",
+    "ng-bs-animated-button": "~2.0.3",
+    "html2canvas": "~0.4.1"
+  },
+  "analytics": false,
+  "resolutions": {
+    "angular": "1.4.1",
+    "fullcalendar": "~2.3.2"
+  }
+}
