@@ -31,7 +31,7 @@ retrieve.factory('ScheduleRetriever', ['$http', '$q', function ($http, $q) {
         return {
             identifier: data.firstChild.textContent.trim().replace(/\s{2,}/g, ' '),
             name: data.querySelector('font').textContent,
-            prerequisites: data.querySelector('a') != null ? data.querySelector('a').href : null,
+            prerequisites: data.querySelector('a') !== null ? data.querySelector('a').href : null,
             course_data: []
         };
     };
@@ -50,11 +50,11 @@ retrieve.factory('ScheduleRetriever', ['$http', '$q', function ($http, $q) {
                     return true;
                 }
                 else return false;
-            }, {}) : [element.innerText]
+            }, {}) : [element.innerText];
         };
         
         var process_clock = function (time) {
-            if (time.indexOf("TBA") != -1) return null
+            if (time.indexOf("TBA") != -1) return null;
             // Remove whitespace around time string
             var start_end = time.trim().split("-");                
             var start = start_end[0].trim();
@@ -73,7 +73,7 @@ retrieve.factory('ScheduleRetriever', ['$http', '$q', function ($http, $q) {
                 start: start.replace('pm', '').replace('p', ''),
                 end: end.replace('pm', '').replace('p', ''),
                 am_pm: am_pm
-            }
+            };
         };
         
         var process_time = function (time) {
@@ -104,11 +104,11 @@ retrieve.factory('ScheduleRetriever', ['$http', '$q', function ($http, $q) {
         };
         
         var process_place_url = function (element) {
-            return element.querySelector('a') != null ? element.querySelector('a').href : ''
+            return element.querySelector('a') !== null ? element.querySelector('a').href : '';
         };
         
         var process_final = function (element) {
-            if (element.textContent.trim() == "") return null;
+            if (element.textContent.trim() === "") return null;
             
             var split_final = element.textContent.trim().split(",");
             
@@ -143,7 +143,7 @@ retrieve.factory('ScheduleRetriever', ['$http', '$q', function ($http, $q) {
         };
         
         var process_textbook_url = function (element) {
-            return element.querySelector('a') != null ? element.querySelector('a').href : '';
+            return element.querySelector('a') !== null ? element.querySelector('a').href : '';
         };
         
         var process_enrolled = function (element) {
@@ -152,13 +152,13 @@ retrieve.factory('ScheduleRetriever', ['$http', '$q', function ($http, $q) {
                 return {
                     local: parseInt(split_enr[0].trim(), 10),
                     total: parseInt(split_enr[1].trim(), 10),
-                }
+                };
             }
             else {
                 return {
                     local: parseInt(element.textContent, 10),
                     total: parseInt(element.textContent, 10)        
-                }
+                };
             }
         };
         
@@ -251,7 +251,7 @@ retrieve.factory('ScheduleRetriever', ['$http', '$q', function ($http, $q) {
                     name: option.text,
                     value: option.value.trim(),
                     type: 'category'
-                }
+                };
             });
         });
     };
@@ -291,7 +291,7 @@ retrieve.factory('ScheduleRetriever', ['$http', '$q', function ($http, $q) {
     };
     
     return Retriever;
-}])
+}]);
 
 retrieve.factory('InstructorRetriever', ['$http', '$q', function ($http, $q) {
     var Retriever = {};
@@ -345,4 +345,4 @@ retrieve.factory('AntplannerRetriever', ['$http', '$q', function ($http, $q) {
     };
     
     return Retriever;
-}])
+}]);

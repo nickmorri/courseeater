@@ -73,5 +73,5 @@ alert.controller('AlertController', ['$scope', '$modal', 'AlertStore', 'CourseLi
 alert.directive('alertView', function () {
     return {
         templateUrl: 'app/components/alert/directives/alert-view.html'
-    }
+    };
 });

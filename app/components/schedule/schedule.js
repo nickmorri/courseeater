@@ -40,7 +40,7 @@ schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListS
     };
     
     $scope.makeImage = function () {
-    	makeImage("#calendar", 'Schedule');
+        makeImage("#calendar", 'Schedule');
     };
     
     $scope.$watch('courseStore.events', function (newValue, oldValue) {
@@ -102,7 +102,7 @@ schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'Course
     };
     
     $scope.findFinalWeekStart = function (finals) {
-        if ($scope.eventSource[0].length == 0) return;
+        if ($scope.eventSource[0].length === 0) return;
         var earliestFinal = $scope.eventSource[0].reduce(function (previous, current) {
             var previousDay = parseInt(previous.end.split('T')[0].split('-')[2], 10);
             var currentDay = parseInt(current.end.split('T')[0].split('-')[2], 10);
@@ -111,16 +111,12 @@ schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'Course
         
         var unordered_date = earliestFinal.end.split('T')[0].split('-');
         
-        var year = parseInt(unordered_date[0], 10);
-        var month = parseInt(unordered_date[1], 10);
-        var day = parseInt(unordered_date[2], 10);
-        
-        var date = new Date(year, month - 1, day);
+        var date = new Date(parseInt(unordered_date[0], 10), parseInt(unordered_date[1], 10) - 1, parseInt(unordered_date[2], 10));
         
         function getMonday(d) {
             d = new Date(d);
             var day = d.getDay(),
-                diff = d.getDate() - day + (day == 0 ? -6:1); // adjust when day is sunday
+                diff = d.getDate() - day + (day === 0 ? -6:1); // adjust when day is sunday
             return new Date(d.setDate(diff));
         }
         
@@ -129,7 +125,7 @@ schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'Course
         var year = monday.getFullYear().toString();
         var month = (monday.getMonth() + 1).toString();
         month = month.length == 2 ? month : "0" + month;
-        var day = monday.getDate()
+        var day = monday.getDate();
         day = day.length == 2 ? day : ("0" + day);
         
         $scope.uiConfig.calendar.defaultDate = year + "-" + month + "-" + day;
@@ -137,7 +133,7 @@ schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'Course
     };
     
     $scope.makeImage = function () {
-    	makeImage("#finals_calendar", 'Finals');
+        makeImage("#finals_calendar", 'Finals');
     };
     
     $scope.$watch('courseStore.finals', function (newValue, oldValue) {
@@ -164,7 +160,7 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
         $scope.courseStore.addCourse(course.courseCode).then(function () {
             return $scope.temporaryStore.clear();
         }).then(function () {
-            $scope.$close()
+            $scope.$close();
         });
     };
     
@@ -178,7 +174,7 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
         $scope.courseStore.replaceCourse($scope.temporaryStore.course_code_for_replacement, course.courseCode).then(function () {
             return $scope.temporaryStore.clear();
         }).then(function () {
-            $scope.$close()
+            $scope.$close();
         });
 
     };
@@ -201,5 +197,5 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
 schedule.directive('scheduleToolbar', function () {
     return {
         templateUrl: 'app/components/schedule/directives/schedule-toolbar.html'
-    }
+    };
 });

@@ -5,7 +5,7 @@ authentication.factory('AuthService', ['$state', '$rootScope', '$window', functi
     
     authService.currentUser = Parse.User.current();
     
-    authService.loggedIn = authService.currentUser != null;
+    authService.loggedIn = authService.currentUser !== null;
     
     authService.checkLogin = function (username, password) {
         return Parse.User.logIn(username, password);
@@ -14,7 +14,7 @@ authentication.factory('AuthService', ['$state', '$rootScope', '$window', functi
     authService.login = function (username, password) {
         return Parse.User.logIn(username, password).then(function (response) {
             authService.currentUser = Parse.User.current();
-            authService.loggedIn = authService.currentUser != null;
+            authService.loggedIn = authService.currentUser !== null;
             $rootScope.$broadcast("login");
         }, function (error) {
             authService.currentUser = null;
@@ -30,7 +30,7 @@ authentication.factory('AuthService', ['$state', '$rootScope', '$window', functi
         
         return user.signUp().then(function (response) {
             authService.currentUser = Parse.User.current();
-            authService.loggedIn = authService.currentUser != null;
+            authService.loggedIn = authService.currentUser !== null;
             $rootScope.$broadcast("login");
         }, function (error) {
             authService.currentUser = null;
@@ -45,7 +45,7 @@ authentication.factory('AuthService', ['$state', '$rootScope', '$window', functi
     authService.logout = function () {
         Parse.User.logOut();
         authService.currentUser = null;
-        authService.loggedIn = authService.currentUser != null;
+        authService.loggedIn = authService.currentUser !== null;
         $rootScope.$broadcast("logout");
     };
     
@@ -65,7 +65,7 @@ authentication.directive('userMenu', function () {
         restrict: 'E',
         replace: true,
         templateUrl: 'app/partials/user-menu.html'
-    }
+    };
 });
 
 authentication.directive('anonymousMenu', function () {
@@ -80,10 +80,10 @@ authentication.directive('anonymousMenu', function () {
             $scope.toggle_menu = function ($event) {
                 $event.preventDefault();
                 $event.stopPropagation();
-                $scope.menu_shown = $scope.menu_shown != "login" ?  "login" : "register"
+                $scope.menu_shown = $scope.menu_shown != "login" ?  "login" : "register";
             };
         }
-    }
+    };
 });
 
 authentication.directive('loginPartial', ['AuthService', function (AuthService) {
@@ -169,7 +169,7 @@ authentication.directive('registrationPartial', ['AuthService', 'AntplannerRetri
                 if ($scope.password != $scope.verify_password) {
                     $scope.result = "error";
                     $scope.error = true;
-                    $scope.error_message = "Password and verification password did not match please try again."
+                    $scope.error_message = "Password and verification password did not match please try again.";
                     return;
                 }
                 
@@ -207,7 +207,7 @@ authentication.directive('registrationPartial', ['AuthService', 'AntplannerRetri
             
             $scope.setInitialState();
         }]
-    }
+    };
 }]);
 
 authentication.directive('passwordResetPartial', ['AuthService', function (AuthService) {
@@ -231,5 +231,5 @@ authentication.directive('passwordResetPartial', ['AuthService', function (AuthS
                 });
             };
         }]
-    }
+    };
 }]);

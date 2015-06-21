@@ -36,61 +36,6 @@ var getWeekday = function (day) {
 	return date.toISOString().split("T")[0];
 };
 
-// Polyfills
-
-if (!Array.prototype.find) {
-  Array.prototype.find = function(predicate) {
-    if (this == null) {
-      throw new TypeError('Array.prototype.find called on null or undefined');
-    }
-    if (typeof predicate !== 'function') {
-      throw new TypeError('predicate must be a function');
-    }
-    var list = Object(this);
-    var length = list.length >>> 0;
-    var thisArg = arguments[1];
-    var value;
-
-    for (var i = 0; i < length; i++) {
-      value = list[i];
-      if (predicate.call(thisArg, value, i, list)) {
-        return value;
-      }
-    }
-    return undefined;
-  };
-}
-
-if (!Array.prototype.findIndex) {
-  Array.prototype.findIndex = function(predicate) {
-    if (this == null) {
-      throw new TypeError('Array.prototype.findIndex called on null or undefined');
-    }
-    if (typeof predicate !== 'function') {
-      throw new TypeError('predicate must be a function');
-    }
-    var list = Object(this);
-    var length = list.length >>> 0;
-    var thisArg = arguments[1];
-    var value;
-
-    for (var i = 0; i < length; i++) {
-      value = list[i];
-      if (predicate.call(thisArg, value, i, list)) {
-        return i;
-      }
-    }
-    return -1;
-  };
-}
-
-if (!String.prototype.startsWith) {
-    String.prototype.startsWith = function(searchString, position) {
-        position = position || 0;
-        return this.lastIndexOf(searchString, position) === position;
-    };
-}
-
 var makeImage = function (element, file_name) {
 	html2canvas($(element), {
 		onrendered: function(canvas) {
@@ -117,20 +62,22 @@ var makeImage = function (element, file_name) {
 			link.download = file_name + " | CourseEater - " + today.toLocaleDateString("en-US") + ".png";
 			link.href = destinationCanvas.toDataURL();
 			link.click();
-	    }
+        }
 	});
 };
 
 // Third party code
 
 var google_analytics = function () {
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    /* jshint ignore:start */
+    (function(i,s,o,g,r,a,m){i.GoogleAnalyticsObject=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments);},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m);
     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
     
     ga('create', 'UA-9939990-3', 'auto');
     ga('send', 'pageview');
+    /* jshint ignore:end */
 };
 
 google_analytics();

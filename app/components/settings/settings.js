@@ -29,7 +29,7 @@ settings.directive('changeEmailPartial', ['AuthService', function(AuthService) {
                 });
             };
         }]
-    }
+    };
 }]);
 
 settings.directive('changePasswordPartial', ['AuthService', function(AuthService) {
@@ -41,22 +41,22 @@ settings.directive('changePasswordPartial', ['AuthService', function(AuthService
             
             $scope.message = "";
             $scope.error = false;
-            $scope.currentPassword = undefined
-            $scope.newPassword = undefined
-            $scope.verifyPassword = undefined
+            $scope.currentPassword = undefined;
+            $scope.newPassword = undefined;
+            $scope.verifyPassword = undefined;
             
             $scope.updatePassword = function () {
                 if ($scope.newPassword != $scope.verifyPassword) {
                     $scope.error = true;
                     $scope.success = false;
-                    $scope.message = "New password and the verification password do not match. Please try again."
+                    $scope.message = "New password and the verification password do not match. Please try again.";
                     return;
                 }
                 
                 if ($scope.newPassword == $scope.currentPassword) {
                     $scope.error = true;
                     $scope.success = false;
-                    $scope.message = "New password and current password are the same. Please try entering a new password."
+                    $scope.message = "New password and current password are the same. Please try entering a new password.";
                     return;
                 }
                 
@@ -69,23 +69,23 @@ settings.directive('changePasswordPartial', ['AuthService', function(AuthService
                     $scope.message = "Password successfully updated!";
                     
                     $scope.error = false;
-                    $scope.currentPassword = undefined
-                    $scope.newPassword = undefined
-                    $scope.verifyPassword = undefined
+                    $scope.currentPassword = undefined;
+                    $scope.newPassword = undefined;
+                    $scope.verifyPassword = undefined;
                 }, function (error) {
                     $scope.success = false;
                     
                     $scope.message = "Whoops! Something went wrong while updating your password. Please try again.";
                     
                     $scope.error = true;
-                    $scope.currentPassword = undefined
-                    $scope.newPassword = undefined
-                    $scope.verifyPassword = undefined
+                    $scope.currentPassword = undefined;
+                    $scope.newPassword = undefined;
+                    $scope.verifyPassword = undefined;
                 });
                 
             };
         }]
-    }
+    };
 }]);
 
 settings.directive('deleteAccountPartial', ['AuthService', function(AuthService) {
@@ -120,5 +120,5 @@ settings.directive('deleteAccountPartial', ['AuthService', function(AuthService)
             };
             
         }]
-    }
+    };
 }]);

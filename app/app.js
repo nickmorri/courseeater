@@ -40,7 +40,7 @@ courseeater_app.config(['$locationProvider', '$stateProvider', '$urlRouterProvid
             url: '/settings',
             templateUrl: 'app/views/settings/base.html',
             data: { pageTitle: 'Settings'}
-        })
+        });
 }]);
 
 courseeater_app.run(function ($window, $rootScope) {
@@ -75,7 +75,7 @@ courseeater_app.controller('NavController',['$scope', '$state', function ($scope
 courseeater_app.directive('navigationView', function () {
     return {
         templateUrl: 'app/directives/navigation.html'
-    }
+    };
 });
 
 courseeater_app.directive('title', ['$rootScope', function($rootScope) {

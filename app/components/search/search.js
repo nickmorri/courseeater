@@ -100,7 +100,7 @@ search.controller('SearchController', ['$scope', 'CourseStore', 'CourseListStore
 search.directive('classSearchItem', function () {
     return {
         templateUrl: 'app/components/search/directives/class-search-item.html'
-    }
+    };
 });
 
 search.filter('classProps', function () {

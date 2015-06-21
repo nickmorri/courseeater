@@ -3,7 +3,7 @@ var list = angular.module('courseeater.list', ['ui.bootstrap', 'jp.ng-bs-animate
 list.config(function (localStorageServiceProvider) {
     localStorageServiceProvider
         .setPrefix('courseeater.list')
-        .setStorageType('localStorage')
+        .setStorageType('localStorage');
 });
 
 list.factory('CourseList', ['$q', 'localStorageService', function ($q, localStorageService) {
@@ -182,7 +182,7 @@ list.factory('LocalStorageCourseListAdaptor', ['$q', 'localStorageService', func
                 return id !== list.id;
             });
             
-            if (courseLists.length == 0) {
+            if (courseLists.length === 0) {
                 Store.createNewList('Default', false, "2015-92");
                 resolve(id);
             }
@@ -425,5 +425,5 @@ list.directive('courseListView', function () {
         restrict: 'E',
         replace: true,
         templateUrl: "app/components/list/directives/course-list-view.html"
-    }
+    };
 });
