@@ -1,8 +1,8 @@
 /* CourseView */
 
 .panel-heading {
-    border-bottom: 0px;
-    border-radius: 0px;
+    border-bottom: 0;
+    border-radius: 0;
 }
 
 /* Panel heading theming  */
@@ -31,7 +31,7 @@
 	padding-bottom: 14px;
 	margin-top: -10px;
 	margin-bottom: -10px;
-	border-radius: 0px;
+	border-radius: 0;
 }
 
 .label-default {
@@ -57,19 +57,19 @@
 	float: left;
 }
 .label-day { 
-    border-radius: 0px; 
+    border-radius: 0; 
     margin-right: -5px;
 }
 
 /* Action menu */
 .dropdown-menu {
-	border-radius: 0px;
+	border-radius: 0;
 }
 
 /* Popover professor rating search */
 
 .popover.bottom {
-    border-radius: 0px;
+    border-radius: 0;
 }
 
 .progress {
@@ -78,7 +78,7 @@
     margin-top: -10px;
     margin-bottom: -10px;
     height: 40px;
-    border-radius: 0px;
+    border-radius: 0;
     background-color: transparent;
     -webkit-box-shadow: none;
     box-shadow: none;
@@ -104,7 +104,7 @@
     margin-bottom: -2px;
 }
 .panel {
-    border: 0px;
+    border: 0;
 	border-radius: 0;
 }
 .panel-search-result {
@@ -120,7 +120,7 @@
     padding-right: 20px;
 }
 .list-group .list-group-item {
-	border-radius: 0px;
+	border-radius: 0;
 }
 @media (max-width: 768px) {
     .navbar-nav .open .dropdown-menu>li>a, .navbar-nav .open .dropdown-menu .dropdown-header {
@@ -136,19 +136,19 @@
     }
 }
 .panel.panel-primary {
-	border-radius: 0px;
+	border-radius: 0;
 	margin-bottom: -6px;
 }
 .course-search-view .panel {
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 .modal-content {
-    border-radius: 0px;
+    border-radius: 0;
     border: transparent;
 }
 .modal-header {
-    border-bottom: 0px;
+    border-bottom: 0;
 }
 .modal-title .form-control {
-    border-radius: 0px;
+    border-radius: 0;
 }

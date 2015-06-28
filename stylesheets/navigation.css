@@ -4,8 +4,8 @@
 .navbar-default {
     font-size: 14px;
     background-color: rgba(240, 173, 78, 1);
-    border-width: 0px;
-    border-radius: 0px;
+    border-width: 0;
+    border-radius: 0;
 }
 .navbar-default .navbar-nav>li>a {
     color: rgba(119, 119, 119, 1);
@@ -49,7 +49,7 @@
     background-color: rgba(237, 162, 21, 1);
 }
 .navbar-toggle .icon-bar {
-    border-radius: 0px;
+    border-radius: 0;
 }
 .navbar-default .navbar-nav .open .dropdown-menu>.active>a, .navbar-default .navbar-nav .open .dropdown-menu>.active>a:focus, .navbar-default .navbar-nav .open .dropdown-menu>.active>a:hover {
     background-color: rgba(237, 162, 21, 1);
@@ -60,10 +60,10 @@
 .dropdown-control {
     margin-top: -6px;
     height: 50px;
-    border-radius: 0px;
+    border-radius: 0;
 }
 .dropdown-submit {
     margin-top: -20px;
     margin-bottom: -10px;
-    border-radius: 0px;
+    border-radius: 0;
 }
