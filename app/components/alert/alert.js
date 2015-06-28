@@ -1,4 +1,4 @@
-var alert = angular.module('courseeater.alert', ['courseeater.list']);
+var alert = angular.module('courseeater.alert', ['courseeater.list', 'courseeater.auth', 'courseeater.list', 'courseeater.alert', 'ui.bootstrap']);
 
 alert.factory('AlertStore',['AuthService', function (AuthService) {
     var AlertStore = {};

@@ -1,4 +1,4 @@
-var settings = angular.module('courseeater.settings', ['ui.bootstrap']);
+var settings = angular.module('courseeater.settings', ['courseeater.auth', 'ui.bootstrap']);
 
 settings.directive('changeEmailPartial', ['AuthService', function(AuthService) {
     return {

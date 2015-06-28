@@ -1,4 +1,4 @@
-var course = angular.module('courseeater.course', ['ui.bootstrap']);
+var course = angular.module('courseeater.course', ['ui.bootstrap', 'courseeater.retrieve']);
 
 course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStore, CourseListStore, $rootScope) {
     $rootScope.listStore = CourseListStore;

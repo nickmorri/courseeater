@@ -1,4 +1,4 @@
-var list = angular.module('courseeater.list', ['ui.bootstrap', 'jp.ng-bs-animated-button', 'LocalStorageModule']);
+var list = angular.module('courseeater.list', ['courseeater.auth', 'courseeater.alert', 'ui.bootstrap', 'jp.ng-bs-animated-button', 'LocalStorageModule']);
 
 list.config(function (localStorageServiceProvider) {
     localStorageServiceProvider

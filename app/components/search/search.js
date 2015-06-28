@@ -4,7 +4,7 @@ search.config(function ($httpProvider) {
     $httpProvider.defaults.useXDomain = true;
 });
 
-search.factory('SearchStore', ['$http', 'Retriever', function ($http, Retriever) {
+search.factory('SearchStore', ['$http', 'ScheduleRetriever', function ($http, Retriever) {
     var SearchStore = {};
     
     SearchStore.available_types = [];

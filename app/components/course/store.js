@@ -1,4 +1,4 @@
-var store = angular.module('courseeater.store', ['courseeater.course', 'ui.bootstrap']);
+var store = angular.module('courseeater.store', ['courseeater.course', 'courseeater.list', 'ui.bootstrap']);
 
 store.factory('TemporaryStore', ['Course', 'CourseListStore', function (Course, CourseListStore) {
     var TemporaryStore = {};
