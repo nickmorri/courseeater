@@ -9,41 +9,9 @@
         <meta name="theme-color" content="#F0AD4E">
         <meta name="mobile-web-app-capable" content="yes">
         
-        <script src="//www.parsecdn.com/js/parse-1.4.2.min.js"></script>
-        <script src="bower_components/angular/angular.min.js"></script>
-        <script src="bower_components/jquery/dist/jquery.min.js"></script>
-        <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>        
-        <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
-        <script src="bower_components/angular-filter/dist/angular-filter.min.js"></script>
-        <script src="bower_components/moment/min/moment-with-locales.min.js"></script>  
-        <script src="bower_components/parse-angular-patch/dist/parse-angular.js"></script>    
-        <script src="bower_components/fullcalendar/dist/fullcalendar.min.js"></script>  
-        <script src="bower_components/angular-ui-calendar/calendar.min.js"></script>
-        <script src="bower_components/ng-bs-animated-button/ng-bs-animated-button.js"></script>
-        <script src="bower_components/html2canvas/build/html2canvas.min.js"></script>
-        <script src="bower_components/angular-local-storage/dist/angular-local-storage.min.js"></script>
-        <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
-
         <link text="text/css" rel="stylesheet" href="bower_components/fullcalendar/dist/fullcalendar.min.css">
         <link text="text/css" rel="stylesheet" href="bower_components/ng-bs-animated-button/ng-bs-animated-button.css">
         <link text="text/css" rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
-
-        <!-- build:js courseeater.min.js -->
-        <script src="app/polyfill.js"></script>
-        <script src="app/misc.js"></script>
-        <script src="app/components/parse/parse-service.js"></script>
-        <script src="app/components/authentication/auth.js"></script>
-        <script src="app/components/retrieve/retrieve.js"></script>
-        <script src="app/components/course/course.js"></script>
-        <script src="app/components/course/store.js"></script>
-        <script src="app/components/list/list.js"></script>
-        <script src="app/components/track/track.js"></script>
-        <script src="app/components/schedule/schedule.js"></script>
-        <script src="app/components/search/search.js"></script>
-        <script src="app/components/settings/settings.js"></script>
-        <script src="app/components/alert/alert.js"></script>
-        <script src="app/app.js"></script>
-        <!-- /build -->
 
         <!-- build:css courseeater.min.css -->
         <link text="text/css" rel="stylesheet" href="stylesheets/column-fix.css">
@@ -61,6 +29,41 @@
     <body>
         
         <div ui-view></div>
+        
+        <script src="//www.parsecdn.com/js/parse-1.4.2.min.js"></script>
+        
+        <!-- bower:js -->
+        <script src="bower_components/angular/angular.min.js"></script>
+        <script src="bower_components/jquery/dist/jquery.min.js"></script>
+        <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>        
+        <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+        <script src="bower_components/angular-filter/dist/angular-filter.min.js"></script>
+        <script src="bower_components/moment/min/moment-with-locales.min.js"></script>  
+        <script src="bower_components/parse-angular-patch/dist/parse-angular.js"></script>    
+        <script src="bower_components/fullcalendar/dist/fullcalendar.min.js"></script>  
+        <script src="bower_components/angular-ui-calendar/calendar.min.js"></script>
+        <script src="bower_components/ng-bs-animated-button/ng-bs-animated-button.js"></script>
+        <script src="bower_components/html2canvas/build/html2canvas.min.js"></script>
+        <script src="bower_components/angular-local-storage/dist/angular-local-storage.min.js"></script>
+        <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+        <!-- endbower -->
+
+        <!-- build:js courseeater.min.js -->
+        <script src="app/polyfill.js"></script>
+        <script src="app/misc.js"></script>
+        <script src="app/components/parse/parse-service.js"></script>
+        <script src="app/components/authentication/auth.js"></script>
+        <script src="app/components/retrieve/retrieve.js"></script>
+        <script src="app/components/course/course.js"></script>
+        <script src="app/components/course/store.js"></script>
+        <script src="app/components/list/list.js"></script>
+        <script src="app/components/track/track.js"></script>
+        <script src="app/components/schedule/schedule.js"></script>
+        <script src="app/components/search/search.js"></script>
+        <script src="app/components/settings/settings.js"></script>
+        <script src="app/components/alert/alert.js"></script>
+        <script src="app/app.js"></script>
+        <!-- /build -->
         
     </body>
     
