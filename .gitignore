@@ -2,3 +2,4 @@ backup
 bower_components
 node_modules
 dist
+dev
