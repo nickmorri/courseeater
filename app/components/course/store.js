@@ -126,7 +126,7 @@ store.factory('TemporaryStore', ['Course', 'CourseListStore', function (Course, 
     
 }]);
 
-store.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootScope) {
+store.factory('CourseStore', ['Course', 'CourseListStore', '$rootScope', function (Course, CourseListStore, $rootScope) {
     var CourseStore = {};
     
     CourseStore.list = undefined;
@@ -277,6 +277,15 @@ store.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootSco
         var hash = Math.abs(course.identifier.hash()) % CourseStore.colors.length;
         return CourseStore.colors.splice(CourseStore.colors.indexOf(CourseStore.colors[hash]), 1)[0];
     };
+    
+    $rootScope.$watch(function () {
+        return CourseListStore.activeList;
+    }, function (current, previous) {
+        if (current === undefined) return;
+        else if (CourseStore.list === undefined) CourseStore.setActiveList(current);
+        else if (previous !== undefined && !previous.courseCodes.equals(current.courseCodes)) CourseStore.setActiveList(current);
+        else if (previous === undefined && current !== undefined) CourseStore.setActiveList(current);
+    });
     
     // Listen for logout event and clear data store on event
     $rootScope.$on('logout', CourseStore.clear);

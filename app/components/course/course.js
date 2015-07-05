@@ -1,16 +1,5 @@
 var course = angular.module('courseeater.course', ['ui.bootstrap', 'courseeater.retrieve']);
 
-course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStore, CourseListStore, $rootScope) {
-    $rootScope.listStore = CourseListStore;
-    $rootScope.courseStore = CourseStore;
-    $rootScope.$watch('listStore.activeList', function (newList, oldList) {
-        if (newList === undefined) return;
-        else if ($rootScope.courseStore.list === undefined) $rootScope.courseStore.setActiveList(newList);
-        else if (oldList !== undefined && !oldList.courseCodes.equals(newList.courseCodes)) $rootScope.courseStore.setActiveList(newList);
-        else if (oldList === undefined && newList !== undefined) $rootScope.courseStore.setActiveList(newList);
-    });
-}]);
-
 course.factory('Course', ['$q', 'ScheduleRetriever', 'InstructorRetriever', function ($q, ScheduleRetriever, InstructorRetriever) {
     return function (courseCode, term, color) {
         

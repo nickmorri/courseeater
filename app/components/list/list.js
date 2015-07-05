@@ -6,6 +6,10 @@ list.config(['localStorageServiceProvider', function (localStorageServiceProvide
         .setStorageType('localStorage');
 }]);
 
+list.run(['CourseListStore', function (CourseListStore) {
+    CourseListStore.initialize();
+}]);
+
 list.factory('CourseList', ['$q', 'localStorageService', function ($q, localStorageService) {
     return function (data) {
         this.title = data.attributes.title;
@@ -291,6 +295,10 @@ list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', 'Par
         CourseListStore.clear();
         CourseListStore.setAdaptor();
         CourseListStore.retrieveCourseLists();
+    };
+    
+    CourseListStore.initialize = function () {
+        if (!CourseListStore.initialized) CourseListStore.retrieveCourseLists();
     };
     
     // Listen for and handle logout event

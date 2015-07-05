@@ -74,6 +74,4 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
         });
     };
     
-    if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
-    
 }]);
