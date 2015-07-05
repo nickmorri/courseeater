@@ -1,5 +1,20 @@
 var schedule = angular.module('courseeater.schedule', ['courseeater.course', 'courseeater.list', 'ui.bootstrap', 'ui.calendar']);
 
+schedule.config(['$stateProvider', function ($stateProvider) {
+    $stateProvider.state('schedule', {
+        url: '/schedule',
+        templateUrl: 'app/components/schedule/partials/schedule.html',
+        controller: 'ScheduleController',
+        data: { pageTitle: 'Schedule'}
+    })
+    .state('finals', {
+        url: '/finals',
+        templateUrl: 'app/components/schedule/partials/finals.html',
+        controller: 'FinalScheduleController',
+        data: { pageTitle: 'Finals'}
+    });
+}]);
+
 schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', 'uiCalendarConfig', '$modal', function ($scope, CourseStore, CourseListStore, TemporaryStore, uiCalendarConfig, $modal) {
     $scope.temporaryStore = TemporaryStore;
     $scope.courseListStore = CourseListStore;
