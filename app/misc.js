@@ -16,7 +16,8 @@ String.prototype.hash = function() {
 };
 
 Array.prototype.remove = function (key) {
-    this.splice(this.indexOf(key), 1);
+    var index = this.indexOf(key);
+    if (index >= 0) this.splice(index, 1);
 };
 
 Array.prototype.clear = function () {
