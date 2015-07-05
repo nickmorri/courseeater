@@ -155,8 +155,6 @@ schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'Course
         }
     });
     
-    if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
-    
 }]);
 
 schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$modalInstance', 'CourseStore', 'TemporaryStore', 'ButtonConfiguration', 'course', function ($scope, $modal, $modalInstance, CourseStore, TemporaryStore, ButtonConfiguration, course) {
