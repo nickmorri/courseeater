@@ -27,9 +27,10 @@ if (!Array.prototype.find) {
         var length = list.length >>> 0;
         var thisArg = arguments[1];
         var value;
-    
+        
         for (var i = 0; i < length; i++) {
-            if (predicate.call(thisArg, list[i], i, list)) return value;
+            value = list[i];
+            if (predicate.call(thisArg, value, i, list)) return value;
         }
         return undefined;
     };
