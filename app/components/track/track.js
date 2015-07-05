@@ -1,5 +1,14 @@
 var track = angular.module('courseeater.track', ['courseeater.course', 'courseeater.store', 'courseeater.list', 'courseeater.alert', 'ui.bootstrap', 'angular.filter', 'jp.ng-bs-animated-button']);
 
+track.config(['$stateProvider', function ($stateProvider) {
+    $stateProvider.state('track', {
+        url: '/track',
+        templateUrl: 'app/components/track/partials/base.html',
+        controller: 'TrackController',
+        data: { pageTitle: 'Track'}
+    });
+}]);
+
 track.controller('CourseSearchModalController', ['$scope', 'Course', 'CourseStore', 'TemporaryStore', '$modalInstance', 'ButtonConfiguration', function ($scope, Course, CourseStore, TemporaryStore, $modalInstance, ButtonConfiguration) {
     $scope.temporaryStore = TemporaryStore;
     $scope.courseStore = CourseStore;

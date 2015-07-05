@@ -56,8 +56,7 @@ module.exports = function (grunt) {
 	        'courseeater_components_css':'stylesheets/*.css',
 	        'courseeater_components_html':[  
 	            'app/directives/*.html',
-	            'app/partials/*.html',
-	            'app/views/**/*.html',
+	            'app/components/**/partials/*.html',
 	            'app/components/**/directives/*.html'
 	        ],
 	        'tests':'test/**/*.js',

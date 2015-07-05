@@ -1,9 +1,17 @@
 var settings = angular.module('courseeater.settings', ['courseeater.auth', 'ui.bootstrap']);
 
+settings.config(['$stateProvider', function ($stateProvider) {
+    $stateProvider.state('settings', {
+        url: '/settings',
+        templateUrl: 'app/components/settings/partials/base.html',
+        data: { pageTitle: 'Settings'}
+    });
+}]);
+
 settings.directive('changeEmailPartial', ['AuthService', function(AuthService) {
     return {
         scope: {},
-        templateUrl: 'app/views/settings/partials/change-email-partial.html',
+        templateUrl: 'app/components/settings/partials/change-email-partial.html',
         controller: ['$scope', 'AuthService', function ($scope, AuthService) {
             $scope.authService = AuthService;
             
@@ -35,7 +43,7 @@ settings.directive('changeEmailPartial', ['AuthService', function(AuthService) {
 settings.directive('changePasswordPartial', ['AuthService', function(AuthService) {
     return {
         scope: {},
-        templateUrl: 'app/views/settings/partials/change-password-partial.html',
+        templateUrl: 'app/components/settings/partials/change-password-partial.html',
         controller: ['$scope', 'AuthService', function ($scope, AuthService) {
             $scope.authService = AuthService;
             
@@ -91,7 +99,7 @@ settings.directive('changePasswordPartial', ['AuthService', function(AuthService
 settings.directive('deleteAccountPartial', ['AuthService', function(AuthService) {
     return {
         scope: {},
-        templateUrl: 'app/views/settings/partials/delete-account-partial.html',
+        templateUrl: 'app/components/settings/partials/delete-account-partial.html',
         controller: ['$scope', 'AuthService', function ($scope, AuthService) {
             $scope.authService = AuthService;
             

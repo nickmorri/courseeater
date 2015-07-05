@@ -368,12 +368,6 @@ course.directive('courseActions', function () {
     };
 });
 
-course.directive('courseMiniActions', function () {
-    return {
-        templateUrl: "app/components/course/directives/course-mini-actions.html",
-    };
-});
-
 course.directive('courseSearch', function () {
     return {
         templateUrl: 'app/components/course/directives/course-search.html'

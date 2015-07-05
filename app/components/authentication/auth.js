@@ -64,7 +64,7 @@ authentication.directive('userMenu', function () {
     return {
         restrict: 'E',
         replace: true,
-        templateUrl: 'app/partials/user-menu.html'
+        templateUrl: 'app/components/authentication/partials/user-menu.html'
     };
 });
 
@@ -73,7 +73,7 @@ authentication.directive('anonymousMenu', function () {
         scope: {},
         restrict: 'E',
         replace: true,
-        templateUrl: 'app/partials/anonymous-menu.html',
+        templateUrl: 'app/components/authentication/partials/anonymous-menu.html',
         link: function ($scope, element, attributes) {
             $scope.menu_shown = "login";
             
@@ -89,7 +89,7 @@ authentication.directive('anonymousMenu', function () {
 authentication.directive('loginPartial', ['AuthService', function (AuthService) {
     return {
         scope: {},
-        templateUrl: 'app/partials/login-partial.html',
+        templateUrl: 'app/components/authentication/partials/login-partial.html',
         controller: ['$scope', 'AuthService', function ($scope, AuthService) {
             $scope.authService = AuthService;
     
@@ -124,7 +124,7 @@ authentication.directive('loginPartial', ['AuthService', function (AuthService) 
 authentication.directive('registrationPartial', ['AuthService', 'AntplannerRetriever', function (AuthService, AntplannerRetriever) {
     return {
         scope: {},
-        templateUrl: 'app/partials/registration-partial.html',
+        templateUrl: 'app/components/authentication/partials/registration-partial.html',
         controller: ['$scope', 'AuthService', '$http', function ($scope, AuthService, $http) {
             $scope.authService = AuthService;
     
@@ -213,7 +213,7 @@ authentication.directive('registrationPartial', ['AuthService', 'AntplannerRetri
 authentication.directive('passwordResetPartial', ['AuthService', function (AuthService) {
     return {
         scope: {},
-        templateUrl: 'app/partials/password-reset-partial.html',
+        templateUrl: 'app/components/authentication/partials/password-reset-partial.html',
         controller: ['$scope', 'AuthService', function ($scope, AuthService) {
             $scope.authService = AuthService;
     
