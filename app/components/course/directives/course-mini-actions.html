@@ -1,2 +1,2 @@
-<jp-ng-bs-animated-button ng-if="!courseStore.hasCourse(course.courseCode)" is-submitting="course.isSubmitting" result="course.result" options="buttonConfig.addOptions" ng-click="addCourse(course)"></jp-ng-bs-animated-button>
-<jp-ng-bs-animated-button ng-if="courseStore.hasCourse(course.courseCode)" is-submitting="course.isSubmitting" result="course.result" options="buttonConfig.removeOptions" ng-click="removeCourse(course)"></jp-ng-bs-animated-button>
+<jp-ng-bs-animated-button ng-if="!hasCourse(course.courseCode)" is-submitting="submitting" result="result" options="buttonConfig.addOptions" ng-click="addCourse(course.courseCode)"></jp-ng-bs-animated-button>
+<jp-ng-bs-animated-button ng-if="hasCourse(course.courseCode)" is-submitting="submitting" result="result" options="buttonConfig.removeOptions" ng-click="removeCourse(course.courseCode)"></jp-ng-bs-animated-button>

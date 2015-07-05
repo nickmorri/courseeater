@@ -325,7 +325,51 @@ course.directive('courseView', function () {
 
 course.directive('courseMiniView', function () {
     return {
+        scope: {
+            course: "="
+        },
         templateUrl: "app/components/course/directives/course-mini-view.html"
+    };
+});
+
+course.directive('courseMiniActions', function () {
+    return {
+        scope: {
+            course: "="
+        },
+        templateUrl: "app/components/course/directives/course-mini-actions.html",
+        controller: ['$scope', 'CourseStore', 'ButtonConfiguration', function ($scope, CourseStore, ButtonConfiguration) {
+            $scope.result = null;
+            $scope.submitting = null;
+            $scope.buttonConfig = ButtonConfiguration;
+            
+            $scope.hasCourse = function (courseCode) {
+                return CourseStore.hasCourse(courseCode);
+            };
+            
+            $scope.addCourse = function (courseCode) {
+                $scope.submitting = true;
+                CourseStore.addCourse(courseCode).then(function (result) {
+                    $scope.submitting = null;
+                    $scope.result = 'success';
+                }, function () {
+                    $scope.submitting = null;
+                    $scope.result = 'error';
+                });
+            };
+            
+            $scope.removeCourse = function (courseCode) {
+                $scope.submitting = true;
+                CourseStore.removeCourse(courseCode).then(function (result) {
+                    $scope.submitting = null;
+                    $scope.result = 'success';
+                }, function () {
+                    $scope.submitting = null;
+                    $scope.result = 'error';
+                });
+            };
+            
+        }]
     };
 });
 

@@ -1,99 +1,89 @@
 var search = angular.module('courseeater.search', ['courseeater.course', 'courseeater.store', 'courseeater.list', 'courseeater.retrieve', 'ui.bootstrap', 'angular.filter', 'jp.ng-bs-animated-button']);
 
-search.config(['$httpProvider', function ($httpProvider) {
-    $httpProvider.defaults.useXDomain = true;
+search.config(['$stateProvider', function ($stateProvider) {
+    $stateProvider.state('search', {
+        url: '/search',
+        templateUrl: 'app/components/search/partials/base.html',
+        controller: 'SearchController',
+        data: { pageTitle: 'Search'}
+    });
 }]);
 
-search.factory('SearchStore', ['$http', 'ScheduleRetriever', function ($http, ScheduleRetriever) {
-    var SearchStore = {};
-    
-    SearchStore.available_types = [];
-    
-    SearchStore.selected_type = "";
-    
-    SearchStore.clearSelectedType = function () {
-        SearchStore.clearFilter();
-        SearchStore.selected_type = "";
-        SearchStore.results = undefined;
-    };
-    
-    SearchStore.retrieving_results = undefined;
-    SearchStore.results = undefined;
-    
-    SearchStore.filter = "";
-    
-    SearchStore.clearFilter = function () {
-        SearchStore.filter = "";
-    };
-    
-    SearchStore.retrieve_departments = function () {
-        ScheduleRetriever.get_depts_available().then(function (response) {
-            // Remove 'ALL' from listing
-            if (response[0].value.indexOf("ALL") != -1) response.splice(0, 1);
-            
-            SearchStore.available_types = SearchStore.available_types.concat(response);
-        });
-    };
-    
-    SearchStore.retrieve_ge_categories = function () {
-        ScheduleRetriever.get_ge_available().then(function (response) {
-            // Remove 'ALL' from listing
-            if (response[0].value.indexOf("ANY") != -1) response.splice(0, 1);
-            
-            SearchStore.available_types = SearchStore.available_types.concat(response);
-        });
-    };
-    
-    SearchStore.get_type = function ($item, $model, $label) {
-        if (SearchStore.selected_type.type == 'category') SearchStore.perform_search({category: SearchStore.selected_type.value});
-        else SearchStore.perform_search({department: SearchStore.selected_type.value});
-    };
-    
-    SearchStore.perform_search = function (parameters) {
-        SearchStore.retrieving_results = true;
-        
-        SearchStore.filter = "";
-        
-        ScheduleRetriever.retrieve(parameters, '2015-92').then(function (response) {
-            SearchStore.results = response;
-            SearchStore.retrieving_results = false;
-        });
-    };
-        
-    SearchStore.retrieve_departments();
-    SearchStore.retrieve_ge_categories();
-    
-    return SearchStore;
+search.run(['SearchStore', function (SearchStore) {
+    SearchStore.retrieve();
 }]);
 
-search.controller('SearchController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', 'SearchStore', 'ButtonConfiguration', function ($scope, CourseStore, CourseListStore, TemporaryStore, SearchStore, ButtonConfiguration) {
-    $scope.temporaryStore = TemporaryStore;
-    $scope.courseListStore = CourseListStore;
-    $scope.courseStore = CourseStore;
-    $scope.searchStore = SearchStore;
+search.factory('SearchStore', ['ScheduleRetriever', '$q', function (ScheduleRetriever, $q) {
     
-    $scope.buttonConfig = ButtonConfiguration;
+    var Public = {};
     
-    $scope.addCourse = function (course) {
-        course.isSubmitting = true;
-        $scope.courseStore.addCourse(course.courseCode).then(function (response) {
-            course.result = 'success';
-            course.isSubmitting = null;
-        }, function (error) {
-            course.result = 'error';
+    var Private = {
+        available_types: []
+    };
+    
+    Private.retrieve_types = function () {
+        return $q(function (resolve, reject) {
+            ScheduleRetriever.get_depts_and_ge_available().then(function (response) {
+                response.remove("ALL");
+                response.remove("ANY");
+                
+                Private.available_types = response;
+                resolve();
+            });
         });
     };
     
-    $scope.removeCourse = function (course) {
-        course.isSubmitting = true;
-        $scope.courseStore.removeCourse(course.courseCode).then(function (response) {
-            course.result = 'success';
-        }, function (error) {
-            course.result = 'error';
+    Private.search = function (parameters) {
+        return $q(function (resolve, reject) {
+            ScheduleRetriever.retrieve(parameters, '2015-92').then(function (response) {
+                resolve(response);
+            });
         });
     };
     
-    if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
+    Public.search = function (type, value) {
+        return Private.search(type === 'category' ? {category: value} : {department: value});
+    };
+    
+    Public.getAvailableTypes = function () {
+        return angular.copy(Private.available_types);
+    };
+    
+    Public.retrieve = function () {
+        return Private.retrieve_types();
+    };
+    
+    return Public;
+}]);
+
+search.controller('SearchController', ['$scope', 'SearchStore', function ($scope, SearchStore) {
+
+    $scope.filter = "";
+    $scope.retrieving_results = null;
+    $scope.results = null;
+    $scope.selected_type = null;
+    
+    $scope.clear_filter = function () {
+        $scope.filter = "";
+    };
+    
+    $scope.available_types = function () {
+        return SearchStore.getAvailableTypes();
+    };
+    
+    $scope.get_type = function ($item, $model, $label) {
+        $scope.retrieving_results = true;
+        SearchStore.search($item.type, $item.value).then(function (results) {
+            $scope.results = results;
+            $scope.retrieving_results = false;
+        });
+    };
+    
+    $scope.clear_selected_type = function () {
+        $scope.clear_filter();
+        $scope.selected_type = "";
+        $scope.results = undefined;
+    };
     
 }]);
 
