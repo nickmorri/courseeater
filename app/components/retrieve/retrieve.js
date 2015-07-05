@@ -15,8 +15,6 @@ retrieve.factory('ScheduleRetriever', ['$http', '$q', function ($http, $q) {
     
     Retriever.get = function (URL) {
         return $http.get(URL).then(function (response) {    
-            return response;
-        }).then(function (response) {
             var parser = new DOMParser();
 
             return Retriever.process_response(Array.prototype.slice.call(parser.parseFromString(response.data, "text/html").querySelectorAll('tr[valign="top"]')));
@@ -130,30 +128,13 @@ retrieve.factory('ScheduleRetriever', ['$http', '$q', function ($http, $q) {
             
             if (split_final[0].indexOf("TBA") != -1) return null;
             
-            var weekday = split_final[0].trim();
             var split_date = split_final[1].trim().split(" ");
             var month = split_date[0];
-            var day = split_date[1].length == 2 ? split_date[1] : "0" + split_date[1];
-
-            var month_index;
-            
-            switch (month) {
-                case 'Mar':
-                    month_index = "03";
-                    break;
-                case 'Jun':
-                    month_index = "06";
-                    break;
-                case 'Dec':
-                    month_index = "12";
-                    break;
-            }
             
             return {
-                weekday: weekday,
-                month: month,
-                month_index: month_index,
-                day: day,
+                weekday: split_final[0].trim(),
+                month_index: month === "Mar" ? "03" : month === "Jun" ? "06" : month === "Dec" ? "12" : null,
+                day: split_date[1].length == 2 ? split_date[1] : "0" + split_date[1],
                 clock: process_clock(split_final[2])
             };
         };
@@ -178,7 +159,8 @@ retrieve.factory('ScheduleRetriever', ['$http', '$q', function ($http, $q) {
             }
         };
         
-        return data.length == 15 ? {
+        return data.length == 15 ? 
+        {
             courseCode: data[0].textContent,
             type: data[1].textContent.toUpperCase(),
             sec: data[2].textContent,
@@ -196,7 +178,8 @@ retrieve.factory('ScheduleRetriever', ['$http', '$q', function ($http, $q) {
             textbookURL: process_textbook_url(data[12]),
             web: data[13].textContent,
             status: data[14].textContent
-        } : {
+        } : 
+        {
             courseCode: data[0].textContent,
             type: data[1].textContent.toUpperCase(),
             sec: data[2].textContent,
@@ -256,33 +239,25 @@ retrieve.factory('ScheduleRetriever', ['$http', '$q', function ($http, $q) {
         return Retriever.build_base_url(term) + 'Dept=' + encodeURIComponent(department) + '&CourseNum=' + encodeURIComponent(course_num) + '&ClassType=' + encodeURIComponent(type);
     };
     
-    /* Specific data getters */
-    
-    Retriever.get_ge_available = function () {
+    Retriever.get_depts_and_ge_available = function () {
         return $http.get(Retriever.host + ':' + Retriever.port + '/perl/WebSoc').then(function (response) {
-            var parser = new DOMParser();            
+            var parser = new DOMParser();
+            var temp_DOM = parser.parseFromString(response.data, "text/html");
             
-            return Array.prototype.slice.call(parser.parseFromString(response.data, "text/html").querySelector('select[name="Breadth"]').querySelectorAll('option')).map(function (option) {
+            return Array.prototype.slice.call(temp_DOM.querySelector('select[name="Breadth"]').querySelectorAll('option')).map(function (option) {
                 return {
                     name: option.text,
                     value: option.value.trim(),
                     type: 'category'
                 };
-            });
-        });
-    };
-    
-    Retriever.get_depts_available = function () {
-        return $http.get(Retriever.host + ':' + Retriever.port + '/perl/WebSoc').then(function (response) {
-            var parser = new DOMParser();
-            
-            return Array.prototype.slice.call(parser.parseFromString(response.data, "text/html").querySelector('select[name="Dept"]').querySelectorAll('option')).map(function (option) {
+            }).concat(Array.prototype.slice.call(temp_DOM.querySelector('select[name="Dept"]').querySelectorAll('option')).map(function (option) {
                 return {
                     name: option.text,
                     value: option.value.trim(),
                     type: 'department'
                 };
-            });
+            }));
+                
         });
     };
     
