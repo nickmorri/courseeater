@@ -136,6 +136,9 @@ module.exports = function (grunt) {
 	    'wiredep':{  
 	        'dist':{  
 	            'src':'<%= meta.dist_destination %>/index.html'
+	        },
+	        'dev':{
+	        	'src':'<%= meta.dev_destination %>/index.html'
 	        }
 	    },
 	    'watch':{  
@@ -145,7 +148,7 @@ module.exports = function (grunt) {
 	            },
 	            'files':'<%= meta.courseeater_components_js %>',
 	            'tasks':[  
-	                'jshint:dev',
+	                'newer:jshint:dev',
 	                'karma:dev',
 	                'newer:copy:dev'
 	            ]
@@ -158,7 +161,7 @@ module.exports = function (grunt) {
 	            'files':'<%= meta.courseeater_components_css %>',
 	            'tasks':[  
 	                'csslint:dev',
-	                'newer:copy'
+	                'newer:copy:dev'
 	            ]
 	        },
 	        'html':{  
@@ -168,7 +171,7 @@ module.exports = function (grunt) {
 	            },
 	            'files':'<%= meta.courseeater_components_html %>',
 	            'tasks':[  
-	                'newer:copy'
+	                'newer:copy:dev'
 	            ]
 	        },
 	        'tests':{  
@@ -245,10 +248,9 @@ module.exports = function (grunt) {
 	                    'expand':true,
 	                    'src':[  
 	                        'index.html',
-	                        '<%= meta.courseeater_components_js %>',
 	                        '<%= meta.courseeater_components_html %>',
+	                        '<%= meta.courseeater_components_js %>',
 	                        '<%= meta.courseeater_components_css %>',
-	                        '<%= meta.bower_components_js %>',
 	                        '<%= meta.bower_components_css %>',
 	                        '<%= meta.bower_components_fonts %>'
 	                    ],
@@ -274,18 +276,30 @@ module.exports = function (grunt) {
 	                    'index.html'
 	                ]
 	            }
+	        },
+	        'dev':{
+	        	'files':{
+	        		'<%=meta.dev_destination %>/index.html':[
+	        			'index.html'
+	        		]
+	        	}
 	        }
 	    },
 	    'uglify':{  
-	        'options':{  
-	            'mangle':true,
-	            'compress':true,
+	    	'options':{  
+	            'mangle':false,
+	            'compress':false,
 	            'sourceMap':true,
 	            'preserveComments':false
 	        },
+	        'dev': {
+	        	'files':{
+	        		'<%= meta.dev_destination %>/<%= pkg.namelower %>.min.js': ['<%= meta.courseeater_components_js %>', 'tmp/templates.js']
+	        	}
+	        },
 	        'dist':{  
 	            'files':{
-	                '<%= meta.dist_destination %>/<%= pkg.namelower %>.min.js': '<%= meta.courseeater_components_js %>'
+	                '<%= meta.dist_destination %>/<%= pkg.namelower %>.min.js': ['<%= meta.courseeater_components_js %>', 'tmp/templates.js']
 	            }
 	        }
 	    },
@@ -298,30 +312,35 @@ module.exports = function (grunt) {
 	            'files':{  
 	                '<%= meta.dist_destination %>/<%= pkg.namelower %>.min.css':'<%= meta.courseeater_components_css %>'
 	            }
+	        },
+	        'dev':{
+	        	'files':{
+	        		'<%= meta.dev_destination %>/<%= pkg.namelower %>.min.css':'<%= meta.courseeater_components_css %>'
+	        	}
 	        }
-	    }
+	    },
+	    'html2js': {
+		    'options': {
+		      'base': ''
+		    },
+		    'main': {
+		      'src': ['<%= meta.courseeater_components_html %>'],
+		      'dest': 'tmp/templates.js'
+		    },
+		}
 	});
 
   	grunt.registerTask('test', ['jshint:dist', 'karma:dev', 'karma:dist', 'karma:minified']);
 
   	grunt.registerTask('develop', [
-	    'clean:dev',
-	    'jshint:dev',
-	    'csslint:dev',
-	    'karma:dev',
-	    'bower:dev',
-	    'copy:dev',
-	    'express:dev',
-	    'open',
-	    'watch'
-  	]);
-
-  	grunt.registerTask('develop', [
 	  	'clean:dev',
-	  	'copy:dev',
-	  	'processhtml',
-	  	'csslint:dev',
+	  	'bower-install-simple:dev',
+	  	'bower:dev',
 	  	'jshint:dev',
+	  	'csslint:dev',
+	    'karma:dev',
+	  	'copy:dev',
+	  	'wiredep:dev',
 	  	'express:dev',
 	    'open',
 	    'watch'
