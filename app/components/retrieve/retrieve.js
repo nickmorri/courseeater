@@ -56,23 +56,39 @@ retrieve.factory('ScheduleRetriever', ['$http', '$q', function ($http, $q) {
         var process_clock = function (time) {
             if (time.indexOf("TBA") != -1) return null;
             // Remove whitespace around time string
-            var start_end = time.trim().split("-");                
-            var start = start_end[0].trim();
-            var end = start_end[1].trim();
+            var start_string = time.trim().split("-")[0].trim();
+            var end_string = time.trim().split("-")[1].trim();
             
-            var isBeforeNoon = start.split(':')[0] >= 8 && start.split(':')[0] < 12;
+            var end = (function (end_string) {
+                
+                var am_pm = end_string.indexOf('p') !== -1 ? "PM" : "AM";
+                var hour = am_pm === "PM" ? parseInt(end_string.split(":")[0], 10) + 12 : parseInt(end_string.split(":")[0], 10);
+                var minute = parseInt(end_string.split(":")[1], 10);
+                
+                return {
+                    hour: hour,
+                    minute: minute,
+                    am_pm: am_pm
+                };
+            } (end_string));
             
-            var isAfternoon = end.indexOf('p') != -1;
+            var start = (function (start_string) {
+                
+                var am_pm = start_string.indexOf('p') !== -1 || end.hour >= 12 ? "PM" : "AM";
+                var hour = am_pm === "PM" ? parseInt(start_string.split(":")[0], 10) + 12 : parseInt(start_string.split(":")[0], 10);
+                var minute = parseInt(start_string.split(":")[1], 10);
+                
+                return {
+                    hour: hour,
+                    minute: minute,
+                    am_pm: am_pm
+                };  
+            } (start_string));
             
-            var morningClass = !isAfternoon;
-            
-            if (morningClass) am_pm = "AM";
-            else if (isBeforeNoon && isAfternoon) am_pm = "AM-PM";
-            else am_pm = "PM";
             return {
-                start: start.replace('pm', '').replace('p', ''),
-                end: end.replace('pm', '').replace('p', ''),
-                am_pm: am_pm
+                start: start_string.replace('pm', '').replace('p', ''),
+                end: end_string.replace('pm', '').replace('p', ''),
+                am_pm: start.am_pm === "PM" && end.am_pm === "PM" ? "PM" : start.am_pm === "AM" && end.am_pm === "AM" ? "AM" : "AM-PM"
             };
         };
         
