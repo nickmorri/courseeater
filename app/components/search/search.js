@@ -1,10 +1,10 @@
-var search = angular.module('courseeater.search', ['courseeater.course', 'courseeater.list', 'courseeater.retrieve', 'ui.bootstrap', 'angular.filter', 'jp.ng-bs-animated-button']);
+var search = angular.module('courseeater.search', ['courseeater.course', 'courseeater.store', 'courseeater.list', 'courseeater.retrieve', 'ui.bootstrap', 'angular.filter', 'jp.ng-bs-animated-button']);
 
-search.config(function ($httpProvider) {
+search.config(['$httpProvider', function ($httpProvider) {
     $httpProvider.defaults.useXDomain = true;
-});
+}]);
 
-search.factory('SearchStore', ['$http', 'ScheduleRetriever', function ($http, Retriever) {
+search.factory('SearchStore', ['$http', 'ScheduleRetriever', function ($http, ScheduleRetriever) {
     var SearchStore = {};
     
     SearchStore.available_types = [];
@@ -27,7 +27,7 @@ search.factory('SearchStore', ['$http', 'ScheduleRetriever', function ($http, Re
     };
     
     SearchStore.retrieve_departments = function () {
-        Retriever.get_depts_available().then(function (response) {
+        ScheduleRetriever.get_depts_available().then(function (response) {
             // Remove 'ALL' from listing
             if (response[0].value.indexOf("ALL") != -1) response.splice(0, 1);
             
@@ -36,7 +36,7 @@ search.factory('SearchStore', ['$http', 'ScheduleRetriever', function ($http, Re
     };
     
     SearchStore.retrieve_ge_categories = function () {
-        Retriever.get_ge_available().then(function (response) {
+        ScheduleRetriever.get_ge_available().then(function (response) {
             // Remove 'ALL' from listing
             if (response[0].value.indexOf("ANY") != -1) response.splice(0, 1);
             
@@ -54,7 +54,7 @@ search.factory('SearchStore', ['$http', 'ScheduleRetriever', function ($http, Re
         
         SearchStore.filter = "";
         
-        Retriever.retrieve(parameters, '2015-92').then(function (response) {
+        ScheduleRetriever.retrieve(parameters, '2015-92').then(function (response) {
             SearchStore.results = response;
             SearchStore.retrieving_results = false;
         });

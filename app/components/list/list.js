@@ -1,10 +1,10 @@
-var list = angular.module('courseeater.list', ['courseeater.auth', 'courseeater.alert', 'ui.bootstrap', 'jp.ng-bs-animated-button', 'LocalStorageModule']);
+var list = angular.module('courseeater.list', ['courseeater.auth', 'courseeater.store', 'courseeater.alert', 'ui.bootstrap', 'jp.ng-bs-animated-button', 'LocalStorageModule']);
 
-list.config(function (localStorageServiceProvider) {
+list.config(['localStorageServiceProvider', function (localStorageServiceProvider) {
     localStorageServiceProvider
         .setPrefix('courseeater.list')
         .setStorageType('localStorage');
-});
+}]);
 
 list.factory('CourseList', ['$q', 'localStorageService', function ($q, localStorageService) {
     return function (data) {
