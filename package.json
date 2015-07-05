@@ -7,6 +7,9 @@
     "type": "git",
     "url": "https://github.com/nickmorri/courseeater-webview.git"
   },
+  "scripts": {
+    "postinstall": "bower install"
+  },
   "devDependencies": {
     "grunt": "0.4.2",
     "grunt-bower-install-simple": "^1.1.3",
