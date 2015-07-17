@@ -444,7 +444,45 @@ course.directive('coursePlace', function () {
 
 course.directive('courseProgress', function () {
     return {
-        templateUrl: "app/components/course/directives/course-progress.html"
+        scope: {
+            course: "="  
+        },
+        templateUrl: "app/components/course/directives/course-progress.html",
+        controller: function ($scope) {
+            
+            $scope.getWaitlistCount = function () {
+                return isNaN($scope.course.wl) ? 0 : $scope.course.wl;
+            };
+            
+            $scope.getEnrolledCount = function () {
+                return $scope.course.totalEnr;
+            };
+            
+            $scope.getCourseCapacity = function () {
+                return $scope.course.max;
+            };
+            
+            $scope.getSeatsOpen = function () {
+                return $scope.getCourseCapacity() - $scope.getEnrolledCount();
+            };
+            
+            $scope.isEmpty = function () {
+                return $scope.getEnrolledCount() === 0;
+            };
+            
+            $scope.hasWaitlist = function () {
+                return $scope.getWaitlistCount() > 0;
+            };
+            
+            $scope.isFull = function () {
+                return $scope.getEnrolledCount() >= $scope.getCourseCapacity();
+            };
+            
+            $scope.areSeatsOpen = function () {
+                return !$scope.hasWaitlist() && !$scope.isFull();
+            };
+            
+        }
     };
 });
 
