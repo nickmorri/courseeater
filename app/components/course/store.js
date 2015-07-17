@@ -12,12 +12,32 @@ store.factory('TemporaryStore', ['Course', 'CourseListStore', function (Course, 
     // Course code of course being considered for replacement
     TemporaryStore.course_code_for_replacement = undefined;
     
+    TemporaryStore.hasSearched = function () {
+        return TemporaryStore.getTargetSection() !== undefined;
+    };
+    
     TemporaryStore.empty = function () {
         return TemporaryStore.size() === 0;
     };
     
     TemporaryStore.size = function () {
         return TemporaryStore.courses.length;
+    };
+    
+    TemporaryStore.isSectionRestricted = function () {
+        return TemporaryStore.section_restricted;
+    };
+    
+    TemporaryStore.getTargetSection = function() {
+        return TemporaryStore.target_section;
+    };
+    
+    TemporaryStore.hasResults = function () {
+        return TemporaryStore.events.length;
+    };
+    
+    TemporaryStore.hasFilteredResults = function () {
+        return TemporaryStore.hasSearched() && TemporaryStore.hasResults() && TemporaryStore.isSectionRestricted();
     };
     
     TemporaryStore.clear = function () {

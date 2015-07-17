@@ -50,6 +50,30 @@ schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListS
         }
     };
     
+    $scope.removeFilter = function () {
+        TemporaryStore.filterCourses(false);
+    };
+    
+    $scope.hasSearched = function () {
+        return TemporaryStore.hasSearched();
+    };
+    
+    $scope.hasResults = function () {
+        return TemporaryStore.hasResults();
+    };
+    
+    $scope.isFiltered = function () {
+        return TemporaryStore.isSectionRestricted();
+    };
+    
+    $scope.hasFilteredResults = function () {
+        return TemporaryStore.hasFilteredResults();
+    };
+    
+    $scope.getTargetSection = function () {
+        return TemporaryStore.getTargetSection();
+    };
+    
     $scope.makeImage = function () {
         makeImage("#calendar", 'Schedule');
     };

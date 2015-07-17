@@ -215,7 +215,7 @@ course.factory('Course', ['$q', 'ScheduleRetriever', 'InstructorRetriever', func
                 }, this);
             };
             
-            return Retriever.get_co_courses(this.identifier.substring(0, index).trim(), this.identifier.substring(index).trim(), type, this.term).then(process.bind(this));
+            return ScheduleRetriever.get_co_courses(this.identifier.substring(0, index).trim(), this.identifier.substring(index).trim(), type, this.term).then(process.bind(this));
         };
         
         this.findReplacements = function () {
@@ -232,7 +232,7 @@ course.factory('Course', ['$q', 'ScheduleRetriever', 'InstructorRetriever', func
                 }, this);
             };
             
-            return Retriever.get_replacement_courses(this.identifier.substring(0, index).trim(), this.identifier.substring(index).trim(), this.type, this.term).then(filter.bind(this));
+            return ScheduleRetriever.get_replacement_courses(this.identifier.substring(0, index).trim(), this.identifier.substring(index).trim(), this.type, this.term).then(filter.bind(this));
         };
         
         this.getLatestCourseData();
