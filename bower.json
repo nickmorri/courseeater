@@ -20,7 +20,7 @@
   },
   "analytics": false,
   "resolutions": {
-    "angular": "1.4.1",
+    "angular": "~1.4.1",
     "fullcalendar": "~2.3.2"
   }
 }
