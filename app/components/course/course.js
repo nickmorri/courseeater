@@ -475,7 +475,7 @@ course.directive('courseProgress', function () {
             };
             
             $scope.isFull = function () {
-                return $scope.getEnrolledCount() >= $scope.getCourseCapacity();
+                return $scope.getEnrolledCount() >= $scope.getCourseCapacity() && !$scope.hasWaitlist();
             };
             
             $scope.areSeatsOpen = function () {
