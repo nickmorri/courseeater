@@ -1,4 +1,4 @@
-var courseeater_app = angular.module('CourseEaterApp', ['ui.router', 'parse.service', 'courseeater.track', 'courseeater.schedule', 'courseeater.search', 'courseeater.settings']);
+var courseeater_app = angular.module('CourseEaterApp', ['ui.router', 'ngAnimate', 'ui.bootstrap', 'parse.service', 'courseeater.track', 'courseeater.schedule', 'courseeater.search', 'courseeater.settings']);
 
 courseeater_app.config(['$locationProvider', '$urlRouterProvider', function($locationProvider, $urlRouterProvider) {
     

@@ -13,10 +13,11 @@
     "moment": "~2.10.3",
     "fullcalendar": "~2.3.2",
     "angular-ui-calendar": "~1.0.0",
-    "ng-bs-animated-button": "~2.0.3",
     "html2canvas": "~0.4.1",
     "parse-angular-patch": "~0.1.2",
-    "angular-bootstrap": "~0.13.0"
+    "angular-bootstrap": "~0.13.0",
+    "ng-bs-animated-button": "~2.0.3",
+    "angular-animate": "~1.4.3"
   },
   "analytics": false,
   "resolutions": {
