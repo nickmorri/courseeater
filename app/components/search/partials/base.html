@@ -11,11 +11,11 @@
         <div class="input-group">
             <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
             
-            <input type="text" ng-model="selected_type" typeahead="type as type.name for type in available_types() | filter:$viewValue | limitTo:8" class="form-control" placeholder="Search for department or GE category.." typeahead-on-select="get_type($item, $model, $label)">
+            <input type="text" ng-model="selected_type" typeahead="type as type.name for type in getAvailableTypes() | filter:$viewValue | limitTo:8" class="form-control" placeholder="Search for department or GE category.." typeahead-on-select="search($item, $model, $label)">
             
             <span class="input-group-btn" ng-show="selected_type">
             
-                <button class="btn btn-default form-user-management form-control" type="button" ng-click="clear_selected_type()">
+                <button class="btn btn-default form-user-management form-control" type="button" ng-click="clearSelectedType()">
                     <span class="glyphicon glyphicon-remove"></span>
                 </button>
                 
@@ -24,14 +24,14 @@
         
         <div class="panel panel-default">
             
-            <div class="panel-heading" ng-show="results">
+            <div class="panel-heading" ng-show="hasResults()">
                 
                 <div class="input-group">
                     <span class="input-group-addon"><span class="glyphicon glyphicon-filter"></span></span>
                     <input type="text" class="form-control form-control-search-filter" placeholder="Filter by class name, instructor, etc..." ng-model="filter">
                     <span class="input-group-btn">
                     
-                        <button class="btn btn-default" type="button" ng-show="filter" ng-click="clear_filter()">
+                        <button class="btn btn-default" type="button" ng-show="filter" ng-click="clearFilter()">
                             <span class="glyphicon glyphicon-remove"></span>
                         </button>
                     </span>
@@ -39,12 +39,12 @@
                 
             </div>
             
-            <div class="panel-body" ng-show="retrieving_results || results">
+            <div class="panel-body" ng-show="isRetrieving() || hasResults()">
                 
-                <div class="spinner" ng-show="retrieving_results"></div>
+                <div class="spinner" ng-show="isRetrieving()"></div>
                 
-                <accordion close-others="false" ng-hide="retrieving_results">
-                    <class-search-item ng-repeat="class in results | classProps:filter"></class-search-item>
+                <accordion close-others="false" ng-hide="isRetrieving()">
+                    <class-search-item ng-repeat="class in getResults() | classProps:filter"></class-search-item>
                 </accordion>
                 
             </div>

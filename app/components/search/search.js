@@ -10,7 +10,7 @@ search.config(['$stateProvider', function ($stateProvider) {
 }]);
 
 search.run(['SearchStore', function (SearchStore) {
-    SearchStore.retrieve();
+    SearchStore.retrieveTypes();
 }]);
 
 search.factory('SearchStore', ['ScheduleRetriever', '$q', function (ScheduleRetriever, $q) {
@@ -18,26 +18,29 @@ search.factory('SearchStore', ['ScheduleRetriever', '$q', function (ScheduleRetr
     var Public = {};
     
     var Private = {
-        available_types: []
+        retrieving: false,
+        filter: null,
+        selected_type: null,
+        available_types: [],
+        results: null
     };
     
-    Private.retrieve_types = function () {
-        return $q(function (resolve, reject) {
-            ScheduleRetriever.get_depts_and_ge_available().then(function (response) {
-                response.remove("ALL");
-                response.remove("ANY");
-                
-                Private.available_types = response;
-                resolve();
-            });
+    Public.retrieveTypes = function () {
+        return ScheduleRetriever.get_depts_and_ge_available().then(function (response) {
+            response.remove("ALL");
+            response.remove("ANY");
+            
+            Private.available_types = response;
+            return true;
         });
     };
     
     Private.search = function (parameters) {
-        return $q(function (resolve, reject) {
-            ScheduleRetriever.retrieve(parameters, '2015-92').then(function (response) {
-                resolve(response);
-            });
+        Private.retrieving = true;
+        return ScheduleRetriever.retrieve(parameters, '2015-92').then(function (response) {
+            Private.retrieving = false;
+            Private.results = response;
+            return response;
         });
     };
     
@@ -49,40 +52,63 @@ search.factory('SearchStore', ['ScheduleRetriever', '$q', function (ScheduleRetr
         return angular.copy(Private.available_types);
     };
     
-    Public.retrieve = function () {
-        return Private.retrieve_types();
+    Public.clearFilter = function () {
+        Private.filter = '';
+    };
+    
+    Public.isRetrieving = function () {
+        return Private.retrieving;
+    };
+    
+    Public.clearSelectedType = function () {
+        Private.selected_type = null;
+    };
+    
+    Public.getResults = function () {
+        return Private.results;
+    };
+    
+    Public.clearResults = function () {
+        Private.results = null;
+    };
+    
+    Public.hasResults = function () {
+        return Private.results !== null;
     };
     
     return Public;
 }]);
 
 search.controller('SearchController', ['$scope', 'SearchStore', function ($scope, SearchStore) {
-
-    $scope.filter = "";
-    $scope.retrieving_results = null;
-    $scope.results = null;
-    $scope.selected_type = null;
     
-    $scope.clear_filter = function () {
-        $scope.filter = "";
+    $scope.isRetrieving = function () {
+        return SearchStore.isRetrieving();
     };
     
-    $scope.available_types = function () {
+    $scope.clearFilter = function () {
+        SearchStore.clearFilter();
+    };
+    
+    $scope.getAvailableTypes = function () {
         return SearchStore.getAvailableTypes();
     };
     
-    $scope.get_type = function ($item, $model, $label) {
-        $scope.retrieving_results = true;
-        SearchStore.search($item.type, $item.value).then(function (results) {
-            $scope.results = results;
-            $scope.retrieving_results = false;
-        });
+    $scope.search = function ($item, $model, $label) {
+        SearchStore.search($item.type, $item.value);
     };
     
-    $scope.clear_selected_type = function () {
-        $scope.clear_filter();
-        $scope.selected_type = "";
+    $scope.clearSelectedType = function () {
+        SearchStore.clearFilter();
+        SearchStore.clearSelectedType();
         $scope.results = undefined;
+    };
+    
+    $scope.getResults = function () {
+        return SearchStore.getResults();
+    };
+    
+    $scope.hasResults = function () {
+        return SearchStore.hasResults();
     };
     
 }]);
@@ -95,7 +121,7 @@ search.directive('classSearchItem', function () {
 
 search.filter('classProps', function () {
     return function (items, term) {
-        return (!items) ? [] : items.filter(function(item) {
+        return term === undefined ? items : (!items) ? [] : items.filter(function(item) {
             return item.name.toUpperCase().indexOf(this) != -1 || item.identifier.toUpperCase().indexOf(this) != -1 || item.course_data.some(function (course) {
                     return course.courseCode.indexOf(this) != -1 || course.instructor.some(function (instructor) {
                         return instructor.toUpperCase().indexOf(this) != -1;
