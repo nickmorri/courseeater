@@ -1,5 +1,9 @@
 /* CourseView */
 
+/* Hides ugly a element highlight on course accordion click */
+a.accordion-toggle:focus {
+    outline: none;
+}
 .panel-heading {
     border-bottom: 0;
     border-radius: 0;
