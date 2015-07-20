@@ -250,14 +250,18 @@ retrieve.factory('ScheduleRetriever', ['$http', '$q', function ($http, $q) {
                     value: option.value.trim(),
                     type: 'category'
                 };
-            }).concat(Array.prototype.slice.call(temp_DOM.querySelector('select[name="Dept"]').querySelectorAll('option')).map(function (option) {
+            }).concat(Array.prototype.slice.call(temp_DOM.querySelector('select[name="Dept"]').querySelectorAll('option')).filter(function (type) {
+                return type.value.indexOf('ALL') === -1 && type.value.indexOf('ANY') === -1;
+            }).map(function (option) {
+                var re = /[\.]+/;
+                var matches = option.text.split(re);
+                var dept_name = matches[matches.length - 1].trim() + ' [' + option.value.trim() + ']';
                 return {
-                    name: option.text,
+                    name: dept_name,
                     value: option.value.trim(),
                     type: 'department'
                 };
             }));
-                
         });
     };
     

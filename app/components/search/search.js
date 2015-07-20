@@ -26,12 +26,8 @@ search.factory('SearchStore', ['ScheduleRetriever', '$q', function (ScheduleRetr
     };
     
     Public.retrieveTypes = function () {
-        return ScheduleRetriever.get_depts_and_ge_available().then(function (response) {
-            response.remove("ALL");
-            response.remove("ANY");
-            
+        ScheduleRetriever.get_depts_and_ge_available().then(function (response) {
             Private.available_types = response;
-            return true;
         });
     };
     
@@ -45,7 +41,7 @@ search.factory('SearchStore', ['ScheduleRetriever', '$q', function (ScheduleRetr
     };
     
     Public.search = function (type, value) {
-        return Private.search(type === 'category' ? {category: value} : {department: value});
+        Private.search(type === 'category' ? {category: value} : {department: value});
     };
     
     Public.getAvailableTypes = function () {
