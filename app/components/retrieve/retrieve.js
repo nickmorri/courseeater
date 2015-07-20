@@ -300,9 +300,17 @@ retrieve.factory('InstructorRetriever', ['$http', '$q', function ($http, $q) {
     
     Retriever.retrieve = function (last_name, first_name) {
         return $http.get(Retriever.build_base_url(last_name)).then(function (response) {
-            return response.data.response.docs.find(function (potential) {
+            var likely_match = response.data.response.docs.find(function (potential) {
                 return potential.teacherlastname_t.toUpperCase() == this.last_name.toUpperCase() && potential.teacherfirstname_t.toUpperCase()[0] == this.first_name.toUpperCase()[0];
             }, {last_name: last_name, first_name: first_name});
+            
+            return likely_match === undefined ? undefined : {
+                first_name: first_name,
+                last_name: last_name,
+                rmp_id: likely_match.pk_id,
+                rmp_avg_rating: likely_match.averageratingscore_rf,
+                rmp_num_rating: likely_match.total_number_of_ratings_i
+            };
         });
     };
     

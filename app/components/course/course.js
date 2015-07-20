@@ -177,28 +177,24 @@ course.factory('Course', ['$q', 'ScheduleRetriever', 'InstructorRetriever', func
             this.instructor = this.instructor.map(function (instructor) {
                 var instructor_data = {};
             
-                if (instructor === "") return undefined;
-                
-                else if (instructor.indexOf("STAFF") !== -1) {                
-                    instructor_data.first_name = "STAFF";
-                    instructor_data.last_name = "STAFF";
+                if (instructor === '') {
+                    return undefined;
+                }
+                else if (instructor.indexOf("STAFF") !== -1) {
                     instructor_data.staff = true;
                 }
                 else {
                     var split_name = instructor.split(",");
                     instructor_data.first_name = split_name[1].trim();
                     instructor_data.last_name = split_name[0].trim();
-                    instructor_data.staff = false;
                 }
                 
-                if (!instructor_data.staff && Object.keys(instructor_data).length > 0) {
+                if (!instructor_data.staff) {
                     InstructorRetriever.retrieve(instructor_data.last_name, instructor_data.first_name).then(function (result) {
-                        if (result === undefined) return undefined;
-                        instructor_data.rmp_id = result.pk_id;
-                        instructor_data.rmp_avg_rating = result.averageratingscore_rf;
-                        instructor_data.rmp_num_rating = result.total_number_of_ratings_i;
+                        instructor_data = result;
                     });
                 }
+                
                 return instructor_data;
             });
         };
