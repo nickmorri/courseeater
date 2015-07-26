@@ -104,7 +104,7 @@ settings.directive('deleteAccountPartial', ['AuthService', function(AuthService)
             $scope.deleteAccount = function () {
                 $scope.authService.checkLogin($scope.authService.currentUser.attributes.username, $scope.deletePassword).then(function (response) {
                     return $scope.authService.currentUser.destroy();
-                }).then(function () {
+                }).then(function (response) {
                     $scope.error = false;
                     $scope.success = true;                    
                     $scope.password = undefined;

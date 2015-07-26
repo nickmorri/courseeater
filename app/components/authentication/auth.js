@@ -164,8 +164,6 @@ authentication.directive('registrationPartial', ['AuthService', '$http', functio
             };
             
             $scope.register = function () {
-                
-                debugger
                 $scope.result = null;
                 $scope.error = false;
                 $scope.isRegistering = true;
@@ -218,7 +216,7 @@ authentication.directive('registrationPartial', ['AuthService', '$http', functio
                     }, function (error) {
                         $scope.result = "error";
                         $scope.error = true;
-                        $scope.error_message = "Something went wrong. Please try registering again.";
+                        $scope.error_message = error.message !== undefined ? error.message : "Something went wrong. Please try registering again.";
                     });    
                 }
             };
