@@ -211,11 +211,10 @@ retrieve.factory('Retriever', ['$http', '$q', function ($http, $q) {
             totalEnr: process_enrolled(data[9]).total,
             wl: parseInt(data[10].textContent, 10),
             req: parseInt(data[11].textContent, 10),
-            nor: parseInt(data[12].textContent, 10),
-            rstr: data[13].textContent,
-            textbookURL: process_textbook_url(data[14]),
-            web: data[15].textContent,
-            status: data[16].textContent
+            rstr: data[12].textContent,
+            textbookURL: process_textbook_url(data[13]),
+            web: data[14].textContent,
+            status: data[15].textContent
         };
     };
         
