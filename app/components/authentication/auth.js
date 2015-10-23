@@ -1,11 +1,11 @@
-var authentication = angular.module('courseeater.auth', ['parse-angular', 'parse.service', 'jp.ng-bs-animated-button', 'courseeater.retrieve']);
+var authentication = angular.module('courseeater.auth', ['parse-angular', 'parse.service', 'jp.ng-bs-animated-button']);
 
 authentication.factory('AuthService', ['$state', '$rootScope', '$window', function ($state, $rootScope, $window) {
     var authService = {};
     
     authService.currentUser = Parse.User.current();
     
-    authService.loggedIn = authService.currentUser !== null;
+    authService.loggedIn = authService.currentUser != null;
     
     authService.checkLogin = function (username, password) {
         return Parse.User.logIn(username, password);
@@ -14,7 +14,7 @@ authentication.factory('AuthService', ['$state', '$rootScope', '$window', functi
     authService.login = function (username, password) {
         return Parse.User.logIn(username, password).then(function (response) {
             authService.currentUser = Parse.User.current();
-            authService.loggedIn = authService.currentUser !== null;
+            authService.loggedIn = authService.currentUser != null;
             $rootScope.$broadcast("login");
         }, function (error) {
             authService.currentUser = null;
@@ -30,7 +30,7 @@ authentication.factory('AuthService', ['$state', '$rootScope', '$window', functi
         
         return user.signUp().then(function (response) {
             authService.currentUser = Parse.User.current();
-            authService.loggedIn = authService.currentUser !== null;
+            authService.loggedIn = authService.currentUser != null;
             $rootScope.$broadcast("login");
         }, function (error) {
             authService.currentUser = null;
@@ -45,7 +45,7 @@ authentication.factory('AuthService', ['$state', '$rootScope', '$window', functi
     authService.logout = function () {
         Parse.User.logOut();
         authService.currentUser = null;
-        authService.loggedIn = authService.currentUser !== null;
+        authService.loggedIn = authService.currentUser != null;
         $rootScope.$broadcast("logout");
     };
     
@@ -64,8 +64,8 @@ authentication.directive('userMenu', function () {
     return {
         restrict: 'E',
         replace: true,
-        templateUrl: 'app/components/authentication/partials/user-menu.html'
-    };
+        templateUrl: 'app/partials/user-menu.html'
+    }
 });
 
 authentication.directive('anonymousMenu', function () {
@@ -73,23 +73,23 @@ authentication.directive('anonymousMenu', function () {
         scope: {},
         restrict: 'E',
         replace: true,
-        templateUrl: 'app/components/authentication/partials/anonymous-menu.html',
+        templateUrl: 'app/partials/anonymous-menu.html',
         link: function ($scope, element, attributes) {
             $scope.menu_shown = "login";
             
             $scope.toggle_menu = function ($event) {
                 $event.preventDefault();
                 $event.stopPropagation();
-                $scope.menu_shown = $scope.menu_shown != "login" ?  "login" : "register";
+                $scope.menu_shown = $scope.menu_shown != "login" ?  "login" : "register"
             };
         }
-    };
+    }
 });
 
 authentication.directive('loginPartial', ['AuthService', function (AuthService) {
     return {
         scope: {},
-        templateUrl: 'app/components/authentication/partials/login-partial.html',
+        templateUrl: 'app/partials/login-partial.html',
         controller: ['$scope', 'AuthService', function ($scope, AuthService) {
             $scope.authService = AuthService;
     
@@ -121,10 +121,10 @@ authentication.directive('loginPartial', ['AuthService', function (AuthService) 
     };
 }]);
 
-authentication.directive('registrationPartial', ['AuthService', 'AntplannerRetriever', function (AuthService, AntplannerRetriever) {
+authentication.directive('registrationPartial', ['AuthService', '$http', function (AuthService, $http) {
     return {
         scope: {},
-        templateUrl: 'app/components/authentication/partials/registration-partial.html',
+        templateUrl: 'app/partials/registration-partial.html',
         controller: ['$scope', 'AuthService', '$http', function ($scope, AuthService, $http) {
             $scope.authService = AuthService;
     
@@ -156,12 +156,14 @@ authentication.directive('registrationPartial', ['AuthService', 'AntplannerRetri
             };
             
             $scope.importAntplannerAccount = function (username) {
-                return AntplannerRetriever.retrieve(username);
+                return $http({
+                    url: 'php/antplanner.php',
+                    method: "GET",
+                    params: {username: username}
+                });
             };
             
             $scope.register = function () {
-                
-
                 $scope.result = null;
                 $scope.error = false;
                 $scope.isRegistering = true;
@@ -169,12 +171,30 @@ authentication.directive('registrationPartial', ['AuthService', 'AntplannerRetri
                 if ($scope.password != $scope.verify_password) {
                     $scope.result = "error";
                     $scope.error = true;
-                    $scope.error_message = "Password and verification password did not match please try again.";
+                    $scope.error_message = "Password and verification password did not match please try again."
                     return;
                 }
                 
+                var courseCodes = [];
+                
                 if ($scope.antplanner_username) {
-                    $scope.importAntplannerAccount($scope.antplanner_username).then(function(courseCodes) {
+                    $scope.importAntplannerAccount($scope.antplanner_username).then(function(response) {
+                        
+                        if (!response.data.success) {
+                            $scope.result = "error";
+                            $scope.error = true;
+                            $scope.error_message = "The Antplanner username entered was not retrieved. Please try again.";
+                        }
+                        
+                        var data = JSON.parse(response.data.data);
+                        
+                        for (var i = 0; i < data.length; i++) {
+                            var courseCode = parseInt(data[i].groupId, 10);
+                            if (courseCodes.indexOf(courseCode) == -1) courseCodes.push(courseCode);
+                        }
+                        
+                        
+                        
                         $scope.authService.register($scope.username, $scope.email, $scope.password, {title: $scope.antplanner_username, courseCodes: courseCodes}).then(function (status) {
                             $scope.setInitialState();
                             $scope.result = "success";
@@ -185,10 +205,6 @@ authentication.directive('registrationPartial', ['AuthService', 'AntplannerRetri
                             $scope.error = true;
                             $scope.error_message = error.message !== undefined ? error.message : "Something went wrong. Please try registering again.";
                         });
-                    }, function (error) {
-                        $scope.result = "error";
-                        $scope.error = true;
-                        $scope.error_message = "The Antplanner username entered was not retrieved. Please try again.";
                     });
                 }
                 else {
@@ -200,20 +216,20 @@ authentication.directive('registrationPartial', ['AuthService', 'AntplannerRetri
                     }, function (error) {
                         $scope.result = "error";
                         $scope.error = true;
-                        $scope.error_message = "Something went wrong. Please try registering again.";
+                        $scope.error_message = error.message !== undefined ? error.message : "Something went wrong. Please try registering again.";
                     });    
                 }
             };
             
             $scope.setInitialState();
         }]
-    };
+    }
 }]);
 
 authentication.directive('passwordResetPartial', ['AuthService', function (AuthService) {
     return {
         scope: {},
-        templateUrl: 'app/components/authentication/partials/password-reset-partial.html',
+        templateUrl: 'app/partials/password-reset-partial.html',
         controller: ['$scope', 'AuthService', function ($scope, AuthService) {
             $scope.authService = AuthService;
     
@@ -231,5 +247,5 @@ authentication.directive('passwordResetPartial', ['AuthService', function (AuthS
                 });
             };
         }]
-    };
+    }
 }]);

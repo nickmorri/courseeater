@@ -1,12 +1,8 @@
 /* CourseView */
 
-/* Hides ugly a element highlight on course accordion click */
-a.accordion-toggle:focus {
-    outline: none;
-}
 .panel-heading {
-    border-bottom: 0;
-    border-radius: 0;
+    border-bottom: 0px;
+    border-radius: 0px;
 }
 
 /* Panel heading theming  */
@@ -35,7 +31,7 @@ a.accordion-toggle:focus {
 	padding-bottom: 14px;
 	margin-top: -10px;
 	margin-bottom: -10px;
-	border-radius: 0;
+	border-radius: 0px;
 }
 
 .label-default {
@@ -61,19 +57,19 @@ a.accordion-toggle:focus {
 	float: left;
 }
 .label-day { 
-    border-radius: 0; 
+    border-radius: 0px; 
     margin-right: -5px;
 }
 
 /* Action menu */
 .dropdown-menu {
-	border-radius: 0;
+	border-radius: 0px;
 }
 
 /* Popover professor rating search */
 
 .popover.bottom {
-    border-radius: 0;
+    border-radius: 0px;
 }
 
 .progress {
@@ -82,7 +78,7 @@ a.accordion-toggle:focus {
     margin-top: -10px;
     margin-bottom: -10px;
     height: 40px;
-    border-radius: 0;
+    border-radius: 0px;
     background-color: transparent;
     -webkit-box-shadow: none;
     box-shadow: none;
@@ -108,7 +104,7 @@ a.accordion-toggle:focus {
     margin-bottom: -2px;
 }
 .panel {
-    border: 0;
+    border: 0px;
 	border-radius: 0;
 }
 .panel-search-result {
@@ -124,7 +120,7 @@ a.accordion-toggle:focus {
     padding-right: 20px;
 }
 .list-group .list-group-item {
-	border-radius: 0;
+	border-radius: 0px;
 }
 @media (max-width: 768px) {
     .navbar-nav .open .dropdown-menu>li>a, .navbar-nav .open .dropdown-menu .dropdown-header {
@@ -140,19 +136,19 @@ a.accordion-toggle:focus {
     }
 }
 .panel.panel-primary {
-	border-radius: 0;
+	border-radius: 0px;
 	margin-bottom: -6px;
 }
 .course-search-view .panel {
-    margin-bottom: 0;
+    margin-bottom: 0px;
 }
 .modal-content {
-    border-radius: 0;
+    border-radius: 0px;
     border: transparent;
 }
 .modal-header {
-    border-bottom: 0;
+    border-bottom: 0px;
 }
 .modal-title .form-control {
-    border-radius: 0;
+    border-radius: 0px;
 }

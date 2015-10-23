@@ -1,4 +1,4 @@
-var alert = angular.module('courseeater.alert', ['courseeater.list', 'courseeater.auth', 'courseeater.list', 'courseeater.alert', 'ui.bootstrap']);
+var alert = angular.module('courseeater.alert', ['courseeater.list']);
 
 alert.factory('AlertStore',['AuthService', function (AuthService) {
     var AlertStore = {};
@@ -73,5 +73,5 @@ alert.controller('AlertController', ['$scope', '$modal', 'AlertStore', 'CourseLi
 alert.directive('alertView', function () {
     return {
         templateUrl: 'app/components/alert/directives/alert-view.html'
-    };
+    }
 });

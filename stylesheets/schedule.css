@@ -1,9 +1,9 @@
 /* Calendar page */
 .schedule .panel-body {
-    padding: 0;
+    padding: 0px;
 }
 .fc-event {
-	border: 0;
+	border: 0px;
 	border-radius: 0;
 }
 .fc-event:hover {
@@ -16,13 +16,13 @@
     display: none;
 }
 .fc hr {
-    padding: 0;
+    padding: 0px;
 }
 /* Mobile Sizing */
 @media (max-width: 768px) {
     .schedule {
-        padding: 0;
-        margin: 0;
+        padding: 0px;
+        margin: 0px;
     }
     .schedule > .panel {
         margin-top: -30px
@@ -30,5 +30,5 @@
 }
 
 .alert-section {
-    margin-bottom: 0;
+    margin-bottom: 0px;
 }

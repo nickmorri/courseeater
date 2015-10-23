@@ -1,17 +1,9 @@
-var settings = angular.module('courseeater.settings', ['courseeater.auth', 'ui.bootstrap']);
-
-settings.config(['$stateProvider', function ($stateProvider) {
-    $stateProvider.state('settings', {
-        url: '/settings',
-        templateUrl: 'app/components/settings/partials/base.html',
-        data: { pageTitle: 'Settings'}
-    });
-}]);
+var settings = angular.module('courseeater.settings', ['ui.bootstrap']);
 
 settings.directive('changeEmailPartial', ['AuthService', function(AuthService) {
     return {
         scope: {},
-        templateUrl: 'app/components/settings/partials/change-email-partial.html',
+        templateUrl: 'app/views/settings/partials/change-email-partial.html',
         controller: ['$scope', 'AuthService', function ($scope, AuthService) {
             $scope.authService = AuthService;
             
@@ -37,34 +29,34 @@ settings.directive('changeEmailPartial', ['AuthService', function(AuthService) {
                 });
             };
         }]
-    };
+    }
 }]);
 
 settings.directive('changePasswordPartial', ['AuthService', function(AuthService) {
     return {
         scope: {},
-        templateUrl: 'app/components/settings/partials/change-password-partial.html',
+        templateUrl: 'app/views/settings/partials/change-password-partial.html',
         controller: ['$scope', 'AuthService', function ($scope, AuthService) {
             $scope.authService = AuthService;
             
             $scope.message = "";
             $scope.error = false;
-            $scope.currentPassword = undefined;
-            $scope.newPassword = undefined;
-            $scope.verifyPassword = undefined;
+            $scope.currentPassword = undefined
+            $scope.newPassword = undefined
+            $scope.verifyPassword = undefined
             
             $scope.updatePassword = function () {
                 if ($scope.newPassword != $scope.verifyPassword) {
                     $scope.error = true;
                     $scope.success = false;
-                    $scope.message = "New password and the verification password do not match. Please try again.";
+                    $scope.message = "New password and the verification password do not match. Please try again."
                     return;
                 }
                 
                 if ($scope.newPassword == $scope.currentPassword) {
                     $scope.error = true;
                     $scope.success = false;
-                    $scope.message = "New password and current password are the same. Please try entering a new password.";
+                    $scope.message = "New password and current password are the same. Please try entering a new password."
                     return;
                 }
                 
@@ -77,29 +69,29 @@ settings.directive('changePasswordPartial', ['AuthService', function(AuthService
                     $scope.message = "Password successfully updated!";
                     
                     $scope.error = false;
-                    $scope.currentPassword = undefined;
-                    $scope.newPassword = undefined;
-                    $scope.verifyPassword = undefined;
+                    $scope.currentPassword = undefined
+                    $scope.newPassword = undefined
+                    $scope.verifyPassword = undefined
                 }, function (error) {
                     $scope.success = false;
                     
                     $scope.message = "Whoops! Something went wrong while updating your password. Please try again.";
                     
                     $scope.error = true;
-                    $scope.currentPassword = undefined;
-                    $scope.newPassword = undefined;
-                    $scope.verifyPassword = undefined;
+                    $scope.currentPassword = undefined
+                    $scope.newPassword = undefined
+                    $scope.verifyPassword = undefined
                 });
                 
             };
         }]
-    };
+    }
 }]);
 
 settings.directive('deleteAccountPartial', ['AuthService', function(AuthService) {
     return {
         scope: {},
-        templateUrl: 'app/components/settings/partials/delete-account-partial.html',
+        templateUrl: 'app/views/settings/partials/delete-account-partial.html',
         controller: ['$scope', 'AuthService', function ($scope, AuthService) {
             $scope.authService = AuthService;
             
@@ -112,7 +104,7 @@ settings.directive('deleteAccountPartial', ['AuthService', function(AuthService)
             $scope.deleteAccount = function () {
                 $scope.authService.checkLogin($scope.authService.currentUser.attributes.username, $scope.deletePassword).then(function (response) {
                     return $scope.authService.currentUser.destroy();
-                }).then(function () {
+                }).then(function (response) {
                     $scope.error = false;
                     $scope.success = true;                    
                     $scope.password = undefined;
@@ -128,5 +120,5 @@ settings.directive('deleteAccountPartial', ['AuthService', function(AuthService)
             };
             
         }]
-    };
+    }
 }]);

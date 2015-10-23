@@ -1,0 +1,22 @@
+<navigation-view></navigation-view>
+
+<div class="schedule schedule-container container-fluid">
+
+    <div class="schedule container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <schedule-toolbar></schedule-toolbar>
+            </div>
+            <div class="schedule panel-body">
+                <div class="alert alert-info alert-section" ng-show="temporaryStore.target_section != undefined && temporaryStore.events == 0 && !temporaryStore.no_results">
+                    No results while section restricted to section {{temporaryStore.target_section}}. Ensure section matches desired section if you <a href ng-click="temporaryStore.filterCourses(false)">remove filter</a>.
+                </div>
+                <div class="alert alert-info alert-section" ng-show="temporaryStore.target_section != undefined && temporaryStore.events == 0 && temporaryStore.no_results">
+                    No results found.
+                </div>
+                <div id="calendar" ui-calendar="uiConfig.calendar" calendar="schedule" ng-model="eventSource" class="calendar"></div>
+            </div>
+        </div>
+    </div>
+
+</div>

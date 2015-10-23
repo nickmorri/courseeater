@@ -8,34 +8,29 @@
         <link rel="icon" sizes="192x192" href="resources/highres-transparent.png">
         <meta name="theme-color" content="#F0AD4E">
         <meta name="mobile-web-app-capable" content="yes">
+        <meta name="description" content="Enables students at UC Irvine to manage their classes in an simple and intuitive way. Search, schedule and track courses on mobile and desktop.">
+        <meta name="keywords" content="courseeater, uci, course, eater, schedule, websoc, irvine, class, classes, courses, course">
+        <meta name="author" content="Nick Morris">
         
-        <link text="text/css" rel="stylesheet" href="bower_components/fullcalendar/dist/fullcalendar.min.css">
-        <link text="text/css" rel="stylesheet" href="bower_components/ng-bs-animated-button/ng-bs-animated-button.css">
-        <link text="text/css" rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
-
-        <!-- build:css:dist courseeater.min.css -->
-        <link text="text/css" rel="stylesheet" href="stylesheets/dropdown-menu-large.css">
-        <link text="text/css" rel="stylesheet" href="stylesheets/loading.css">
-        <link text="text/css" rel="stylesheet" href="stylesheets/main.css">
-        <link text="text/css" rel="stylesheet" href="stylesheets/navigation.css">
-        <link text="text/css" rel="stylesheet" href="stylesheets/course.css">
-        <link text="text/css" rel="stylesheet" href="stylesheets/schedule.css">
-        <link text="text/css" rel="stylesheet" href="stylesheets/search.css">
-        <!-- /build -->
-
-    </head>
-    
-    <body>
-        
-        <div ui-view></div>
-        
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
         <script src="//www.parsecdn.com/js/parse-1.4.2.min.js"></script>
-        
-        <!-- bower:js --><!-- endbower -->
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.14/angular-ui-router.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.12.0/ui-bootstrap-tpls.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular-filter/0.5.4/angular-filter.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js"></script>
 
-        <!-- build:js:dist courseeater.min.js -->
-        <script src="app/polyfill.js"></script>
+        <script src="dependencies/polyfill.js"></script>
+        <script src="dependencies/parse-angular.js"></script>
+        <script src="dependencies/calendar/fullcalendar.min.js"></script>
+        <script src="dependencies/calendar/calendar.js"></script>
+        <script src="dependencies/ng-bs-animated-button.js"></script>
+        <script src="dependencies/html2canvas.js"></script>
+        <script src="dependencies/angular-local-storage.js"></script>
+        
         <script src="app/misc.js"></script>
+        
         <script src="app/components/parse/parse-service.js"></script>
         <script src="app/components/authentication/auth.js"></script>
         <script src="app/components/retrieve/retrieve.js"></script>
@@ -47,8 +42,27 @@
         <script src="app/components/search/search.js"></script>
         <script src="app/components/settings/settings.js"></script>
         <script src="app/components/alert/alert.js"></script>
+
         <script src="app/app.js"></script>
-        <!-- /build -->
+
+        <link text="text/css" rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link text="text/css" rel="stylesheet" href="stylesheets/dropdown-menu-large.css">
+        <link text="text/css" rel="stylesheet" href="stylesheets/fullcalendar.min.css">
+        <link text="text/css" rel="stylesheet" href="stylesheets/ng-bs-animated-button.css">
+        <link text="text/css" rel="stylesheet" href="stylesheets/loading.css">
+        <link text="text/css" rel="stylesheet" href="stylesheets/main.css">
+        <link text="text/css" rel="stylesheet" href="stylesheets/navigation.css">
+        <link text="text/css" rel="stylesheet" href="stylesheets/course.css">
+        <link text="text/css" rel="stylesheet" href="stylesheets/schedule.css">
+        <link text="text/css" rel="stylesheet" href="stylesheets/search.css">
+        
+        <link ng-if="state.is('login.login') || state.is('login.registration') || state.is('login.reset')" text="text/css" rel="stylesheet" href="stylesheets/login.css">
+
+    </head>
+    
+    <body>
+        
+        <div ui-view></div>
         
     </body>
     

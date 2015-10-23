@@ -1,4 +1,4 @@
-var store = angular.module('courseeater.store', ['courseeater.course', 'courseeater.list', 'ui.bootstrap']);
+var store = angular.module('courseeater.store', ['courseeater.course', 'ui.bootstrap']);
 
 store.factory('TemporaryStore', ['Course', 'CourseListStore', function (Course, CourseListStore) {
     var TemporaryStore = {};
@@ -12,32 +12,12 @@ store.factory('TemporaryStore', ['Course', 'CourseListStore', function (Course, 
     // Course code of course being considered for replacement
     TemporaryStore.course_code_for_replacement = undefined;
     
-    TemporaryStore.hasSearched = function () {
-        return TemporaryStore.getTargetSection() !== undefined;
-    };
-    
     TemporaryStore.empty = function () {
         return TemporaryStore.size() === 0;
     };
     
     TemporaryStore.size = function () {
         return TemporaryStore.courses.length;
-    };
-    
-    TemporaryStore.isSectionRestricted = function () {
-        return TemporaryStore.section_restricted;
-    };
-    
-    TemporaryStore.getTargetSection = function() {
-        return TemporaryStore.target_section;
-    };
-    
-    TemporaryStore.hasResults = function () {
-        return TemporaryStore.events.length;
-    };
-    
-    TemporaryStore.hasFilteredResults = function () {
-        return TemporaryStore.hasSearched() && TemporaryStore.hasResults() && TemporaryStore.isSectionRestricted();
     };
     
     TemporaryStore.clear = function () {
@@ -63,9 +43,9 @@ store.factory('TemporaryStore', ['Course', 'CourseListStore', function (Course, 
     
     TemporaryStore.addCourse = function (course, replacement) {
         
-        var tempCourse = new Course(course.courseCode, course.term, "black");
+        var course = new Course(course.courseCode, course.term, "black");
         
-        tempCourse.deferred.promise.then(function (fetched_course) {
+        course.deferred.promise.then(function (fetched_course) {
         
             fetched_course.tracking = false;
             fetched_course.replacement = replacement;
@@ -75,7 +55,7 @@ store.factory('TemporaryStore', ['Course', 'CourseListStore', function (Course, 
     
     TemporaryStore.hasCourse = function (courseCode) {
         return TemporaryStore.getCourse(courseCode) === undefined;
-    };
+    }
     
     TemporaryStore.getCourse = function (courseCode) {
         return TemporaryStore.courses.find(function (course) {
@@ -110,7 +90,7 @@ store.factory('TemporaryStore', ['Course', 'CourseListStore', function (Course, 
         TemporaryStore.target_section = course.sec.charAt(0);
         
         return course.findCoCourses(type).then(function (response) {
-            if (response.length === 0) {
+            if (response.length == 0) {
                 TemporaryStore.no_results = true;
             }
             else {
@@ -119,7 +99,7 @@ store.factory('TemporaryStore', ['Course', 'CourseListStore', function (Course, 
                     TemporaryStore.addCourse(course, false);
                 });
             }
-        });
+        })
     };
     
     TemporaryStore.searchForReplacements = function (course, type, callback) {
@@ -132,7 +112,9 @@ store.factory('TemporaryStore', ['Course', 'CourseListStore', function (Course, 
         TemporaryStore.target_section = course.sec.charAt(0);
         
         return course.findReplacements().then(function (response) {
-            if (response.length === 0) TemporaryStore.no_results = true;
+            if (response.length == 0) {
+                TemporaryStore.no_results = true;
+            }
             else {
                 TemporaryStore.no_results = false;
                 response.forEach(function (course) {
@@ -146,7 +128,7 @@ store.factory('TemporaryStore', ['Course', 'CourseListStore', function (Course, 
     
 }]);
 
-store.factory('CourseStore', ['Course', 'CourseListStore', '$rootScope', function (Course, CourseListStore, $rootScope) {
+store.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootScope) {
     var CourseStore = {};
     
     CourseStore.list = undefined;
@@ -200,7 +182,7 @@ store.factory('CourseStore', ['Course', 'CourseListStore', '$rootScope', functio
     
     CourseStore.retrieveCourse = function (courseCode) {
         // TODO: Quick fix for null coursecodes in IE
-        if (courseCode === null) return;
+        if (courseCode == null) return;
         
         CourseStore.num_loading_courses++;
         var course = new Course(parseInt(courseCode, 10), CourseStore.list.term, undefined);
@@ -208,7 +190,7 @@ store.factory('CourseStore', ['Course', 'CourseListStore', '$rootScope', functio
         course.deferred.promise.then(function (fetched_course) {
             CourseStore.storeCourse(fetched_course);
             CourseStore.num_loading_courses--;
-            CourseStore.initialized = CourseStore.num_loading_courses === 0;
+            CourseStore.initialized = CourseStore.num_loading_courses == 0;
         });
     };
     
@@ -221,7 +203,7 @@ store.factory('CourseStore', ['Course', 'CourseListStore', '$rootScope', functio
     };
     
     CourseStore.hasCourse = function (courseCode) {
-        return CourseStore.getCourse(courseCode) !== undefined;
+        return CourseStore.getCourse(courseCode) != undefined;
     };
     
     CourseStore.getCourse = function (courseCode) {
@@ -298,15 +280,6 @@ store.factory('CourseStore', ['Course', 'CourseListStore', '$rootScope', functio
         return CourseStore.colors.splice(CourseStore.colors.indexOf(CourseStore.colors[hash]), 1)[0];
     };
     
-    $rootScope.$watch(function () {
-        return CourseListStore.activeList;
-    }, function (current, previous) {
-        if (current === undefined) return;
-        else if (CourseStore.list === undefined) CourseStore.setActiveList(current);
-        else if (previous !== undefined && !previous.courseCodes.equals(current.courseCodes)) CourseStore.setActiveList(current);
-        else if (previous === undefined && current !== undefined) CourseStore.setActiveList(current);
-    });
-    
     // Listen for logout event and clear data store on event
     $rootScope.$on('logout', CourseStore.clear);
     
@@ -317,7 +290,7 @@ store.factory('CourseStore', ['Course', 'CourseListStore', '$rootScope', functio
 store.filter('section', function() {
     return function (input, sec, enabled) {
         return !enabled ? input : input.filter(function (course) {
-            return course.sec.indexOf(this) === 0;
+            return course.sec.indexOf(this) == 0;
         }, sec);
     };
 });

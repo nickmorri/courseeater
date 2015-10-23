@@ -1,13 +1,4 @@
-var track = angular.module('courseeater.track', ['courseeater.course', 'courseeater.store', 'courseeater.list', 'courseeater.alert', 'ui.bootstrap', 'angular.filter', 'jp.ng-bs-animated-button']);
-
-track.config(['$stateProvider', function ($stateProvider) {
-    $stateProvider.state('track', {
-        url: '/track',
-        templateUrl: 'app/components/track/partials/base.html',
-        controller: 'TrackController',
-        data: { pageTitle: 'Track'}
-    });
-}]);
+var track = angular.module('courseeater.track', ['courseeater.course', 'courseeater.list', 'courseeater.alert', 'ui.bootstrap', 'angular.filter', 'jp.ng-bs-animated-button']);
 
 track.controller('CourseSearchModalController', ['$scope', 'Course', 'CourseStore', 'TemporaryStore', '$modalInstance', 'ButtonConfiguration', function ($scope, Course, CourseStore, TemporaryStore, $modalInstance, ButtonConfiguration) {
     $scope.temporaryStore = TemporaryStore;
@@ -52,10 +43,12 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
         $scope.courseStore.addCourse($scope.newCourseCode).then(function (response) {
             $scope.temporaryStore.clear();
             $scope.result = 'success';
+
             $scope.newCourseCode = undefined;
         }, function (error) {
             $scope.result = 'error';
-            $scope.alertStore.addMessage(error.message, 'warning');
+
+            $scope.alertStore.addMessage(error.message, 'warning')
         });
     };
     
@@ -63,7 +56,7 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
         course.isSubmitting = true;
         $scope.courseStore.removeCourse(course.courseCode).then($scope.temporaryStore.clear, function (error) {
             course.result = 'error';
-            $scope.alertStore.addMessage(error.message, 'warning');
+            $scope.alertStore.addMessage(error.message, 'warning')
         });
     };
     
@@ -82,5 +75,7 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
             controller: 'CourseSearchModalController'
         });
     };
+    
+    if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
     
 }]);

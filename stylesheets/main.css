@@ -2,14 +2,14 @@ body { background-color: #eee; }
 /* Prevents body from scrolling while modal is open */
 body.modal-open { overflow: hidden; }
 .navbar { margin-bottom: 30px; }
-.btn { border-radius: 0; }
+.btn { border-radius: 0px; }
 .course-list-item { cursor: pointer; }
 
-.modal-content { border-radius: 0; }
-.alert { border-radius: 0; }
+.modal-content { border-radius: 0px; }
+.alert { border-radius: 0px; }
 .alert-error {
 	margin-top: 20px;
-	margin-bottom: 0;
+	margin-bottom: 0px;
 }
 .form-user-management .form-control {
     border-radius: 0;
@@ -30,7 +30,7 @@ a:hover, a:visited, a:link, a:active {
     text-decoration: none;
 }
 .container-settings {
-    padding-top: 0;
+    padding-top: 0px;
 }
 /* Search input */
 .form-control-search-filter {
@@ -40,5 +40,5 @@ a:hover, a:visited, a:link, a:active {
     display: block;
 }
 .input-group-addon {
-    border-radius: 0;
+    border-radius: 0px;
 }

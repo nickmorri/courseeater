@@ -1,6 +1,17 @@
-var course = angular.module('courseeater.course', ['ui.bootstrap', 'courseeater.retrieve']);
+var course = angular.module('courseeater.course', ['ui.bootstrap']);
 
-course.factory('Course', ['$q', 'ScheduleRetriever', 'InstructorRetriever', function ($q, ScheduleRetriever, InstructorRetriever) {
+course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStore, CourseListStore, $rootScope) {
+    $rootScope.listStore = CourseListStore;
+    $rootScope.courseStore = CourseStore;
+    $rootScope.$watch('listStore.activeList', function (newList, oldList) {
+        if (newList === undefined) return;
+        else if ($rootScope.courseStore.list === undefined) $rootScope.courseStore.setActiveList(newList);
+        else if (oldList !== undefined && !oldList.courseCodes.equals(newList.courseCodes)) $rootScope.courseStore.setActiveList(newList);
+        else if (oldList === undefined && newList !== undefined) $rootScope.courseStore.setActiveList(newList);
+    });
+}]);
+
+course.factory('Course', ['$q', 'Retriever', function ($q, Retriever) {
     return function (courseCode, term, color) {
         
         var course = this;
@@ -35,7 +46,7 @@ course.factory('Course', ['$q', 'ScheduleRetriever', 'InstructorRetriever', func
             var title, start, end, end_front, end_back, start_front, start_back, days_held;
             
             // When course time is not available
-            if (this.time === null) return [];
+            if (this.time == null) return [];
             
             // Title processing
             title = this.identifier.toUpperCase() + " - " + this.type.toUpperCase();
@@ -74,7 +85,7 @@ course.factory('Course', ['$q', 'ScheduleRetriever', 'InstructorRetriever', func
                     start: day + start + "Z",
                     end: day + end + "Z",
                     backgroundColor: this.color
-                };
+                }
             }, this);
             
             return this.events;
@@ -82,7 +93,7 @@ course.factory('Course', ['$q', 'ScheduleRetriever', 'InstructorRetriever', func
         
         this.makeFinal = function () {
             if (this.finalEvent !== undefined) return this.finalEvent;
-            if (this.final === null) return undefined;
+            if (this.final == null) return undefined;
             
             var day_held, start, end, end_front, end_back;
 
@@ -126,7 +137,7 @@ course.factory('Course', ['$q', 'ScheduleRetriever', 'InstructorRetriever', func
             
             var course = this;
             
-            return ScheduleRetriever.get_course(this.courseCode, this.term).then(function (response) {
+            return Retriever.get_course(this.courseCode, this.term).then(function (response) {
                 var classData = response[0];
             
                 if (classData.course_data === undefined || classData.course_data == "null") {
@@ -166,37 +177,9 @@ course.factory('Course', ['$q', 'ScheduleRetriever', 'InstructorRetriever', func
                 
                 course.instructor = courseData.instructor;
                 
-                course.getInstructorData();
-                
                 course.deferred.resolve(course);
             });
             
-        };
-        
-        this.getInstructorData = function () {
-            this.instructor = this.instructor.map(function (instructor) {
-                var instructor_data = {};
-            
-                if (instructor === '') {
-                    return undefined;
-                }
-                else if (instructor.indexOf("STAFF") !== -1) {
-                    instructor_data.staff = true;
-                }
-                else {
-                    var split_name = instructor.split(",");
-                    instructor_data.first_name = split_name[1].trim();
-                    instructor_data.last_name = split_name[0].trim();
-                }
-                
-                if (!instructor_data.staff) {
-                    InstructorRetriever.retrieve(instructor_data.last_name, instructor_data.first_name).then(function (result) {
-                        instructor_data = result;
-                    });
-                }
-                
-                return instructor_data;
-            });
         };
         
         this.findCoCourses = function (type) {
@@ -211,7 +194,7 @@ course.factory('Course', ['$q', 'ScheduleRetriever', 'InstructorRetriever', func
                 }, this);
             };
             
-            return ScheduleRetriever.get_co_courses(this.identifier.substring(0, index).trim(), this.identifier.substring(index).trim(), type, this.term).then(process.bind(this));
+            return Retriever.get_co_courses(this.identifier.substring(0, index).trim(), this.identifier.substring(index).trim(), type, this.term).then(process.bind(this));
         };
         
         this.findReplacements = function () {
@@ -228,7 +211,7 @@ course.factory('Course', ['$q', 'ScheduleRetriever', 'InstructorRetriever', func
                 }, this);
             };
             
-            return ScheduleRetriever.get_replacement_courses(this.identifier.substring(0, index).trim(), this.identifier.substring(index).trim(), this.type, this.term).then(filter.bind(this));
+            return Retriever.get_replacement_courses(this.identifier.substring(0, index).trim(), this.identifier.substring(index).trim(), this.type, this.term).then(filter.bind(this));
         };
         
         this.getLatestCourseData();
@@ -301,6 +284,18 @@ course.factory('ButtonConfiguration', function () {
             buttonInitialIcon: 'glyphicon glyphicon-minus',
             buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
             buttonSuccessIcon: 'glyphicon glyphicon-ok'
+        },
+        removeOptions: {
+            buttonDefaultText: 'Remove',
+            buttonSubmittingText: 'Removing...',
+            buttonSuccessText: 'Removed',
+            buttonDefaultClass: 'btn-default',
+            buttonSubmittingClass: 'btn-primary',
+            buttonSuccessClass: 'btn-success',
+            buttonSizeClass: 'col-xs-12',
+            buttonInitialIcon: 'glyphicon glyphicon-minus',
+            buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
+            buttonSuccessIcon: 'glyphicon glyphicon-ok'
         }
     };
     
@@ -310,108 +305,107 @@ course.factory('ButtonConfiguration', function () {
 course.directive('classView', function () {
     return {
         templateUrl: "app/components/course/directives/class-view.html"
-    };
+    }
 });
 
 course.directive('courseView', function () {
     return {
         templateUrl: "app/components/course/directives/course-view.html"
-    };
+    }
 });
 
 course.directive('courseMiniView', function () {
     return {
-        scope: {
-            course: "="
-        },
         templateUrl: "app/components/course/directives/course-mini-view.html"
-    };
-});
-
-course.directive('courseMiniActions', function () {
-    return {
-        scope: {
-            course: "="
-        },
-        templateUrl: "app/components/course/directives/course-mini-actions.html",
-        controller: ['$scope', 'CourseStore', 'ButtonConfiguration', function ($scope, CourseStore, ButtonConfiguration) {
-            $scope.result = null;
-            $scope.submitting = null;
-            $scope.buttonConfig = ButtonConfiguration;
-            
-            $scope.hasCourse = function (courseCode) {
-                return CourseStore.hasCourse(courseCode);
-            };
-            
-            $scope.addCourse = function (courseCode) {
-                $scope.submitting = true;
-                CourseStore.addCourse(courseCode).then(function (result) {
-                    $scope.submitting = null;
-                    $scope.result = 'success';
-                }, function () {
-                    $scope.submitting = null;
-                    $scope.result = 'error';
-                });
-            };
-            
-            $scope.removeCourse = function (courseCode) {
-                $scope.submitting = true;
-                CourseStore.removeCourse(courseCode).then(function (result) {
-                    $scope.submitting = null;
-                    $scope.result = 'success';
-                }, function () {
-                    $scope.submitting = null;
-                    $scope.result = 'error';
-                });
-            };
-            
-        }]
-    };
-});
+    }
+})
 
 course.directive('courseTitle', function () {
     return {
         templateUrl: "app/components/course/directives/course-title.html"
-    };
+    }
 });
 
 course.directive('courseInfo', function () {
      return {
         templateUrl: "app/components/course/directives/course-info.html"
-    };
+    }
 });
 
 course.directive('courseCode', function () {
     return {
         templateUrl: 'app/components/course/directives/course-code.html'
-    };
+    }
 });
 
 course.directive('courseName', function () {
     return {
         templateUrl: 'app/components/course/directives/course-name.html'
-    };
+    }
 });
 
-course.directive('courseInstructor', function () {
+course.directive('courseInstructor', ['$http', function ($http) {
     return {
         scope: {
             instructor: "="  
         },
-        templateUrl: 'app/components/course/directives/course-instructor.html'
-    };
-});
+        templateUrl: 'app/components/course/directives/course-instructor.html',
+        link: function (scope, element, attributes) {
+            
+            var instructor_data = {};
+            
+            if (scope.instructor == "") return scope.instructor === undefined;
+            
+            else if (scope.instructor.indexOf("STAFF") !== -1) {                
+                instructor_data.first_name = "STAFF";
+                instructor_data.last_name = "STAFF";
+                instructor_data.staff = true;
+            }
+            else {
+                var split_name = scope.instructor.split(",");
+                instructor_data.first_name = split_name[1].trim();
+                instructor_data.last_name = split_name[0].trim();
+                instructor_data.staff = false;
+            }
+            
+            if (!instructor_data.staff && Object.keys(instructor_data).length > 0) {
+                $http({
+                    url: 'php/ratemyprofessor.php',
+                    method: 'GET',
+                    params: {last_name: instructor_data.last_name}
+                }).then(function (response) {
+                    var potential_match = response.data.response.docs.find(function (potential) {
+                        return potential.teacherlastname_t.toUpperCase() == this.toUpperCase();
+                    }, response.config.params.last_name);
+                    if (potential_match !== undefined) {
+                        instructor_data.rmp_id = potential_match.pk_id;
+                        instructor_data.rmp_avg_rating = potential_match.averageratingscore_rf;
+                        instructor_data.rmp_num_rating = potential_match.total_number_of_ratings_i;
+                    }
+                    scope.instructor = instructor_data;
+                });
+            }
+            scope.instructor = instructor_data;
+        }
+    }
+}]);
 
 course.directive('courseActions', function () {
     return {
         templateUrl: "app/components/course/directives/course-actions.html"
-    };
+    }
+});
+
+course.directive('courseMiniActions', function () {
+    return {
+        templateUrl: "app/components/course/directives/course-mini-actions.html",
+    }
 });
 
 course.directive('courseSearch', function () {
     return {
         templateUrl: 'app/components/course/directives/course-search.html'
-    };
+    }
 });
 
 course.directive('courseHeldDays', function () {
@@ -420,7 +414,7 @@ course.directive('courseHeldDays', function () {
             days: "="
         },
         templateUrl: "app/components/course/directives/course-held-days.html"
-    };
+    }
 });
 
 course.directive('courseTime', function () {
@@ -429,61 +423,23 @@ course.directive('courseTime', function () {
             time: "="
         },
         templateUrl: "app/components/course/directives/course-time.html"
-    };
+    }
 });
 
 course.directive('coursePlace', function () {
     return {
         templateUrl: "app/components/course/directives/course-place.html"
-    };
+    }
 });
 
 course.directive('courseProgress', function () {
     return {
-        scope: {
-            course: "="  
-        },
-        templateUrl: "app/components/course/directives/course-progress.html",
-        controller: function ($scope) {
-            
-            $scope.getWaitlistCount = function () {
-                return isNaN($scope.course.wl) ? 0 : $scope.course.wl;
-            };
-            
-            $scope.getEnrolledCount = function () {
-                return $scope.course.totalEnr;
-            };
-            
-            $scope.getCourseCapacity = function () {
-                return $scope.course.max;
-            };
-            
-            $scope.getSeatsOpen = function () {
-                return $scope.getCourseCapacity() - $scope.getEnrolledCount();
-            };
-            
-            $scope.isEmpty = function () {
-                return $scope.getEnrolledCount() === 0;
-            };
-            
-            $scope.hasWaitlist = function () {
-                return $scope.getWaitlistCount() > 0;
-            };
-            
-            $scope.isFull = function () {
-                return $scope.getEnrolledCount() >= $scope.getCourseCapacity() && !$scope.hasWaitlist();
-            };
-            
-            $scope.areSeatsOpen = function () {
-                return !$scope.hasWaitlist() && !$scope.isFull();
-            };
-            
-        }
-    };
+        templateUrl: "app/components/course/directives/course-progress.html"
+    }
 });
 
 course.directive('courseFinal', function () {
     return {
         templateUrl: "app/components/course/directives/course-final.html"
-    };
+    }
 });
