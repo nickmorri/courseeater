@@ -4,7 +4,7 @@ search.config(function ($httpProvider) {
     $httpProvider.defaults.useXDomain = true;
 });
 
-search.factory('SearchStore', ['$http', 'Retriever', function ($http, Retriever) {
+search.factory('SearchStore', ['$http', 'CourseListStore', 'Retriever', function ($http, CourseListStore, Retriever) {
     var SearchStore = {};
     
     SearchStore.available_types = [];
@@ -54,7 +54,9 @@ search.factory('SearchStore', ['$http', 'Retriever', function ($http, Retriever)
         
         SearchStore.filter = "";
         
-        Retriever.retrieve(parameters, '2015-92').then(function (response) {
+        CourseListStore.activeList.term
+        
+        Retriever.retrieve(parameters, CourseListStore.activeList.term).then(function (response) {
             SearchStore.results = response;
             SearchStore.retrieving_results = false;
         });

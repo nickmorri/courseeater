@@ -1,5 +1,9 @@
 var list = angular.module('courseeater.list', ['ui.bootstrap', 'jp.ng-bs-animated-button', 'LocalStorageModule']);
 
+list.value("defaultTerm", "2016-03");
+
+list.value("availableTerms", {"2015-14": "Spring 2015", "2015-92": "Fall 2015", "2016-03": "Winter 2016"});
+
 list.config(function (localStorageServiceProvider) {
     localStorageServiceProvider
         .setPrefix('courseeater.list')
@@ -106,7 +110,7 @@ list.factory('ParseCourseListAdaptor', ['AuthService', function (AuthService) {
     return Store;
 }]);
 
-list.factory('LocalStorageCourseListAdaptor', ['$q', 'localStorageService', function ($q, localStorageService) {
+list.factory('LocalStorageCourseListAdaptor', ['$q', 'localStorageService', 'defaultTerm', function ($q, localStorageService, defaultTerm) {
     var Store = {};
     
     // Public
@@ -115,7 +119,7 @@ list.factory('LocalStorageCourseListAdaptor', ['$q', 'localStorageService', func
         
         if (localStorageService.get('courseLists') === null) {
             localStorageService.set('courseLists', []);
-            Store.createNewList('Default', false, "2015-92");    
+            Store.createNewList('Default', false, defaultTerm);    
         }
         
     };
@@ -183,7 +187,7 @@ list.factory('LocalStorageCourseListAdaptor', ['$q', 'localStorageService', func
             });
             
             if (courseLists.length == 0) {
-                Store.createNewList('Default', false, "2015-92");
+                Store.createNewList('Default', false, defaultTerm);
                 resolve(id);
             }
             else {
@@ -217,7 +221,7 @@ list.factory('LocalStorageCourseListAdaptor', ['$q', 'localStorageService', func
     return Store;
 }]);
 
-list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', 'ParseCourseListAdaptor', 'LocalStorageCourseListAdaptor', function (CourseList, AuthService, $rootScope, ParseAdaptor, LocalAdaptor) {
+list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', 'ParseCourseListAdaptor', 'LocalStorageCourseListAdaptor', 'availableTerms', function (CourseList, AuthService, $rootScope, ParseAdaptor, LocalAdaptor, availableTerms) {
 
     var CourseListStore = {};
     
@@ -227,7 +231,7 @@ list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', 'Par
     CourseListStore.activeList = undefined;
     CourseListStore.initialized = false;
     
-    CourseListStore.available_terms = {"2015-14": "Spring 2015", "2015-92": "Fall 2015"};
+    CourseListStore.available_terms = availableTerms;
     
     CourseListStore.setAdaptor = function () {
         // If a Parse User object is logged in we should retrieve their CourseLists
@@ -334,7 +338,7 @@ list.controller('ListController', ['$scope', 'AuthService', 'CourseListStore', '
     
 }]);
 
-list.controller('CourseListModalController', ['$scope', 'CourseListStore', '$modalInstance', 'AlertStore', 'list', function ($scope, CourseListStore, $modalInstance, AlertStore, list) {
+list.controller('CourseListModalController', ['$scope', 'CourseListStore', '$modalInstance', 'AlertStore', 'defaultTerm', 'list', function ($scope, CourseListStore, $modalInstance, AlertStore, defaultTerm, list) {
     $scope.courseListStore = CourseListStore;
     
     $scope.buttonConfig = {
@@ -387,7 +391,7 @@ list.controller('CourseListModalController', ['$scope', 'CourseListStore', '$mod
         $scope.list = {
             title: undefined,
             newList: true,
-            term: "2015-92",
+            term: defaultTerm,
             shared: false
         };
     }
