@@ -140,7 +140,7 @@ course.factory('Course', ['$q', 'Retriever', function ($q, Retriever) {
             return Retriever.get_course(this.courseCode, this.term).then(function (response) {
                 var classData = response[0];
             
-                if (classData.course_data === undefined || classData.course_data == "null") {
+                if (classData === undefined || classData.course_data === undefined || classData.course_data == "null") {
                     return undefined;
                 }
                 
