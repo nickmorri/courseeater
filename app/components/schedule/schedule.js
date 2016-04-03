@@ -4,7 +4,7 @@ function ScheduleRun(CourseStore, CourseListStore) {
     }
 }
 
-function ScheduleController($scope, CourseStore, CourseListStore, TemporaryStore, uiCalendarConfig, $modal) {
+function ScheduleController($scope, CourseStore, CourseListStore, TemporaryStore, uiCalendarConfig, $uibModal) {
     $scope.temporaryStore = TemporaryStore;
     $scope.courseListStore = CourseListStore;
     $scope.courseStore = CourseStore;
@@ -12,7 +12,7 @@ function ScheduleController($scope, CourseStore, CourseListStore, TemporaryStore
     $scope.eventSource = [];
     
     $scope.courseClick = function (event, jsEvent, view) {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'app/components/schedule/directives/course-schedule-modal.html',
             controller: 'CourseScheduleModalController',
             resolve: {
@@ -69,7 +69,7 @@ function ScheduleController($scope, CourseStore, CourseListStore, TemporaryStore
     
 }
 
-function FinalScheduleController($scope, CourseStore, CourseListStore, TemporaryStore, uiCalendarConfig, $modal) {
+function FinalScheduleController($scope, CourseStore, CourseListStore, TemporaryStore, uiCalendarConfig, $uibModal) {
     $scope.courseListStore = CourseListStore;
     $scope.courseStore = CourseStore;
     $scope.temporaryStore = TemporaryStore;
@@ -77,7 +77,7 @@ function FinalScheduleController($scope, CourseStore, CourseListStore, Temporary
     $scope.eventSource = [];
     
     $scope.courseClick = function (event, jsEvent, view) {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'app/components/schedule/directives/course-schedule-modal.html',
             controller: 'CourseScheduleModalController',
             resolve: {
@@ -152,7 +152,7 @@ function FinalScheduleController($scope, CourseStore, CourseListStore, Temporary
     
 }
 
-function CourseScheduleModalController($scope, $modal, $modalInstance, CourseStore, TemporaryStore, ButtonConfiguration, course) {
+function CourseScheduleModalController($scope, $uibModal, $uibModalInstance, CourseStore, TemporaryStore, ButtonConfiguration, course) {
     $scope.courseStore = CourseStore;
     $scope.temporaryStore = TemporaryStore;
     $scope.course = course;
@@ -206,7 +206,7 @@ function ScheduleToolbarDirective() {
 
 angular.module('courseeater.schedule', ['courseeater.course', 'courseeater.list', 'ui.bootstrap', 'ui.calendar'])
 	.run(['CourseStore', 'CourseListStore', ScheduleRun])
-	.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', 'uiCalendarConfig', '$modal', ScheduleController])
-	.controller('FinalScheduleController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', 'uiCalendarConfig', '$modal', FinalScheduleController])
-	.controller('CourseScheduleModalController', ['$scope', '$modal', '$modalInstance', 'CourseStore', 'TemporaryStore', 'ButtonConfiguration', 'course', CourseScheduleModalController])
+	.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', 'uiCalendarConfig', '$uibModal', ScheduleController])
+	.controller('FinalScheduleController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', 'uiCalendarConfig', '$uibModal', FinalScheduleController])
+	.controller('CourseScheduleModalController', ['$scope', '$uibModal', '$uibModalInstance', 'CourseStore', 'TemporaryStore', 'ButtonConfiguration', 'course', CourseScheduleModalController])
 	.directive('scheduleToolbar', ScheduleToolbarDirective);

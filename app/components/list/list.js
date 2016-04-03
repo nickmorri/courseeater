@@ -305,7 +305,7 @@ function CourseListStoreFactory(CourseList, AuthService, $rootScope, ParseAdapto
     
 }
 
-function ListController($scope, AuthService, CourseListStore, $modal) {
+function ListController($scope, AuthService, CourseListStore, $uibModal) {
     $scope.authService = AuthService;
     $scope.courseListStore = CourseListStore;
     
@@ -324,7 +324,7 @@ function ListController($scope, AuthService, CourseListStore, $modal) {
     };
     
     $scope.editList = function (targetList) {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
             templateUrl: 'app/components/list/directives/course-list-modal.html',
             controller: 'CourseListModalController',
             resolve: {
@@ -341,7 +341,7 @@ function ListController($scope, AuthService, CourseListStore, $modal) {
     
 }
 
-function CourseListModalController($scope, CourseListStore, $modalInstance, AlertStore, defaultTerm, list) {
+function CourseListModalController($scope, CourseListStore, $uibModalInstance, AlertStore, defaultTerm, list) {
     $scope.courseListStore = CourseListStore;
     
     $scope.buttonConfig = {
@@ -443,6 +443,6 @@ angular.module('courseeater.list', ['ui.bootstrap', 'jp.ng-bs-animated-button', 
 	.factory('ParseCourseListAdaptor', ['AuthService', ParseCourseListAdaptorFactory])
 	.factory('LocalStorageCourseListAdaptor', ['$q', 'localStorageService', 'defaultTerm', LocalStorageCourseListAdaptorFactory])
 	.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', 'ParseCourseListAdaptor', 'LocalStorageCourseListAdaptor', 'availableTerms', CourseListStoreFactory])
-	.controller('ListController', ['$scope', 'AuthService', 'CourseListStore', '$modal', ListController])
-	.controller('CourseListModalController', ['$scope', 'CourseListStore', '$modalInstance', 'AlertStore', 'defaultTerm', 'list', CourseListModalController])
+	.controller('ListController', ['$scope', 'AuthService', 'CourseListStore', '$uibModal', ListController])
+	.controller('CourseListModalController', ['$scope', 'CourseListStore', '$uibModalInstance', 'AlertStore', 'defaultTerm', 'list', CourseListModalController])
 	.directive('courseListView', CourseListViewDirective);

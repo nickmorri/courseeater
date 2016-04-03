@@ -1,4 +1,4 @@
-function CourseSearchModalController($scope, Course, CourseStore, TemporaryStore, $modalInstance, ButtonConfiguration) {
+function CourseSearchModalController($scope, Course, CourseStore, TemporaryStore, $uibModalInstance, ButtonConfiguration) {
     $scope.temporaryStore = TemporaryStore;
     $scope.courseStore = CourseStore;
     
@@ -20,11 +20,11 @@ function CourseSearchModalController($scope, Course, CourseStore, TemporaryStore
     };
     
     // Clear temporary store regardless of result
-    $modalInstance.result.then($scope.temporaryStore.clear, $scope.temporaryStore.clear);
+    $uibModalInstance.result.then($scope.temporaryStore.clear, $scope.temporaryStore.clear);
  
 }
 
-function TrackController($scope, CourseListStore, CourseStore, TemporaryStore, AlertStore, $modal, ButtonConfiguration) {
+function TrackController($scope, CourseListStore, CourseStore, TemporaryStore, AlertStore, $uibModal, ButtonConfiguration) {
     $scope.courseListStore = CourseListStore;
     $scope.courseStore = CourseStore;
     $scope.temporaryStore = TemporaryStore;
@@ -66,7 +66,7 @@ function TrackController($scope, CourseListStore, CourseStore, TemporaryStore, A
     };
     
     $scope.displaySearch = function () {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'app/components/course/directives/course-search-modal.html',
             controller: 'CourseSearchModalController'
         });
@@ -79,5 +79,5 @@ function TrackController($scope, CourseListStore, CourseStore, TemporaryStore, A
 }
 
 angular.module('courseeater.track', ['courseeater.course', 'courseeater.list', 'courseeater.alert', 'ui.bootstrap', 'angular.filter', 'jp.ng-bs-animated-button'])
-	.controller('CourseSearchModalController', ['$scope', 'Course', 'CourseStore', 'TemporaryStore', '$modalInstance', 'ButtonConfiguration', CourseSearchModalController])
-	.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore', 'TemporaryStore', 'AlertStore', '$modal', 'ButtonConfiguration', TrackController]);
+	.controller('CourseSearchModalController', ['$scope', 'Course', 'CourseStore', 'TemporaryStore', '$uibModalInstance', 'ButtonConfiguration', CourseSearchModalController])
+	.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore', 'TemporaryStore', 'AlertStore', '$uibModal', 'ButtonConfiguration', TrackController]);

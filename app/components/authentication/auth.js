@@ -250,7 +250,7 @@ function passwordResetPartialDirective(AuthService) {
     }
 }
 
-angular.module('courseeater.auth', ['parse-angular', 'parse.service', 'jp.ng-bs-animated-button'])
+angular.module('courseeater.auth', ['parse.service', 'jp.ng-bs-animated-button'])
 	.factory('AuthService', ['$state', '$rootScope', '$window', AuthServiceFactory])
 	.controller('NavController', ['$scope', 'AuthService', NavController])
 	.directive('userMenu', userMenuDirective)

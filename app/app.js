@@ -86,5 +86,5 @@ angular.module('CourseEaterApp', ['ui.router', 'courseeater.auth', 'courseeater.
 	.run(AppRun)
 	.controller('HeadController', ['$scope', '$state', HeadController])
 	.controller('NavController',['$scope', '$state', NavController])
-	.directive('navigationView', navigationView)
+	.directive('navigationView', navigationViewDirective)
 	.directive('title', ['$rootScope', titleDirective]);
