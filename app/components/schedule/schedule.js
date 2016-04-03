@@ -1,10 +1,10 @@
-var schedule = angular.module('courseeater.schedule', ['courseeater.course', 'courseeater.list', 'ui.bootstrap', 'ui.calendar']);
+function ScheduleRun(CourseStore, CourseListStore) {
+    if (!CourseListStore.initialized) {
+	    CourseListStore.retrieveCourseLists();
+    }
+}
 
-schedule.run(['CourseStore', 'CourseListStore', function (CourseStore, CourseListStore) {
-    if (!CourseListStore.initialized) CourseListStore.retrieveCourseLists();
-}]);
-
-schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', 'uiCalendarConfig', '$modal', function ($scope, CourseStore, CourseListStore, TemporaryStore, uiCalendarConfig, $modal) {
+function ScheduleController($scope, CourseStore, CourseListStore, TemporaryStore, uiCalendarConfig, $modal) {
     $scope.temporaryStore = TemporaryStore;
     $scope.courseListStore = CourseListStore;
     $scope.courseStore = CourseStore;
@@ -67,9 +67,9 @@ schedule.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListS
     
     if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
     
-}]);
+}
 
-schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', 'uiCalendarConfig', '$modal', function ($scope, CourseStore, CourseListStore, TemporaryStore, uiCalendarConfig, $modal) {
+function FinalScheduleController($scope, CourseStore, CourseListStore, TemporaryStore, uiCalendarConfig, $modal) {
     $scope.courseListStore = CourseListStore;
     $scope.courseStore = CourseStore;
     $scope.temporaryStore = TemporaryStore;
@@ -150,9 +150,9 @@ schedule.controller('FinalScheduleController', ['$scope', 'CourseStore', 'Course
     
     if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
     
-}]);
+}
 
-schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$modalInstance', 'CourseStore', 'TemporaryStore', 'ButtonConfiguration', 'course', function ($scope, $modal, $modalInstance, CourseStore, TemporaryStore, ButtonConfiguration, course) {
+function CourseScheduleModalController($scope, $modal, $modalInstance, CourseStore, TemporaryStore, ButtonConfiguration, course) {
     $scope.courseStore = CourseStore;
     $scope.temporaryStore = TemporaryStore;
     $scope.course = course;
@@ -196,10 +196,17 @@ schedule.controller('CourseScheduleModalController', ['$scope', '$modal', '$moda
         $scope.$close();
     };
     
-}]);
+}
 
-schedule.directive('scheduleToolbar', function () {
+function ScheduleToolbarDirective() {
     return {
         templateUrl: 'app/components/schedule/directives/schedule-toolbar.html'
     }
-});
+}
+
+angular.module('courseeater.schedule', ['courseeater.course', 'courseeater.list', 'ui.bootstrap', 'ui.calendar'])
+	.run(['CourseStore', 'CourseListStore', ScheduleRun])
+	.controller('ScheduleController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', 'uiCalendarConfig', '$modal', ScheduleController])
+	.controller('FinalScheduleController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', 'uiCalendarConfig', '$modal', FinalScheduleController])
+	.controller('CourseScheduleModalController', ['$scope', '$modal', '$modalInstance', 'CourseStore', 'TemporaryStore', 'ButtonConfiguration', 'course', CourseScheduleModalController])
+	.directive('scheduleToolbar', ScheduleToolbarDirective);

@@ -1,6 +1,4 @@
-var track = angular.module('courseeater.track', ['courseeater.course', 'courseeater.list', 'courseeater.alert', 'ui.bootstrap', 'angular.filter', 'jp.ng-bs-animated-button']);
-
-track.controller('CourseSearchModalController', ['$scope', 'Course', 'CourseStore', 'TemporaryStore', '$modalInstance', 'ButtonConfiguration', function ($scope, Course, CourseStore, TemporaryStore, $modalInstance, ButtonConfiguration) {
+function CourseSearchModalController($scope, Course, CourseStore, TemporaryStore, $modalInstance, ButtonConfiguration) {
     $scope.temporaryStore = TemporaryStore;
     $scope.courseStore = CourseStore;
     
@@ -24,9 +22,9 @@ track.controller('CourseSearchModalController', ['$scope', 'Course', 'CourseStor
     // Clear temporary store regardless of result
     $modalInstance.result.then($scope.temporaryStore.clear, $scope.temporaryStore.clear);
  
-}]);
+}
 
-track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore', 'TemporaryStore', 'AlertStore', '$modal', 'ButtonConfiguration', function ($scope, CourseListStore, CourseStore, TemporaryStore, AlertStore, $modal, ButtonConfiguration) {
+function TrackController($scope, CourseListStore, CourseStore, TemporaryStore, AlertStore, $modal, ButtonConfiguration) {
     $scope.courseListStore = CourseListStore;
     $scope.courseStore = CourseStore;
     $scope.temporaryStore = TemporaryStore;
@@ -43,11 +41,9 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
         $scope.courseStore.addCourse($scope.newCourseCode).then(function (response) {
             $scope.temporaryStore.clear();
             $scope.result = 'success';
-
             $scope.newCourseCode = undefined;
         }, function (error) {
             $scope.result = 'error';
-
             $scope.alertStore.addMessage(error.message, 'warning')
         });
     };
@@ -76,6 +72,12 @@ track.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore',
         });
     };
     
-    if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
+    if (!$scope.courseListStore.initialized) {
+	    $scope.courseListStore.retrieveCourseLists();
+    }
     
-}]);
+}
+
+angular.module('courseeater.track', ['courseeater.course', 'courseeater.list', 'courseeater.alert', 'ui.bootstrap', 'angular.filter', 'jp.ng-bs-animated-button'])
+	.controller('CourseSearchModalController', ['$scope', 'Course', 'CourseStore', 'TemporaryStore', '$modalInstance', 'ButtonConfiguration', CourseSearchModalController])
+	.controller('TrackController', ['$scope', 'CourseListStore', 'CourseStore', 'TemporaryStore', 'AlertStore', '$modal', 'ButtonConfiguration', TrackController]);

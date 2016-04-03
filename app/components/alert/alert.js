@@ -1,6 +1,4 @@
-var alert = angular.module('courseeater.alert', ['courseeater.list']);
-
-alert.factory('AlertStore',['AuthService', function (AuthService) {
+function AlertStoreFactory(AuthService) {
     var AlertStore = {};
     
     AlertStore.messages = [];
@@ -50,9 +48,9 @@ alert.factory('AlertStore',['AuthService', function (AuthService) {
     
     return AlertStore;
     
-}]);
+}
 
-alert.controller('AlertController', ['$scope', '$modal', 'AlertStore', 'CourseListStore', function ($scope, $modal, AlertStore, CourseListStore) {
+function AlertController($scope, $modal, AlertStore, CourseListStore) {
     $scope.alertStore = AlertStore;
     $scope.courseListStore = CourseListStore;
     
@@ -68,10 +66,15 @@ alert.controller('AlertController', ['$scope', '$modal', 'AlertStore', 'CourseLi
             }
         });
     };
-}]);
+}
 
-alert.directive('alertView', function () {
+function alertViewDirective() {
     return {
         templateUrl: 'app/components/alert/directives/alert-view.html'
     }
-});
+}
+
+angular.module('courseeater.alert', ['courseeater.list'])
+	.factory('AlertStore',['AuthService', AlertStoreFactory])
+	.controller('AlertController', ['$scope', '$modal', 'AlertStore', 'CourseListStore', AlertController])
+	.directive('alertView', alertViewDirective);

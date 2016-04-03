@@ -1,6 +1,4 @@
-var settings = angular.module('courseeater.settings', ['ui.bootstrap']);
-
-settings.directive('changeEmailPartial', ['AuthService', function(AuthService) {
+function changeEmailPartialDirective(AuthService) {
     return {
         scope: {},
         templateUrl: 'app/views/settings/partials/change-email-partial.html',
@@ -30,9 +28,9 @@ settings.directive('changeEmailPartial', ['AuthService', function(AuthService) {
             };
         }]
     }
-}]);
+}
 
-settings.directive('changePasswordPartial', ['AuthService', function(AuthService) {
+function changePasswordPartialDirective(AuthService) {
     return {
         scope: {},
         templateUrl: 'app/views/settings/partials/change-password-partial.html',
@@ -86,9 +84,9 @@ settings.directive('changePasswordPartial', ['AuthService', function(AuthService
             };
         }]
     }
-}]);
+}
 
-settings.directive('deleteAccountPartial', ['AuthService', function(AuthService) {
+function deleteAccountPartialDirective(AuthService) {
     return {
         scope: {},
         templateUrl: 'app/views/settings/partials/delete-account-partial.html',
@@ -121,4 +119,9 @@ settings.directive('deleteAccountPartial', ['AuthService', function(AuthService)
             
         }]
     }
-}]);
+}
+
+angular.module('courseeater.settings', ['ui.bootstrap'])
+	.directive('changeEmailPartial', ['AuthService', changeEmailPartialDirective])
+	.directive('changePasswordPartial', ['AuthService', changePasswordPartialDirective])
+	.directive('deleteAccountPartial', ['AuthService', deleteAccountPartialDirective]);

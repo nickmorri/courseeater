@@ -1,5 +1,4 @@
-// Prototypes
-
+// Primitive Prototypes
 String.prototype.toTitleCase = function () {
     return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 };
@@ -122,8 +121,7 @@ var makeImage = function (element, file_name) {
 };
 
 // Third party code
-
-var google_analytics = function () {
+(function googleAnalytics() {
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -131,6 +129,4 @@ var google_analytics = function () {
     
     ga('create', 'UA-9939990-3', 'auto');
     ga('send', 'pageview');
-};
-
-google_analytics();
+}());
