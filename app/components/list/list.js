@@ -1,10 +1,16 @@
-function ListConfig(localStorageServiceProvider) {
+var list = angular.module('courseeater.list', ['ui.bootstrap', 'jp.ng-bs-animated-button', 'LocalStorageModule']);
+
+list.value("defaultTerm", "2016-92");
+
+list.value("availableTerms", {"2015-14": "Spring 2015", "2015-92": "Fall 2015", "2016-03": "Winter 2016", "2016-14": "Spring 2016", "2016-92": "Fall 2016"});
+
+list.config(function (localStorageServiceProvider) {
     localStorageServiceProvider
         .setPrefix('courseeater.list')
         .setStorageType('localStorage')
-}
+});
 
-function CourseListFactory($q, localStorageService) {
+list.factory('CourseList', ['$q', 'localStorageService', function ($q, localStorageService) {
     return function (data) {
         this.title = data.attributes.title;
         this.term = data.attributes.term;
@@ -24,9 +30,7 @@ function CourseListFactory($q, localStorageService) {
                     var courseLists = localStorageService.get('courseLists');
                     
                     courseLists.forEach(function (list) {
-                        if (list.attributes.active) {
-	                        list.attributes.courseCodes.push(courseCode);
-                        }
+                        if (list.attributes.active) list.attributes.courseCodes.push(courseCode);
                     });
                     
                     localStorageService.set('courseLists', courseLists);
@@ -62,9 +66,9 @@ function CourseListFactory($q, localStorageService) {
         };
         
     };
-}
+}]);
 
-function ParseCourseListAdaptorFactory(AuthService) {
+list.factory('ParseCourseListAdaptor', ['AuthService', function (AuthService) {
     var Store = {};
     
     // Private
@@ -104,9 +108,9 @@ function ParseCourseListAdaptorFactory(AuthService) {
     Store.clear = function () {};
     
     return Store;
-}
+}]);
 
-function LocalStorageCourseListAdaptorFactory($q, localStorageService, defaultTerm) {
+list.factory('LocalStorageCourseListAdaptor', ['$q', 'localStorageService', 'defaultTerm', function ($q, localStorageService, defaultTerm) {
     var Store = {};
     
     // Public
@@ -215,9 +219,9 @@ function LocalStorageCourseListAdaptorFactory($q, localStorageService, defaultTe
     };
     
     return Store;
-}
+}]);
 
-function CourseListStoreFactory(CourseList, AuthService, $rootScope, ParseAdaptor, LocalAdaptor, availableTerms) {
+list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', 'ParseCourseListAdaptor', 'LocalStorageCourseListAdaptor', 'availableTerms', function (CourseList, AuthService, $rootScope, ParseAdaptor, LocalAdaptor, availableTerms) {
 
     var CourseListStore = {};
     
@@ -303,28 +307,23 @@ function CourseListStoreFactory(CourseList, AuthService, $rootScope, ParseAdapto
     
     return CourseListStore;
     
-}
+}]);
 
-function ListController($scope, AuthService, CourseListStore, $uibModal) {
+list.controller('ListController', ['$scope', 'AuthService', 'CourseListStore', '$modal', function ($scope, AuthService, CourseListStore, $modal) {
     $scope.authService = AuthService;
     $scope.courseListStore = CourseListStore;
     
     $scope.setActiveList = function (list) {
         // Do nothing if current active list is selected
-        if ($scope.courseListStore.activeList == list) {
-	        return;
-        }
+        if ($scope.courseListStore.activeList == list) return;
         
         // Collapses user menu on mobile when list is set active
-        if ($(".navbar-header .navbar-toggle").css("display") != "none") {
-	        $(".navbar-header .navbar-toggle").trigger("click");
-        }
-        
+        if ($(".navbar-header .navbar-toggle").css("display") != "none") $(".navbar-header .navbar-toggle").trigger("click");
         $scope.courseListStore.setActiveList(list);
     };
     
     $scope.editList = function (targetList) {
-        var modalInstance = $uibModal.open({
+        var modalInstance = $modal.open({
             templateUrl: 'app/components/list/directives/course-list-modal.html',
             controller: 'CourseListModalController',
             resolve: {
@@ -335,13 +334,11 @@ function ListController($scope, AuthService, CourseListStore, $uibModal) {
         });
     };
     
-    if (!$scope.courseListStore.initialized) {
-	    $scope.courseListStore.retrieveCourseLists();
-    }
+    if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
     
-}
+}]);
 
-function CourseListModalController($scope, CourseListStore, $uibModalInstance, AlertStore, defaultTerm, list) {
+list.controller('CourseListModalController', ['$scope', 'CourseListStore', '$modalInstance', 'AlertStore', 'defaultTerm', 'list', function ($scope, CourseListStore, $modalInstance, AlertStore, defaultTerm, list) {
     $scope.courseListStore = CourseListStore;
     
     $scope.buttonConfig = {
@@ -425,24 +422,12 @@ function CourseListModalController($scope, CourseListStore, $uibModalInstance, A
         });
     };
     
-}
+}]);
 
-function CourseListViewDirective() {
+list.directive('courseListView', function () {
     return {
         restrict: 'E',
         replace: true,
         templateUrl: "app/components/list/directives/course-list-view.html"
     }
-}
-
-angular.module('courseeater.list', ['ui.bootstrap', 'jp.ng-bs-animated-button', 'LocalStorageModule'])
-	.value("defaultTerm", "2016-14")
-	.value("availableTerms", {"2015-14": "Spring 2015", "2015-92": "Fall 2015", "2016-03": "Winter 2016", "2016-14": "Spring 2016"})
-	.config(ListConfig)
-	.factory('CourseList', ['$q', 'localStorageService', CourseListFactory])
-	.factory('ParseCourseListAdaptor', ['AuthService', ParseCourseListAdaptorFactory])
-	.factory('LocalStorageCourseListAdaptor', ['$q', 'localStorageService', 'defaultTerm', LocalStorageCourseListAdaptorFactory])
-	.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', 'ParseCourseListAdaptor', 'LocalStorageCourseListAdaptor', 'availableTerms', CourseListStoreFactory])
-	.controller('ListController', ['$scope', 'AuthService', 'CourseListStore', '$uibModal', ListController])
-	.controller('CourseListModalController', ['$scope', 'CourseListStore', '$uibModalInstance', 'AlertStore', 'defaultTerm', 'list', CourseListModalController])
-	.directive('courseListView', CourseListViewDirective);
+});
