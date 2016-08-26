@@ -1,8 +1,8 @@
 var list = angular.module('courseeater.list', ['ui.bootstrap', 'jp.ng-bs-animated-button', 'LocalStorageModule']);
 
-list.value("defaultTerm", "2016-03");
+list.value("defaultTerm", "2016-92");
 
-list.value("availableTerms", {"2015-14": "Spring 2015", "2015-92": "Fall 2015", "2016-03": "Winter 2016"});
+list.value("availableTerms", {"2015-14": "Spring 2015", "2015-92": "Fall 2015", "2016-03": "Winter 2016", "2016-14": "Spring 2016", "2016-92": "Fall 2016"});
 
 list.config(function (localStorageServiceProvider) {
     localStorageServiceProvider
