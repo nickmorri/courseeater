@@ -1,450 +1,456 @@
-var course = angular.module('courseeater.course', ['ui.bootstrap']);
+(function () {
+    'use strict';
 
-course.run(['CourseStore', 'CourseListStore', '$rootScope', function (CourseStore, CourseListStore, $rootScope) {
-    $rootScope.listStore = CourseListStore;
-    $rootScope.courseStore = CourseStore;
-    $rootScope.$watch('listStore.activeList', function (newList, oldList) {
-        if (newList === undefined) return;
-        else if ($rootScope.courseStore.list === undefined) $rootScope.courseStore.setActiveList(newList);
-        else if (oldList !== undefined && !oldList.courseCodes.equals(newList.courseCodes)) $rootScope.courseStore.setActiveList(newList);
-        else if (oldList === undefined && newList !== undefined) $rootScope.courseStore.setActiveList(newList);
-    });
-}]);
+    var module_dependencies = ['ui.bootstrap'];
 
-course.factory('Course', ['$q', 'Retriever', function ($q, Retriever) {
-    return function (courseCode, term, color) {
+    angular
+        .module('courseeater.course', module_dependencies)
+        .run(CourseRun)
+        .factory('Course', Course)
+        .factory('ButtonConfiguration', ButtonConfiguration)
+        .directive('classView', ClassView)
+        .directive('courseView', CourseView)
+        .directive('courseMiniView', CourseMiniView)
+        .directive('courseTitle', CourseTitle)
+        .directive('courseInfo', CourseInfo)
+        .directive('courseCode', CourseCode)
+        .directive('courseName', CourseName)
+        .directive('courseInstructor', CourseInstructor)
+        .directive('courseActions', CourseActions)
+        .directive('courseMiniActions', CourseMiniActions)
+        .directive('courseSearch', CourseSearch)
+        .directive('courseHeldDays', CourseHeldDays)
+        .directive('courseTime', CourseTime)
+        .directive('coursePlace', CoursePlace)
+        .directive('courseProgress', CourseProgress)
+        .directive('courseFinal', CourseFinal)
 
-        var course = this;
+    CourseRun.$inject = ['CourseStore', 'CourseListStore', '$rootScope'];
+    function CourseRun (CourseStore, CourseListStore, $rootScope) {
+        $rootScope.listStore = CourseListStore;
+        $rootScope.courseStore = CourseStore;
+        $rootScope.$watch('listStore.activeList', function (newList, oldList) {
+            if (newList === undefined) return;
+            else if ($rootScope.courseStore.list === undefined) $rootScope.courseStore.setActiveList(newList);
+            else if (oldList !== undefined && !oldList.courseCodes.equals(newList.courseCodes)) $rootScope.courseStore.setActiveList(newList);
+            else if (oldList === undefined && newList !== undefined) $rootScope.courseStore.setActiveList(newList);
+        });
+    }
 
-        // Course relevant data
-        this.courseCode = courseCode;
-        this.term = term;
+    Course.$inject = ['$q', 'Retriever'];
+    function Course ($q, Retriever) {
+        return function (courseCode, term, color) {
 
-        // Set to true on first retrieval of remote data
-        this.initialized = false;
+            // Course relevant data
+            this.courseCode = courseCode;
+            this.term = term;
 
-        // Used to decide which buttons to display in search modals
-        this.tracking = true;
-        this.replacement = false;
+            // Set to true on first retrieval of remote data
+            this.initialized = false;
 
-        // Used for animated button states
-        this.fetchingRemoteData = false;
-        this.isSubmitting = null;
-        this.result = null;
+            // Used to decide which buttons to display in search modals
+            this.tracking = true;
+            this.replacement = false;
 
-        // Asyncronous variable
-        this.deferred = $q.defer();
+            // Used for animated button states
+            this.fetchingRemoteData = false;
+            this.isSubmitting = null;
+            this.result = null;
 
-        // FullSchedule Calendar configuration
-        this.color = color;
-        this.events = undefined;
+            // Asyncronous variable
+            this.deferred = $q.defer();
 
-        this.makeEvent = function () {
-            // If event objects have already been created
-            if (this.events !== undefined) return this.events;
+            // FullSchedule Calendar configuration
+            this.color = color;
+            this.events = undefined;
 
-            var title, start, end, end_front, end_back, start_front, start_back, days_held;
+            this.makeEvent = function () {
+                // If event objects have already been created
+                if (this.events !== undefined) return this.events;
 
-            // When course time is not available
-            if (this.time == null) return [];
+                var title, start, end, end_front, end_back, start_front, start_back, days_held;
 
-            // Title processing
-            title = this.identifier.toUpperCase() + " - " + this.type.toUpperCase();
+                // When course time is not available
+                if (this.time == null) return [];
 
-            // Time parsing
+                // Title processing
+                title = this.identifier.toUpperCase() + " - " + this.type.toUpperCase();
 
-            // Course start time parts
-            start_front = parseInt(this.time.start.split(":")[0], 10);
-            start_back = this.time.start.split(":")[1].slice(0, 2);
+                // Time parsing
 
-            // Course end time parts
-            end_front = parseInt(this.time.end.split(":")[0], 10);
-            end_back = this.time.end.split(":")[1].slice(0, 2);
+                // Course start time parts
+                start_front = parseInt(this.time.start.split(":")[0], 10);
+                start_back = this.time.start.split(":")[1].slice(0, 2);
 
-            // Adjust to a 24 hour clock
-            if (this.time.am_pm == "PM" && end_front !== 12) end_front += 12;
-            if (this.time.start == "PM" && start_front !== 12) start_front += 12;
-            if (end_front > 12 && start_front !== 12) start_front += 12;
+                // Course end time parts
+                end_front = parseInt(this.time.end.split(":")[0], 10);
+                end_back = this.time.end.split(":")[1].slice(0, 2);
 
-            // Formatting of time string
-            if (start_front < 10) start_front = "0" + start_front;
-            if (end_front < 10) end_front = "0" + end_front;
-            start = "T" + start_front + ":" + start_back + ":00";
-            end = "T" + end_front + ":" + end_back + ":00";
+                // Adjust to a 24 hour clock
+                if (this.time.am_pm == "PM" && end_front !== 12) end_front += 12;
+                if (this.time.start == "PM" && start_front !== 12) start_front += 12;
+                if (end_front > 12 && start_front !== 12) start_front += 12;
 
-            // Day parsing
-            days_held = this.days.map(function (day, index) {
-                return getWeekday(this.indexOf(day));
-            }, ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
+                // Formatting of time string
+                if (start_front < 10) start_front = "0" + start_front;
+                if (end_front < 10) end_front = "0" + end_front;
+                start = "T" + start_front + ":" + start_back + ":00";
+                end = "T" + end_front + ":" + end_back + ":00";
 
-            // Event object creation
-            this.events = days_held.map(function (day) {
-                return {
+                // Day parsing
+                days_held = this.days.map(function (day, index) {
+                    return getWeekday(this.indexOf(day));
+                }, ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
+
+                // Event object creation
+                this.events = days_held.map(function (day) {
+                    return {
+                        id: this.courseCode,
+                        title: title,
+                        start: day + start + "Z",
+                        end: day + end + "Z",
+                        backgroundColor: this.color
+                    }
+                }, this);
+
+                return this.events;
+            };
+
+            this.makeFinal = function () {
+                if (this.finalEvent !== undefined) return this.finalEvent;
+                if (this.final == null) return undefined;
+
+                var day_held, start, end, end_front, end_back, start_front, start_back;
+
+                // Course start time parts
+                start_front = parseInt(this.final.clock.start.split(":")[0], 10);
+                start_back = this.final.clock.start.split(":")[1].slice(0, 2);
+
+                // Course end time parts
+                end_front = parseInt(this.final.clock.end.split(":")[0], 10);
+                end_back = this.final.clock.end.split(":")[1].slice(0, 2);
+
+                // Adjust to a 24 hour clock
+                if (this.final.clock.am_pm == "PM" && end_front !== 12) end_front += 12;
+                if (this.final.clock.start == "PM" && start_front !== 12) start_front += 12;
+                if (end_front > 12 && start_front !== 12) start_front += 12;
+
+                // Formatting of time string
+                if (start_front < 10) start_front = "0" + start_front;
+                if (end_front < 10) end_front = "0" + end_front;
+                start = "T" + start_front + ":" + start_back + ":00";
+                end = "T" + end_front + ":" + end_back + ":00";
+
+                var today = new Date();
+
+                day_held = today.getFullYear() + "-" + this.final.month_index + "-" + this.final.day;
+
+                //Event object creation
+                this.finalEvent = {
                     id: this.courseCode,
-                    title: title,
-                    start: day + start + "Z",
-                    end: day + end + "Z",
+                    title: this.identifier.toUpperCase() + " - " + this.type.toUpperCase(),
+                    start: day_held + start + "Z",
+                    end: day_held + end + "Z",
                     backgroundColor: this.color
-                }
-            }, this);
+                };
 
-            return this.events;
-        };
-
-        this.makeFinal = function () {
-            if (this.finalEvent !== undefined) return this.finalEvent;
-            if (this.final == null) return undefined;
-
-            var day_held, start, end, end_front, end_back;
-
-            // Course start time parts
-            start_front = parseInt(this.final.clock.start.split(":")[0], 10);
-            start_back = this.final.clock.start.split(":")[1].slice(0, 2);
-
-            // Course end time parts
-            end_front = parseInt(this.final.clock.end.split(":")[0], 10);
-            end_back = this.final.clock.end.split(":")[1].slice(0, 2);
-
-            // Adjust to a 24 hour clock
-            if (this.final.clock.am_pm == "PM" && end_front !== 12) end_front += 12;
-            if (this.final.clock.start == "PM" && start_front !== 12) start_front += 12;
-            if (end_front > 12 && start_front !== 12) start_front += 12;
-
-            // Formatting of time string
-            if (start_front < 10) start_front = "0" + start_front;
-            if (end_front < 10) end_front = "0" + end_front;
-            start = "T" + start_front + ":" + start_back + ":00";
-            end = "T" + end_front + ":" + end_back + ":00";
-
-            var today = new Date();
-
-            day_held = today.getFullYear() + "-" + this.final.month_index + "-" + this.final.day;
-
-            //Event object creation
-            this.finalEvent = {
-                id: this.courseCode,
-                title: this.identifier.toUpperCase() + " - " + this.type.toUpperCase(),
-                start: day_held + start + "Z",
-                end: day_held + end + "Z",
-                backgroundColor: this.color
+                return this.finalEvent;
             };
 
-            return this.finalEvent;
-        };
+            this.getLatestCourseData = function () {
+                this.fetchingRemoteData = true;
 
-        this.getLatestCourseData = function () {
-            this.fetchingRemoteData = true;
+                var course = this;
 
-            var course = this;
+                return Retriever.get_course(this.courseCode, this.term).then(function (response) {
+                    var classData = response[0];
 
-            return Retriever.get_course(this.courseCode, this.term).then(function (response) {
-                var classData = response[0];
-
-                if (classData === undefined || classData.course_data === undefined || classData.course_data == "null") {
-                    return undefined;
-                }
-
-                var courseData = classData.course_data[0];
-
-                course.name = classData.name;
-                course.identifier = classData.identifier;
-
-                course.cocoursesURL = classData.cocourses;
-                course.prerequistesURL = classData.prerequisites;
-                course.comments = classData.comments;
-
-                course.type = courseData.type;
-                course.sec = courseData.sec;
-
-                course.placeURL = courseData.placeURL;
-                course.place = courseData.place;
-
-                course.days = courseData.time.days;
-                course.time = courseData.time.clock;
-
-                course.localEnr = courseData.localEnr;
-                course.totalEnr = courseData.totalEnr;
-                course.max = courseData.max;
-                course.wl = courseData.wl;
-                course.final = courseData.final;
-
-                course.req = courseData.req;
-                course.rstr = courseData.rstr;
-                course.status = courseData.status;
-                course.initialized = true;
-
-                course.fetchingRemoteData = false;
-
-                course.instructor = courseData.instructor;
-
-                course.deferred.resolve(course);
-            });
-
-        };
-
-        this.findCoCourses = function (type) {
-            var index = this.identifier.lastIndexOf(" ");
-
-            // Add term to results before returning response
-            var process = function (response) {
-                if (response.length === 0) return [];
-                return response[0].course_data.map(function (course) {
-                    course.term = this.term;
-                    return course;
-                }, this);
-            };
-
-            return Retriever.get_co_courses(this.identifier.substring(0, index).trim(), this.identifier.substring(index).trim(), type, this.term).then(process.bind(this));
-        };
-
-        this.findReplacements = function () {
-            var index = this.identifier.lastIndexOf(" ");
-
-            // Remove this from the results before returning response
-            var filter = function (response) {
-                if (response.length === 0) return [];
-                return response[0].course_data.filter(function (course) {
-                    return course.courseCode != this.courseCode;
-                }, this).map(function (course) {
-                    course.term = this.term;
-                    return course;
-                }, this);
-            };
-
-            return Retriever.get_replacement_courses(this.identifier.substring(0, index).trim(), this.identifier.substring(index).trim(), this.type, this.term).then(filter.bind(this));
-        };
-
-        this.getLatestCourseData();
-
-        return this;
-
-    };
-}]);
-
-course.factory('ButtonConfiguration', function () {
-    var ButtonConfiguration = {
-        courseCodeAddOptions: {
-            buttonDefaultText: 'Add',
-            buttonSubmittingText: 'Adding',
-            buttonErrorText: 'Whoops',
-            buttonSuccessText: 'Added',
-            buttonDefaultClass: 'btn-primary',
-            buttonSuccessClass: 'btn-success',
-            buttonSizeClass: 'form-control',
-            buttonInitialIcon: 'glyphicon glyphicon-plus',
-            buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
-            buttonSuccessIcon: 'glyphicon glyphicon-ok',
-            onlyIcons: true
-        },
-        addOptions: {
-            buttonDefaultText: 'Add',
-            buttonSubmittingText: 'Adding...',
-            buttonSuccessText: 'Added',
-            buttonDefaultClass: 'btn-default',
-            buttonSubmittingClass: 'btn-primary',
-            buttonSuccessClass: 'btn-success',
-            buttonSizeClass: 'col-xs-12',
-            buttonInitialIcon: 'glyphicon glyphicon-plus',
-            buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
-            buttonSuccessIcon: 'glyphicon glyphicon-ok',
-            animationCompleteTime: '0'
-        },
-        removeOptions: {
-            buttonDefaultText: 'Remove',
-            buttonSubmittingText: 'Removing...',
-            buttonSuccessText: 'Removed',
-            buttonDefaultClass: 'btn-default',
-            buttonSubmittingClass: 'btn-primary',
-            buttonSuccessClass: 'btn-success',
-            buttonSizeClass: 'col-xs-12',
-            buttonInitialIcon: 'glyphicon glyphicon-minus',
-            buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
-            buttonSuccessIcon: 'glyphicon glyphicon-ok',
-            animationCompleteTime: '0'
-        },
-        replaceOptions: {
-            buttonDefaultText: 'Replace',
-            buttonSubmittingText: 'Replacing...',
-            buttonSuccessText: 'Replaced',
-            buttonDefaultClass: 'btn-default',
-            buttonSubmittingClass: 'btn-primary',
-            buttonSuccessClass: 'btn-success',
-            buttonSizeClass: 'col-xs-12',
-            buttonInitialIcon: 'glyphicon glyphicon-sort',
-            buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
-            buttonSuccessIcon: 'glyphicon glyphicon-ok'
-        },
-        removeWithDropdownOptions: {
-            buttonDefaultText: 'Remove',
-            buttonSubmittingText: 'Removing...',
-            buttonSuccessText: 'Removed',
-            buttonDefaultClass: 'btn-default',
-            buttonSubmittingClass: 'btn-primary',
-            buttonSuccessClass: 'btn-success',
-            buttonInitialIcon: 'glyphicon glyphicon-minus',
-            buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
-            buttonSuccessIcon: 'glyphicon glyphicon-ok'
-        },
-        removeOptions: {
-            buttonDefaultText: 'Remove',
-            buttonSubmittingText: 'Removing...',
-            buttonSuccessText: 'Removed',
-            buttonDefaultClass: 'btn-default',
-            buttonSubmittingClass: 'btn-primary',
-            buttonSuccessClass: 'btn-success',
-            buttonSizeClass: 'col-xs-12',
-            buttonInitialIcon: 'glyphicon glyphicon-minus',
-            buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
-            buttonSuccessIcon: 'glyphicon glyphicon-ok'
-        }
-    };
-
-    return ButtonConfiguration;
-});
-
-course.directive('classView', function () {
-    return {
-        templateUrl: "app/components/course/directives/class-view.html"
-    }
-});
-
-course.directive('courseView', function () {
-    return {
-        templateUrl: "app/components/course/directives/course-view.html"
-    }
-});
-
-course.directive('courseMiniView', function () {
-    return {
-        templateUrl: "app/components/course/directives/course-mini-view.html"
-    }
-})
-
-course.directive('courseTitle', function () {
-    return {
-        templateUrl: "app/components/course/directives/course-title.html"
-    }
-});
-
-course.directive('courseInfo', function () {
-     return {
-        templateUrl: "app/components/course/directives/course-info.html"
-    }
-});
-
-course.directive('courseCode', function () {
-    return {
-        templateUrl: 'app/components/course/directives/course-code.html'
-    }
-});
-
-course.directive('courseName', function () {
-    return {
-        templateUrl: 'app/components/course/directives/course-name.html'
-    }
-});
-
-course.directive('courseInstructor', ['$http', function ($http) {
-    return {
-        scope: {
-            instructor: "="
-        },
-        templateUrl: 'app/components/course/directives/course-instructor.html',
-        link: function (scope, element, attributes) {
-
-            var instructor_data = {};
-
-            if (scope.instructor == "") return scope.instructor === undefined;
-
-            else if (scope.instructor.indexOf("STAFF") !== -1) {
-                instructor_data.first_name = "STAFF";
-                instructor_data.last_name = "STAFF";
-                instructor_data.staff = true;
-            }
-            else {
-                var split_name = scope.instructor.split(",");
-                instructor_data.first_name = split_name[1].trim();
-                instructor_data.last_name = split_name[0].trim();
-                instructor_data.staff = false;
-            }
-
-            if (!instructor_data.staff && Object.keys(instructor_data).length > 0) {
-                $http({
-                    url: 'php/ratemyprofessor.php',
-                    method: 'GET',
-                    params: {last_name: instructor_data.last_name}
-                }).then(function (response) {
-                    var potential_match;
-
-                    if (!!response && !!response.data && !!response.data.response && !!response.data.response.docs) {
-                      potential_match = response.data.response.docs.find(function (potential) {
-                          return potential.teacherlastname_t.toUpperCase() == this.toUpperCase();
-                      }, response.config.params.last_name);
+                    if (classData === undefined || classData.course_data === undefined || classData.course_data == "null") {
+                        return undefined;
                     }
 
-                    if (potential_match !== undefined) {
-                        instructor_data.rmp_id = potential_match.pk_id;
-                        instructor_data.rmp_avg_rating = potential_match.averageratingscore_rf;
-                        instructor_data.rmp_num_rating = potential_match.total_number_of_ratings_i;
-                    }
-                    scope.instructor = instructor_data;
+                    var courseData = classData.course_data[0];
+
+                    course.name = classData.name;
+                    course.identifier = classData.identifier;
+
+                    course.cocoursesURL = classData.cocourses;
+                    course.prerequistesURL = classData.prerequisites;
+                    course.comments = classData.comments;
+
+                    course.type = courseData.type;
+                    course.sec = courseData.sec;
+
+                    course.placeURL = courseData.placeURL;
+                    course.place = courseData.place;
+
+                    course.days = courseData.time.days;
+                    course.time = courseData.time.clock;
+
+                    course.localEnr = courseData.localEnr;
+                    course.totalEnr = courseData.totalEnr;
+                    course.max = courseData.max;
+                    course.wl = courseData.wl;
+                    course.final = courseData.final;
+
+                    course.req = courseData.req;
+                    course.rstr = courseData.rstr;
+                    course.status = courseData.status;
+                    course.initialized = true;
+
+                    course.fetchingRemoteData = false;
+
+                    course.instructor = courseData.instructor;
+
+                    course.deferred.resolve(course);
                 });
+
+            };
+
+            this.findCoCourses = function (type) {
+                var index = this.identifier.lastIndexOf(" ");
+
+                // Add term to results before returning response
+                var process = function (response) {
+                    if (response.length === 0) return [];
+                    return response[0].course_data.map(function (course) {
+                        course.term = this.term;
+                        return course;
+                    }, this);
+                };
+
+                return Retriever.get_co_courses(this.identifier.substring(0, index).trim(), this.identifier.substring(index).trim(), type, this.term).then(process.bind(this));
+            };
+
+            this.findReplacements = function () {
+                var index = this.identifier.lastIndexOf(" ");
+
+                // Remove this from the results before returning response
+                var filter = function (response) {
+                    if (response.length === 0) return [];
+                    return response[0].course_data.filter(function (course) {
+                        return course.courseCode != this.courseCode;
+                    }, this).map(function (course) {
+                        course.term = this.term;
+                        return course;
+                    }, this);
+                };
+
+                return Retriever.get_replacement_courses(this.identifier.substring(0, index).trim(), this.identifier.substring(index).trim(), this.type, this.term).then(filter.bind(this));
+            };
+
+            this.getLatestCourseData();
+
+            return this;
+
+        };
+    }
+
+    function ButtonConfiguration () {
+        var ButtonConfiguration = {
+            courseCodeAddOptions: {
+                buttonDefaultText: 'Add',
+                buttonSubmittingText: 'Adding',
+                buttonErrorText: 'Whoops',
+                buttonSuccessText: 'Added',
+                buttonDefaultClass: 'btn-primary',
+                buttonSuccessClass: 'btn-success',
+                buttonSizeClass: 'form-control',
+                buttonInitialIcon: 'glyphicon glyphicon-plus',
+                buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
+                buttonSuccessIcon: 'glyphicon glyphicon-ok',
+                onlyIcons: true
+            },
+            addOptions: {
+                buttonDefaultText: 'Add',
+                buttonSubmittingText: 'Adding...',
+                buttonSuccessText: 'Added',
+                buttonDefaultClass: 'btn-default',
+                buttonSubmittingClass: 'btn-primary',
+                buttonSuccessClass: 'btn-success',
+                buttonSizeClass: 'col-xs-12',
+                buttonInitialIcon: 'glyphicon glyphicon-plus',
+                buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
+                buttonSuccessIcon: 'glyphicon glyphicon-ok',
+                animationCompleteTime: '0'
+            },
+            removeOptions: {
+                buttonDefaultText: 'Remove',
+                buttonSubmittingText: 'Removing...',
+                buttonSuccessText: 'Removed',
+                buttonDefaultClass: 'btn-default',
+                buttonSubmittingClass: 'btn-primary',
+                buttonSuccessClass: 'btn-success',
+                buttonSizeClass: 'col-xs-12',
+                buttonInitialIcon: 'glyphicon glyphicon-minus',
+                buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
+                buttonSuccessIcon: 'glyphicon glyphicon-ok',
+                animationCompleteTime: '0'
+            },
+            replaceOptions: {
+                buttonDefaultText: 'Replace',
+                buttonSubmittingText: 'Replacing...',
+                buttonSuccessText: 'Replaced',
+                buttonDefaultClass: 'btn-default',
+                buttonSubmittingClass: 'btn-primary',
+                buttonSuccessClass: 'btn-success',
+                buttonSizeClass: 'col-xs-12',
+                buttonInitialIcon: 'glyphicon glyphicon-sort',
+                buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
+                buttonSuccessIcon: 'glyphicon glyphicon-ok'
+            },
+            removeWithDropdownOptions: {
+                buttonDefaultText: 'Remove',
+                buttonSubmittingText: 'Removing...',
+                buttonSuccessText: 'Removed',
+                buttonDefaultClass: 'btn-default',
+                buttonSubmittingClass: 'btn-primary',
+                buttonSuccessClass: 'btn-success',
+                buttonInitialIcon: 'glyphicon glyphicon-minus',
+                buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
+                buttonSuccessIcon: 'glyphicon glyphicon-ok'
+            },
+            removeOptions: {
+                buttonDefaultText: 'Remove',
+                buttonSubmittingText: 'Removing...',
+                buttonSuccessText: 'Removed',
+                buttonDefaultClass: 'btn-default',
+                buttonSubmittingClass: 'btn-primary',
+                buttonSuccessClass: 'btn-success',
+                buttonSizeClass: 'col-xs-12',
+                buttonInitialIcon: 'glyphicon glyphicon-minus',
+                buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
+                buttonSuccessIcon: 'glyphicon glyphicon-ok'
             }
-            scope.instructor = instructor_data;
-        }
-    }
-}]);
+        };
 
-course.directive('courseActions', function () {
-    return {
-        templateUrl: "app/components/course/directives/course-actions.html"
+        return ButtonConfiguration;
     }
-});
 
-course.directive('courseMiniActions', function () {
-    return {
-        templateUrl: "app/components/course/directives/course-mini-actions.html",
+    function ClassView () {
+        return {
+            templateUrl: "app/components/course/directives/class-view.html"
+        };
     }
-});
 
-course.directive('courseSearch', function () {
-    return {
-        templateUrl: 'app/components/course/directives/course-search.html'
+    function CourseView () {
+        return {
+            templateUrl: "app/components/course/directives/course-view.html"
+        };
     }
-});
 
-course.directive('courseHeldDays', function () {
-    return {
-        scope: {
-            days: "="
-        },
-        templateUrl: "app/components/course/directives/course-held-days.html"
+    function CourseMiniView () {
+        return {
+            templateUrl: "app/components/course/directives/course-mini-view.html"
+        };
     }
-});
 
-course.directive('courseTime', function () {
-    return {
-        scope: {
-            time: "="
-        },
-        templateUrl: "app/components/course/directives/course-time.html"
+    function CourseTitle () {
+        return {
+            templateUrl: "app/components/course/directives/course-title.html"
+        };
     }
-});
 
-course.directive('coursePlace', function () {
-    return {
-        templateUrl: "app/components/course/directives/course-place.html"
+    function CourseInfo () {
+         return {
+            templateUrl: "app/components/course/directives/course-info.html"
+        };
     }
-});
 
-course.directive('courseProgress', function () {
-    return {
-        templateUrl: "app/components/course/directives/course-progress.html"
+    function CourseCode () {
+        return {
+            templateUrl: 'app/components/course/directives/course-code.html'
+        };
     }
-});
 
-course.directive('courseFinal', function () {
-    return {
-        templateUrl: "app/components/course/directives/course-final.html"
+    function CourseName () {
+        return {
+            templateUrl: 'app/components/course/directives/course-name.html'
+        };
     }
-});
+
+    function CourseInstructor () {
+        return {
+            scope: {
+                instructor: "="
+            },
+            templateUrl: 'app/components/course/directives/course-instructor.html',
+            link: function ($scope) {
+                if ($scope.instructor == "") {
+                    $scope.instructor = undefined;
+                }
+                else if ($scope.instructor.indexOf("STAFF") !== -1) {
+                    $scope.instructor = {
+                        first_name: "STAFF",
+                        last_name: undefined,
+                        staff: true
+                    };
+                }
+                else {
+                    var split_name = $scope.instructor.split(",");
+                    $scope.instructor = {
+                        first_name: split_name[1].trim(),
+                        last_name: split_name[0].trim(),
+                        staff: false
+                    };
+                }
+            }
+        };
+    }
+
+    function CourseActions () {
+        return {
+            templateUrl: "app/components/course/directives/course-actions.html"
+        };
+    }
+
+    function CourseMiniActions () {
+        return {
+            templateUrl: "app/components/course/directives/course-mini-actions.html",
+        };
+    }
+
+    function CourseSearch () {
+        return {
+            templateUrl: 'app/components/course/directives/course-search.html'
+        };
+    }
+
+    function CourseHeldDays () {
+        return {
+            scope: {
+                days: "="
+            },
+            templateUrl: "app/components/course/directives/course-held-days.html"
+        };
+    }
+
+    function CourseTime () {
+        return {
+            scope: {
+                time: "="
+            },
+            templateUrl: "app/components/course/directives/course-time.html"
+        };
+    }
+
+    function CoursePlace () {
+        return {
+            templateUrl: "app/components/course/directives/course-place.html"
+        };
+    }
+
+    function CourseProgress () {
+        return {
+            templateUrl: "app/components/course/directives/course-progress.html"
+        };
+    }
+
+    function CourseFinal () {
+        return {
+            templateUrl: "app/components/course/directives/course-final.html"
+        };
+    }
+
+}());
+

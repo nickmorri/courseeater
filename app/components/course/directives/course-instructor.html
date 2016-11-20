@@ -1,5 +1,5 @@
 <span ng-if="instructor">
-	<a href="http://www.ratemyprofessors.com/search.jsp?queryoption=HEADER&queryBy=teacherName&schoolName=University+of+California+Irvine&schoolID=1074&query={{instructor.last_name}}" target="_blank">
+	<a ng-if="!instructor.staff" href="http://www.ratemyprofessors.com/search.jsp?queryoption=HEADER&queryBy=teacherName&schoolName=University+of+California+Irvine&schoolID=1074&query={{instructor.last_name}}" target="_blank">
         <span class="glyphicon glyphicon-link"></span>
         {{instructor.last_name}}, {{instructor.first_name}}
     </a>
