@@ -24,10 +24,8 @@
                 $scope.error = false;
 
                 $scope.updateEmail = function () {
-                    $scope.authService.currentUser.set("email", $scope.newEmail);
-                    $scope.authService.currentUser.save().then(function () {
+                    Parse.Cloud.run('changeUserEmail', {email: $scope.newEmail}).then(function () {
                         $scope.newEmail = undefined;
-                        $scope.authService.currentUser.fetch();
                         $scope.success = true;
                         $scope.error = false;
                         $scope.message = "Email updated successfully.";
