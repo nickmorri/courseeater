@@ -11,7 +11,6 @@
         .directive('anonymousMenu', AnonymousMenu)
         .directive("loginPartial", LoginPartial)
         .directive("registrationPartial", RegistrationPartial)
-        .directive('passwordResetPartial', PasswordResetPartial)
 
     AuthService.$inject = ['$rootScope'];
     function AuthService ($rootScope) {
@@ -20,10 +19,6 @@
         authService.currentUser = Parse.User.current();
 
         authService.loggedIn = authService.currentUser != null;
-
-        authService.checkLogin = function (username, password) {
-            return Parse.User.logIn(username, password);
-        };
 
         authService.login = function (username, password) {
             return Parse.User.logIn(username, password).then(function (response) {
@@ -241,31 +236,6 @@
                 $scope.setInitialState();
             }]
         };
-    }
-
-    PasswordResetPartial.$inject = ['AuthService'];
-    function PasswordResetPartial (AuthService) {
-        return {
-            scope: {},
-            templateUrl: 'app/partials/password-reset-partial.html',
-            controller: ['$scope', 'AuthService', function ($scope, AuthService) {
-                $scope.authService = AuthService;
-
-                $scope.error = false;
-                $scope.email = undefined;
-                $scope.passwordResetGenerated = false;
-
-                $scope.resetPassword = function () {
-                    $scope.authService.resetPassword($scope.email).then(function () {
-                        $scope.passwordResetGenerated = true;
-                        $scope.error = false;
-                    }, function (error) {
-                        $scope.passwordResetGenerated = false;
-                        $scope.error = true;
-                    });
-                };
-            }]
-        }
     }
 
 }());

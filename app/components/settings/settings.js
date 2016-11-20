@@ -52,9 +52,9 @@
 
                 $scope.message = "";
                 $scope.error = false;
-                $scope.currentPassword = undefined
-                $scope.newPassword = undefined
-                $scope.verifyPassword = undefined
+                $scope.currentPassword = undefined;
+                $scope.newPassword = undefined;
+                $scope.verifyPassword = undefined;
 
                 $scope.updatePassword = function () {
                     if ($scope.newPassword != $scope.verifyPassword) {
@@ -71,27 +71,20 @@
                         return;
                     }
 
-                    $scope.authService.checkLogin($scope.authService.currentUser.attributes.username, $scope.currentPassword).then(function (response) {
-                        $scope.authService.currentUser.set("password", $scope.newPassword);
-                        return $scope.authService.currentUser.save();
-                    }).then(function (response) {
+                    Parse.Cloud.run('changeUserPassword', {password: $scope.newPassword}).then(function () {
                         $scope.success = true;
-
                         $scope.message = "Password successfully updated!";
-
                         $scope.error = false;
-                        $scope.currentPassword = undefined
-                        $scope.newPassword = undefined
-                        $scope.verifyPassword = undefined
+                        $scope.currentPassword = undefined;
+                        $scope.newPassword = undefined;
+                        $scope.verifyPassword = undefined;
                     }, function (error) {
                         $scope.success = false;
-
                         $scope.message = "Whoops! Something went wrong while updating your password. Please try again.";
-
                         $scope.error = true;
-                        $scope.currentPassword = undefined
-                        $scope.newPassword = undefined
-                        $scope.verifyPassword = undefined
+                        $scope.currentPassword = undefined;
+                        $scope.newPassword = undefined;
+                        $scope.verifyPassword = undefined;
                     });
 
                 };
