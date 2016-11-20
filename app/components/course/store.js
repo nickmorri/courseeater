@@ -1,4 +1,6 @@
-function TemporaryStoreFactory(Course, CourseListStore) {
+var store = angular.module('courseeater.store', ['courseeater.course', 'ui.bootstrap']);
+
+store.factory('TemporaryStore', ['Course', 'CourseListStore', function (Course, CourseListStore) {
     var TemporaryStore = {};
     
     TemporaryStore.courses = [];
@@ -124,9 +126,9 @@ function TemporaryStoreFactory(Course, CourseListStore) {
     
     return TemporaryStore;
     
-}
+}]);
 
-function CourseStoreFactory(Course, $rootScope) {
+store.factory('CourseStore', ['Course', '$rootScope', function (Course, $rootScope) {
     var CourseStore = {};
     
     CourseStore.list = undefined;
@@ -283,17 +285,12 @@ function CourseStoreFactory(Course, $rootScope) {
     
     return CourseStore;
     
-}
+}]);
 
-function sectionFilter() {
+store.filter('section', function() {
     return function (input, sec, enabled) {
         return !enabled ? input : input.filter(function (course) {
             return course.sec.indexOf(this) == 0;
         }, sec);
     };
-}
-
-angular.module('courseeater.store', ['courseeater.course', 'ui.bootstrap'])
-	.factory('TemporaryStore', ['Course', 'CourseListStore', TemporaryStoreFactory])
-	.factory('CourseStore', ['Course', '$rootScope', CourseStoreFactory])
-	.filter('section', sectionFilter);
+});

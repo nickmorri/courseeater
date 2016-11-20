@@ -1,4 +1,6 @@
-function AlertStoreFactory(AuthService) {
+var alert = angular.module('courseeater.alert', ['courseeater.list']);
+
+alert.factory('AlertStore',['AuthService', function (AuthService) {
     var AlertStore = {};
     
     AlertStore.messages = [];
@@ -48,15 +50,15 @@ function AlertStoreFactory(AuthService) {
     
     return AlertStore;
     
-}
+}]);
 
-function AlertController($scope, $uibModal, AlertStore, CourseListStore) {
+alert.controller('AlertController', ['$scope', '$modal', 'AlertStore', 'CourseListStore', function ($scope, $modal, AlertStore, CourseListStore) {
     $scope.alertStore = AlertStore;
     $scope.courseListStore = CourseListStore;
     
     
     $scope.newCourseList = function (targetList) {
-        var modalInstance = $uibModal.open({
+        var modalInstance = $modal.open({
             templateUrl: 'app/components/list/directives/course-list-modal.html',
             controller: 'CourseListModalController',
             resolve: {
@@ -66,15 +68,10 @@ function AlertController($scope, $uibModal, AlertStore, CourseListStore) {
             }
         });
     };
-}
+}]);
 
-function alertViewDirective() {
+alert.directive('alertView', function () {
     return {
         templateUrl: 'app/components/alert/directives/alert-view.html'
     }
-}
-
-angular.module('courseeater.alert', ['ui.bootstrap', 'courseeater.list'])
-	.factory('AlertStore',['AuthService', AlertStoreFactory])
-	.controller('AlertController', ['$scope', '$uibModal', 'AlertStore', 'CourseListStore', AlertController])
-	.directive('alertView', alertViewDirective);
+});

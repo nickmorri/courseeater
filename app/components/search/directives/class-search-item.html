@@ -1,5 +1,5 @@
-<uib-accordion-group class="class-search-item">
-    <uib-accordion-heading>
+<accordion-group class="class-search-item">
+    <accordion-heading>
         <div class="class-search-item-title row">
             <div class="col-xs-5 col-md-2">
                 {{class.identifier}}
@@ -12,7 +12,7 @@
                 </span>
             </div>
         </div>
-    </uib-accordion-heading>
+    </accordion-heading>
     <div class="row" ng-if="$parent.isOpen">
         <div class="col-md-12">
             <div class="alert alert-warning" ng-show="class.prerequisites != null">
@@ -21,4 +21,4 @@
         </div>
         <course-mini-view ng-repeat="course in class.course_data"></course-mini-view>
     </ul>
-</uib-accordion-group>
+</accordion-group>

@@ -8,9 +8,7 @@
 	<input type="submit" class="btn btn-lg btn-primary btn-block form-control-submit" value="Login" />
 	
 	<div class="alert alert-danger alert-login" ng-show="error">
-		<strong>Whoops!</strong> Either your username or password were incorrect. Please try again or <a href ng-click="doReset($event)" class="alert-link">try resetting your password.</a>
+		<strong>Whoops!</strong> Either your username or password were incorrect. Please try again.
 	</div>
 
 </form>
-
-<password-reset-partial ng-if="resettingPassword"></password-reset-partial>

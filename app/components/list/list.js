@@ -221,7 +221,7 @@ list.factory('LocalStorageCourseListAdaptor', ['$q', 'localStorageService', 'def
     return Store;
 }]);
 
-list.factory('CourseListStore', ['CourseList', 'AuthService', '$rootScope', 'ParseCourseListAdaptor', 'LocalStorageCourseListAdaptor', 'availableTerms', function (CourseList, AuthService, $rootScope, ParseAdaptor, LocalAdaptor, availableTerms) {
+list.factory('CourseListStore', ['CourseList', 'AuthService', '$timeout', '$rootScope', 'ParseCourseListAdaptor', 'LocalStorageCourseListAdaptor', 'availableTerms', function (CourseList, AuthService, $timeout, $rootScope, ParseAdaptor, LocalAdaptor, availableTerms) {
 
     var CourseListStore = {};
     

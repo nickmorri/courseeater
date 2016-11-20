@@ -1,4 +1,6 @@
-function AuthServiceFactory($state, $rootScope, $window) {
+var authentication = angular.module('courseeater.auth', ['parse-angular', 'parse.service', 'jp.ng-bs-animated-button']);
+
+authentication.factory('AuthService', ['$state', '$rootScope', '$window', function ($state, $rootScope, $window) {
     var authService = {};
     
     authService.currentUser = Parse.User.current();
@@ -52,21 +54,21 @@ function AuthServiceFactory($state, $rootScope, $window) {
     };
     
     return authService;
-}
+}]);
 
-function NavController($scope, AuthService) {
+authentication.controller('NavController', ['$scope', 'AuthService', function ($scope, AuthService) {
     $scope.authService = AuthService;
-}
+}]);
 
-function userMenuDirective() {
+authentication.directive('userMenu', function () {
     return {
         restrict: 'E',
         replace: true,
         templateUrl: 'app/partials/user-menu.html'
     }
-}
+});
 
-function anonymousMenuDirective() {
+authentication.directive('anonymousMenu', function () {
     return {
         scope: {},
         restrict: 'E',
@@ -82,9 +84,9 @@ function anonymousMenuDirective() {
             };
         }
     }
-}
+});
 
-function loginPartialDirective(AuthService) {
+authentication.directive('loginPartial', ['AuthService', function (AuthService) {
     return {
         scope: {},
         templateUrl: 'app/partials/login-partial.html',
@@ -103,9 +105,7 @@ function loginPartialDirective(AuthService) {
                     $scope.password = undefined;
                     $scope.error = false;
                     // Collapses user menu on mobile when list is set active
-                    if ($(".navbar-header .navbar-toggle").css("display") != "none") {
-	                    $(".navbar-header .navbar-toggle").trigger("click");
-                    }
+                    if ($(".navbar-header .navbar-toggle").css("display") != "none") $(".navbar-header .navbar-toggle").trigger("click");
                 }).fail(function (error) {
                     $scope.error = true;
                 });
@@ -119,9 +119,9 @@ function loginPartialDirective(AuthService) {
             
         }]
     };
-}
+}]);
 
-function registrationPartialDirective(AuthService, $http) {
+authentication.directive('registrationPartial', ['AuthService', '$http', function (AuthService, $http) {
     return {
         scope: {},
         templateUrl: 'app/partials/registration-partial.html',
@@ -224,9 +224,9 @@ function registrationPartialDirective(AuthService, $http) {
             $scope.setInitialState();
         }]
     }
-}
+}]);
 
-function passwordResetPartialDirective(AuthService) {
+authentication.directive('passwordResetPartial', ['AuthService', function (AuthService) {
     return {
         scope: {},
         templateUrl: 'app/partials/password-reset-partial.html',
@@ -248,13 +248,4 @@ function passwordResetPartialDirective(AuthService) {
             };
         }]
     }
-}
-
-angular.module('courseeater.auth', ['parse.service', 'jp.ng-bs-animated-button'])
-	.factory('AuthService', ['$state', '$rootScope', '$window', AuthServiceFactory])
-	.controller('NavController', ['$scope', 'AuthService', NavController])
-	.directive('userMenu', userMenuDirective)
-	.directive('anonymousMenu', anonymousMenuDirective)
-	.directive('loginPartial', ['AuthService', loginPartialDirective])
-	.directive('registrationPartial', ['AuthService', '$http', registrationPartialDirective])
-	.directive('passwordResetPartial', ['AuthService', passwordResetPartialDirective]);
+}]);

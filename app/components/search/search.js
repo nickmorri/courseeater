@@ -1,8 +1,10 @@
-function SearchConfig($httpProvider) {
-    $httpProvider.defaults.useXDomain = true;
-}
+var search = angular.module('courseeater.search', ['courseeater.course', 'courseeater.list', 'courseeater.retrieve', 'ui.bootstrap', 'angular.filter', 'jp.ng-bs-animated-button']);
 
-function SearchStoreFactory($http, CourseListStore, Retriever) {
+search.config(function ($httpProvider) {
+    $httpProvider.defaults.useXDomain = true;
+});
+
+search.factory('SearchStore', ['$http', 'CourseListStore', 'Retriever', function ($http, CourseListStore, Retriever) {
     var SearchStore = {};
     
     SearchStore.available_types = [];
@@ -27,9 +29,7 @@ function SearchStoreFactory($http, CourseListStore, Retriever) {
     SearchStore.retrieve_departments = function () {
         Retriever.get_depts_available().then(function (response) {
             // Remove 'ALL' from listing
-            if (response[0].value.indexOf("ALL") != -1) {
-	            response.splice(0, 1);
-            }
+            if (response[0].value.indexOf("ALL") != -1) response.splice(0, 1);
             
             SearchStore.available_types = SearchStore.available_types.concat(response);
         });
@@ -38,21 +38,15 @@ function SearchStoreFactory($http, CourseListStore, Retriever) {
     SearchStore.retrieve_ge_categories = function () {
         Retriever.get_ge_available().then(function (response) {
             // Remove 'ALL' from listing
-            if (response[0].value.indexOf("ANY") != -1) {
-	            response.splice(0, 1);
-            }
+            if (response[0].value.indexOf("ANY") != -1) response.splice(0, 1);
             
             SearchStore.available_types = SearchStore.available_types.concat(response);
         });
     };
     
     SearchStore.get_type = function ($item, $model, $label) {
-        if (SearchStore.selected_type.type == 'category') {
-	        SearchStore.perform_search({category: SearchStore.selected_type.value});
-        }
-        else {
-	        SearchStore.perform_search({department: SearchStore.selected_type.value});
-        }
+        if (SearchStore.selected_type.type == 'category') SearchStore.perform_search({category: SearchStore.selected_type.value});
+        else SearchStore.perform_search({department: SearchStore.selected_type.value});
     };
     
     SearchStore.perform_search = function (parameters) {
@@ -72,9 +66,9 @@ function SearchStoreFactory($http, CourseListStore, Retriever) {
     SearchStore.retrieve_ge_categories();
     
     return SearchStore;
-}
+}]);
 
-function SearchController($scope, CourseStore, CourseListStore, TemporaryStore, SearchStore, ButtonConfiguration) {
+search.controller('SearchController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', 'SearchStore', 'ButtonConfiguration', function ($scope, CourseStore, CourseListStore, TemporaryStore, SearchStore, ButtonConfiguration) {
     $scope.temporaryStore = TemporaryStore;
     $scope.courseListStore = CourseListStore;
     $scope.courseStore = CourseStore;
@@ -101,33 +95,24 @@ function SearchController($scope, CourseStore, CourseListStore, TemporaryStore, 
         });
     };
     
-    if (!$scope.courseListStore.initialized) {
-	    $scope.courseListStore.retrieveCourseLists();
-    }
+    if (!$scope.courseListStore.initialized) $scope.courseListStore.retrieveCourseLists();
     
-}
+}]);
 
-function ClassSearchItemDirective() {
+search.directive('classSearchItem', function () {
     return {
         templateUrl: 'app/components/search/directives/class-search-item.html'
     }
-}
+});
 
-function ClassPropsFilter() {
+search.filter('classProps', function () {
     return function (items, term) {
         return (!items) ? [] : items.filter(function(item) {
             return item.name.toUpperCase().indexOf(this) != -1 || item.identifier.toUpperCase().indexOf(this) != -1 || item.course_data.some(function (course) {
-                return course.courseCode.indexOf(this) != -1 || course.instructor.some(function (instructor) {
-                    return instructor.toUpperCase().indexOf(this) != -1;
+                    return course.courseCode.indexOf(this) != -1 || course.instructor.some(function (instructor) {
+                        return instructor.toUpperCase().indexOf(this) != -1;
+                    }, this);
                 }, this);
-            }, this);
         }, term.toUpperCase());
     };
-}
-
-angular.module('courseeater.search', ['courseeater.course', 'courseeater.list', 'courseeater.retrieve', 'ui.bootstrap', 'angular.filter', 'jp.ng-bs-animated-button'])
-	.config(SearchConfig)
-	.factory('SearchStore', ['$http', 'CourseListStore', 'Retriever', SearchStoreFactory])
-	.controller('SearchController', ['$scope', 'CourseStore', 'CourseListStore', 'TemporaryStore', 'SearchStore', 'ButtonConfiguration', SearchController])
-	.directive('classSearchItem', ClassSearchItemDirective)
-	.filter('classProps', ClassPropsFilter);
+});

@@ -1,4 +1,6 @@
-function changeEmailPartialDirective(AuthService) {
+var settings = angular.module('courseeater.settings', ['ui.bootstrap']);
+
+settings.directive('changeEmailPartial', ['AuthService', function(AuthService) {
     return {
         scope: {},
         templateUrl: 'app/views/settings/partials/change-email-partial.html',
@@ -12,11 +14,10 @@ function changeEmailPartialDirective(AuthService) {
             $scope.error = false;
             
             $scope.updateEmail = function () {
-                $scope.authService.currentUser.set("email", $scope.newEmail);
-                $scope.authService.currentUser.save().then(function () {
-                    $scope.newEmail = undefined;
-                    $scope.authService.currentUser.fetch();
-                    $scope.success = true;
+		Parse.Cloud.run("changeUserEmail", {email: $scope.newEmail}).then(function () {
+		    $scope.authService.currentUser.email = $scope.newEmail;
+		    $scope.newEmail = undefined;
+		    $scope.success = true;
                     $scope.error = false;
                     $scope.message = "Email updated successfully.";
                 }, function (error) {
@@ -28,9 +29,9 @@ function changeEmailPartialDirective(AuthService) {
             };
         }]
     }
-}
+}]);
 
-function changePasswordPartialDirective(AuthService) {
+settings.directive('changePasswordPartial', ['AuthService', function(AuthService) {
     return {
         scope: {},
         templateUrl: 'app/views/settings/partials/change-password-partial.html',
@@ -57,10 +58,10 @@ function changePasswordPartialDirective(AuthService) {
                     $scope.message = "New password and current password are the same. Please try entering a new password."
                     return;
                 }
-                
+
+		
                 $scope.authService.checkLogin($scope.authService.currentUser.attributes.username, $scope.currentPassword).then(function (response) {
-                    $scope.authService.currentUser.set("password", $scope.newPassword);
-                    return $scope.authService.currentUser.save();
+                    return Parse.Cloud.run("changeUserPassword", {password: $scope.newPassword});
                 }).then(function (response) {
                     $scope.success = true;
                     
@@ -84,44 +85,4 @@ function changePasswordPartialDirective(AuthService) {
             };
         }]
     }
-}
-
-function deleteAccountPartialDirective(AuthService) {
-    return {
-        scope: {},
-        templateUrl: 'app/views/settings/partials/delete-account-partial.html',
-        controller: ['$scope', 'AuthService', function ($scope, AuthService) {
-            $scope.authService = AuthService;
-            
-            $scope.password = undefined;
-            
-            $scope.error = false;
-            $scope.success = false;
-            $scope.message = undefined;
-    
-            $scope.deleteAccount = function () {
-                $scope.authService.checkLogin($scope.authService.currentUser.attributes.username, $scope.deletePassword).then(function (response) {
-                    return $scope.authService.currentUser.destroy();
-                }).then(function (response) {
-                    $scope.error = false;
-                    $scope.success = true;                    
-                    $scope.password = undefined;
-                    $scope.authService.logout();
-                    $scope.message = "You have been logged out and your account was successfully deleted.";
-                }, function (error) {
-                    $scope.error = true;
-                    $scope.success = false;
-                    $scope.password = undefined;
-                    $scope.authService.logout();
-                    $scope.message = "Invalid password entered. As a precaution you have been logged out of your account.";
-                });
-            };
-            
-        }]
-    }
-}
-
-angular.module('courseeater.settings', ['ui.bootstrap'])
-	.directive('changeEmailPartial', ['AuthService', changeEmailPartialDirective])
-	.directive('changePasswordPartial', ['AuthService', changePasswordPartialDirective])
-	.directive('deleteAccountPartial', ['AuthService', deleteAccountPartialDirective]);
+}]);
