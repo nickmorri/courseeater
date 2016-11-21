@@ -7,8 +7,8 @@
         .module("courseeater.retrieve", module_dependencies)
         .factory("Retriever", Retriever);
 
-    Retriever.$inject= ["$http"];
-    function Retriever ($http) {
+    Retriever.$inject= ["$http", "$q"];
+    function Retriever ($http, $q) {
         var Retriever = {};
 
         Retriever.host = 'https://development.courseeater.com';
@@ -17,21 +17,31 @@
         /* General operations */
 
         Retriever.get_terms = function () {
-            return $http.get(Retriever.build_term_url()).then(function (response) {
-                var dom = (new DOMParser()).parseFromString(response.data, "text/html");
-                var select = dom.getElementsByName("YearTerm")[0];
-                var options = Array.prototype.slice.call(select.childNodes);
-                var terms = options.filter(function (element) {
-                    return element.tagName !== undefined && element.tagName === "OPTION";
-                }).reduce(function (accumulator, option) {
-                    accumulator[option.value] = option.text;
-                    return accumulator;
-                }, {});
-                return {
-                    availableTerms: terms,
-                    defaultTerm: select.value
-                };
-            });
+            if (!!Retriever.cached_termData) {
+                return $q(function (resolve) {
+                    resolve(Retriever.cached_termData);
+                });
+            }
+            else {
+                return $http.get(Retriever.build_term_url()).then(function (response) {
+                    var dom = (new DOMParser()).parseFromString(response.data, "text/html");
+                    var select = dom.getElementsByName("YearTerm")[0];
+                    var options = Array.prototype.slice.call(select.childNodes);
+                    var terms = options.filter(function (element) {
+                        return element.tagName !== undefined && element.tagName === "OPTION";
+                    }).reduce(function (accumulator, option) {
+                        accumulator[option.value] = option.text;
+                        return accumulator;
+                    }, {});
+
+                    Retriever.cached_termData = {
+                        availableTerms: terms,
+                        defaultTerm: select.value
+                    };
+
+                    return Retriever.cached_termData;
+                });
+            }
         };
 
         Retriever.retrieve = function (parameters, term) {
