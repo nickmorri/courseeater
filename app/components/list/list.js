@@ -5,16 +5,18 @@
 
     angular
         .module('courseeater.list', module_dependencies)
-        .value("defaultTerm", "2017-03")
-        .value("availableTerms", {
-            "2017-03": "Winter 2017",
-            "2016-14": "Spring 2016",
-            "2016-03": "Winter 2016",
-            "2016-92": "Fall 2016",
-            "2015-14": "Spring 2015",
-            "2015-92": "Fall 2015"
-        })
         .config(ListConfig)
+        .value("termData", {
+            availableTerms: {
+                "2017-03": "Winter 2017",
+                "2016-14": "Spring 2016",
+                "2016-03": "Winter 2016",
+                "2016-92": "Fall 2016",
+                "2015-14": "Spring 2015",
+                "2015-92": "Fall 2015"
+            },
+            defaultTerm: "2017-03"
+        })
         .factory('CourseList', CourseList)
         .factory('ParseCourseListAdaptor', ParseCourseListAdaptor)
         .factory('LocalStorageCourseListAdaptor', LocalStorageCourseListAdaptor)
@@ -132,19 +134,17 @@
         return Store;
     }
 
-    LocalStorageCourseListAdaptor.$inject = ["$q", "localStorageService", "defaultTerm"];
-    function LocalStorageCourseListAdaptor ($q, localStorageService, defaultTerm) {
+    LocalStorageCourseListAdaptor.$inject = ["$q", "localStorageService", "termData"];
+    function LocalStorageCourseListAdaptor ($q, localStorageService, termData) {
         var Store = {};
 
         // Public
 
         Store.initialize = function () {
-
             if (localStorageService.get('courseLists') === null) {
                 localStorageService.set('courseLists', []);
-                Store.createNewList('Default', false, defaultTerm);
+                Store.createNewList('Default', false, termData.defaultTerm);
             }
-
         };
 
         Store.retrieveCourseLists = function () {
@@ -210,7 +210,7 @@
                 });
 
                 if (courseLists.length == 0) {
-                    Store.createNewList('Default', false, defaultTerm);
+                    Store.createNewList('Default', false, termData.defaultTerm);
                     resolve(id);
                 }
                 else {
@@ -244,8 +244,8 @@
         return Store;
     }
 
-    CourseListStore.$inject = ["CourseList", "AuthService", "$timeout", "$rootScope", "ParseCourseListAdaptor", "LocalStorageCourseListAdaptor", "availableTerms"];
-    function CourseListStore (CourseList, AuthService, $timeout, $rootScope, ParseAdaptor, LocalAdaptor, availableTerms) {
+    CourseListStore.$inject = ["CourseList", "AuthService", "$rootScope", "ParseCourseListAdaptor", "LocalStorageCourseListAdaptor", "termData"];
+    function CourseListStore (CourseList, AuthService, $rootScope, ParseAdaptor, LocalAdaptor, termData) {
 
         var CourseListStore = {};
 
@@ -255,7 +255,7 @@
         CourseListStore.activeList = undefined;
         CourseListStore.initialized = false;
 
-        CourseListStore.available_terms = availableTerms;
+        CourseListStore.available_terms = termData.availableTerms;
 
         CourseListStore.setAdaptor = function () {
             // If a Parse User object is logged in we should retrieve their CourseLists
@@ -363,9 +363,14 @@
 
     }
 
-    CourseListModalController.$inject = ["$scope", "CourseListStore", "$modalInstance", "AlertStore", "defaultTerm", "list"];
-    function CourseListModalController ($scope, CourseListStore, $modalInstance, AlertStore, defaultTerm, list) {
+    CourseListModalController.$inject = ["$scope", "CourseListStore", "Retriever", "AlertStore", "termData", "list"];
+    function CourseListModalController ($scope, CourseListStore, Retriever, AlertStore, termData, list) {
         $scope.courseListStore = CourseListStore;
+
+        Retriever.get_terms().then(function (result) {
+            $scope.available_terms = result.availableTerms;
+            $scope.list.term = result.defaultTerm;
+        });
 
         $scope.buttonConfig = {
             createList: {
@@ -417,10 +422,15 @@
             $scope.list = {
                 title: undefined,
                 newList: true,
-                term: defaultTerm,
+                term: termData.defaultTerm,
                 shared: false
             };
         }
+
+        $scope.changeTerm = function (term) {
+            list.term = term;
+        };
+
         $scope.createList = function () {
             $scope.isCreating = true;
             $scope.courseListStore.createNewList($scope.list.title, $scope.list.shared, $scope.list.term).then($scope.$close, function (error) {

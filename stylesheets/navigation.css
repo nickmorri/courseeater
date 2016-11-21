@@ -67,3 +67,7 @@
     margin-bottom: -10px;
     border-radius: 0px;
 }
+.term-menu {
+    max-height: 200px;
+    overflow-y: scroll;
+}

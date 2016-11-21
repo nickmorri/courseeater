@@ -16,6 +16,24 @@
 
         /* General operations */
 
+        Retriever.get_terms = function () {
+            return $http.get(Retriever.build_term_url()).then(function (response) {
+                var dom = (new DOMParser()).parseFromString(response.data, "text/html");
+                var select = dom.getElementsByName("YearTerm")[0];
+                var options = Array.prototype.slice.call(select.childNodes);
+                var terms = options.filter(function (element) {
+                    return element.tagName !== undefined && element.tagName === "OPTION";
+                }).reduce(function (accumulator, option) {
+                    accumulator[option.value] = option.text;
+                    return accumulator;
+                }, {});
+                return {
+                    availableTerms: terms,
+                    defaultTerm: select.value
+                };
+            });
+        };
+
         Retriever.retrieve = function (parameters, term) {
             if (parameters.hasOwnProperty('department')) return Retriever.get_department(parameters.department, term);
             else if (parameters.hasOwnProperty('category')) return Retriever.get_ge(parameters.category, term);
@@ -23,11 +41,7 @@
 
         Retriever.get = function (URL) {
             return $http.get(URL).then(function (response) {
-                return response;
-            }).then(function (response) {
-                var parser = new DOMParser();
-
-                return Retriever.process_response(Array.prototype.slice.call(parser.parseFromString(response.data, "text/html").querySelectorAll('tr[valign="top"]')));
+                return Retriever.process_response(Array.prototype.slice.call((new DOMParser()).parseFromString(response.data, "text/html").querySelectorAll('tr[valign="top"]')));
             });
         };
 
@@ -241,6 +255,10 @@
 
         Retriever.build_base_url = function (term) {
             return Retriever.host + ':' + Retriever.port + '/perl/WebSoc?YearTerm=' + encodeURIComponent(term) + '&ShowFinals=1&ShowComments=1&';
+        };
+
+        Retriever.build_term_url = function () {
+            return Retriever.host + ':' + Retriever.port + '/perl/WebSoc';
         };
 
         Retriever.build_department_url = function (department, term) {
