@@ -6,17 +6,6 @@
     angular
         .module('courseeater.list', module_dependencies)
         .config(ListConfig)
-        .value("termData", {
-            availableTerms: {
-                "2017-03": "Winter 2017",
-                "2016-14": "Spring 2016",
-                "2016-03": "Winter 2016",
-                "2016-92": "Fall 2016",
-                "2015-14": "Spring 2015",
-                "2015-92": "Fall 2015"
-            },
-            defaultTerm: "2017-03"
-        })
         .factory('CourseList', CourseList)
         .factory('ParseCourseListAdaptor', ParseCourseListAdaptor)
         .factory('LocalStorageCourseListAdaptor', LocalStorageCourseListAdaptor)
@@ -134,17 +123,19 @@
         return Store;
     }
 
-    LocalStorageCourseListAdaptor.$inject = ["$q", "localStorageService", "termData"];
-    function LocalStorageCourseListAdaptor ($q, localStorageService, termData) {
+    LocalStorageCourseListAdaptor.$inject = ["$q", "localStorageService", "Retriever"];
+    function LocalStorageCourseListAdaptor ($q, localStorageService, Retriever) {
         var Store = {};
 
         // Public
 
         Store.initialize = function () {
-            if (localStorageService.get('courseLists') === null) {
-                localStorageService.set('courseLists', []);
-                Store.createNewList('Default', false, termData.defaultTerm);
-            }
+            Retriever.get_terms().then(function (result) {
+                if (localStorageService.get('courseLists') === null) {
+                    localStorageService.set('courseLists', []);
+                    Store.createNewList('Default', false, result.defaultTerm);
+                }
+            });
         };
 
         Store.retrieveCourseLists = function () {
@@ -204,22 +195,21 @@
 
         Store.deleteList = function (id) {
             return new $q (function (resolve, reject) {
+                Retriever.get_terms().then(function (result) {
+                    var courseLists = localStorageService.get('courseLists').filter(function (list) {
+                        return id !== list.id;
+                    });
 
-                var courseLists = localStorageService.get('courseLists').filter(function (list) {
-                    return id !== list.id;
+                    if (courseLists.length == 0) {
+                        Store.createNewList('Default', false, result.defaultTerm);
+                        resolve(id);
+                    }
+                    else {
+                        courseLists[0].attributes.active = true;
+                        localStorageService.set('courseLists', courseLists);
+                        resolve(id);
+                    }
                 });
-
-                if (courseLists.length == 0) {
-                    Store.createNewList('Default', false, termData.defaultTerm);
-                    resolve(id);
-                }
-                else {
-                    courseLists[0].attributes.active = true;
-                    localStorageService.set('courseLists', courseLists);
-                    resolve(id);
-                }
-
-
             });
         };
 
@@ -244,8 +234,8 @@
         return Store;
     }
 
-    CourseListStore.$inject = ["CourseList", "AuthService", "$rootScope", "ParseCourseListAdaptor", "LocalStorageCourseListAdaptor", "termData"];
-    function CourseListStore (CourseList, AuthService, $rootScope, ParseAdaptor, LocalAdaptor, termData) {
+    CourseListStore.$inject = ["CourseList", "AuthService", "$rootScope", "ParseCourseListAdaptor", "LocalStorageCourseListAdaptor"];
+    function CourseListStore (CourseList, AuthService, $rootScope, ParseAdaptor, LocalAdaptor) {
 
         var CourseListStore = {};
 
@@ -254,8 +244,6 @@
 
         CourseListStore.activeList = undefined;
         CourseListStore.initialized = false;
-
-        CourseListStore.available_terms = termData.availableTerms;
 
         CourseListStore.setAdaptor = function () {
             // If a Parse User object is logged in we should retrieve their CourseLists
@@ -363,13 +351,23 @@
 
     }
 
-    CourseListModalController.$inject = ["$scope", "CourseListStore", "Retriever", "AlertStore", "termData", "list"];
-    function CourseListModalController ($scope, CourseListStore, Retriever, AlertStore, termData, list) {
+    CourseListModalController.$inject = ["$scope", "CourseListStore", "Retriever", "AlertStore", "list"];
+    function CourseListModalController ($scope, CourseListStore, Retriever, AlertStore, list) {
         $scope.courseListStore = CourseListStore;
 
         Retriever.get_terms().then(function (result) {
             $scope.available_terms = result.availableTerms;
-            $scope.list.term = result.defaultTerm;
+
+            if (list !== undefined) {
+                $scope.list = list;
+            } else {
+                $scope.list = {
+                    title: undefined,
+                    newList: true,
+                    term: result.defaultTerm
+                };
+            }
+
         });
 
         $scope.buttonConfig = {
@@ -415,18 +413,6 @@
         $scope.isSaving = null;
         $scope.isDeleting = null;
 
-        if (list !== undefined) {
-            $scope.list = list;
-            $scope.list.shared = false;
-        } else {
-            $scope.list = {
-                title: undefined,
-                newList: true,
-                term: termData.defaultTerm,
-                shared: false
-            };
-        }
-
         $scope.changeTerm = function (term) {
             list.term = term;
         };
@@ -446,14 +432,17 @@
                 AlertStore.addMessage("An error occured while saving " + $scope.list.title + ". Please try again.");
                 $scope.$close();
             });
-
         };
 
         $scope.deleteList = function () {
             $scope.isDeleting = true;
             $scope.courseListStore.deleteList($scope.list.id).then($scope.$close, function (error) {
-                if (error.message) AlertStore.addMessage(error.message);
-                else AlertStore.addMessage("An error occured while deleting " + $scope.list.title + ". Please try again.");
+                if (error.message) {
+                    AlertStore.addMessage(error.message);
+                }
+                else {
+                    AlertStore.addMessage("An error occured while deleting " + $scope.list.title + ". Please try again.");
+                }
                 $scope.$close();
             });
         };

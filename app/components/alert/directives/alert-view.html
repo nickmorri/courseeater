@@ -5,7 +5,7 @@
         <button type="button" class="close" data-dismiss="alert" aria-label="Close" ng-click="alertStore.removeMessage($index)"><span aria-hidden="true">&times;</span></button>
         
         <div ng-if="alert.newTermNotification">
-            {{courseListStore.available_terms[alert.message]}} schedule now available!
+            New term schedule now available!
             <a href class="alert-link" ng-click="newCourseList()">Create new schedule</a>
         </div>
         
