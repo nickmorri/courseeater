@@ -32,11 +32,7 @@
         AlertStore.removeMessage = function (index) {
             var message = AlertStore.messages.splice(index, 1)[0];
             if (message.id !== undefined) {
-                var query = new Parse.Query("Alert");
-                query.get(message.id).then(function (alert) {
-                    alert.set("read", true);
-                    alert.save();
-                });
+                Parse.Cloud.run("setAlertRead", {"objectId": alert.id});
             }
         };
 
@@ -77,6 +73,7 @@
                 }
             });
         };
+
     }
 
     function AlertView () {
