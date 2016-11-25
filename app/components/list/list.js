@@ -419,10 +419,9 @@
 
         $scope.createList = function () {
             $scope.isCreating = true;
-            $scope.courseListStore.createNewList($scope.list.title, $scope.list.shared, $scope.list.term).then($scope.$close, function (error) {
+            $scope.courseListStore.createNewList($scope.list.title, $scope.list.shared, $scope.list.term).catch(function (error) {
                 AlertStore.addMessage("An error occured while creating " + $scope.list.title + ". Please try again.");
-                $scope.$close();
-            });
+            }).finally($scope.$close);
 
         };
 
