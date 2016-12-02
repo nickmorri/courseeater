@@ -70,11 +70,27 @@
         $scope.authService = AuthService;
     }
 
-    function UserMenu () {
+    UserMenu.$inject = ['AuthService'];
+    function UserMenu (AuthService) {
         return {
+            scope: {},
             restrict: 'E',
             replace: true,
-            templateUrl: 'app/partials/user-menu.html'
+            templateUrl: 'app/partials/user-menu.html',
+            link: function ($scope) {
+                $scope.$on("login", function () {
+                    setUsername(AuthService.currentUser.attributes.username);
+                });
+
+                $scope.logout = AuthService.logout;
+
+                setUsername(AuthService.currentUser.attributes.username);
+
+                function setUsername (username) {
+                    $scope.username = username;
+                }
+
+            }
         };
     }
 
@@ -84,7 +100,7 @@
             restrict: 'E',
             replace: true,
             templateUrl: 'app/partials/anonymous-menu.html',
-            link: function ($scope, element, attributes) {
+            link: function ($scope) {
                 $scope.menu_shown = "login";
 
                 $scope.toggle_menu = function ($event) {
@@ -96,145 +112,119 @@
         };
     }
 
-    LoginPartial.$inject = ["AuthService"];
-    function LoginPartial (AuthService) {
+    function LoginPartial () {
+
+        LoginPartialController.$inject = ['$scope', 'AuthService'];
+        function LoginPartialController ($scope, AuthService) {
+
+            var ctrl = this;
+            ctrl.login = login;
+
+            $scope.error = false;
+            $scope.username = undefined;
+            $scope.password = undefined;
+
+            $scope.resettingPassword = false;
+
+            function login  () {
+                AuthService.login($scope.username, $scope.password).then(function () {
+                    $scope.username = undefined;
+                    $scope.password = undefined;
+                    $scope.error = false;
+                    // Collapses user menu on mobile when list is set active
+                    var navbarHeader = $(".navbar-header .navbar-toggle");
+                    if (navbarHeader.css("display") !== "none") {
+                        navbarHeader.trigger("click");
+                    }
+                }).fail(function () {
+                    $scope.error = true;
+                });
+            }
+        }
+
         return {
             scope: {},
             templateUrl: 'app/partials/login-partial.html',
-            controller: ['$scope', 'AuthService', function ($scope, AuthService) {
-                $scope.authService = AuthService;
-
-                $scope.error = false;
-                $scope.username = undefined;
-                $scope.password = undefined;
-
-                $scope.resettingPassword = false;
-
-                $scope.login = function ($event) {
-                    $scope.authService.login($scope.username, $scope.password).then(function (status) {
-                        $scope.username = undefined;
-                        $scope.password = undefined;
-                        $scope.error = false;
-                        // Collapses user menu on mobile when list is set active
-                        if ($(".navbar-header .navbar-toggle").css("display") != "none") $(".navbar-header .navbar-toggle").trigger("click");
-                    }).fail(function (error) {
-                        $scope.error = true;
-                    });
-                };
-
-                $scope.doReset = function ($event) {
-                    $event.preventDefault();
-                    $event.stopPropagation();
-                    $scope.resettingPassword = true;
-                };
-
-            }]
+            controller: LoginPartialController,
+            controllerAs: 'ctrl'
         };
     }
 
-    RegistrationPartial.$inject = ['AuthService', '$http'];
-    function RegistrationPartial (AuthService, $http) {
+    function RegistrationPartial () {
+
+        RegistrationPartialController.$inject = ['$scope', 'AuthService', '$http'];
+        function RegistrationPartialController ($scope, AuthService, $http) {
+
+            var ctrl = this;
+
+            ctrl.setInitialState = setInitialState;
+            ctrl.register = register;
+
+            $scope.registerButtonConfig = {
+                buttonDefaultText: 'Register',
+                buttonSubmittingText: 'Registering',
+                buttonErrorText: 'Whoops',
+                buttonSuccessText: 'Registered',
+                buttonDefaultClass: 'btn-primary',
+                buttonSuccessClass: 'btn-success',
+                buttonSizeClass: 'form-control',
+                buttonInitialIcon: 'glyphicon glyphicon-user',
+                buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
+                buttonSuccessIcon: 'glyphicon glyphicon-ok'
+            };
+
+            ctrl.setInitialState();
+
+            function setInitialState () {
+                $scope.error = false;
+                $scope.username = undefined;
+                $scope.email = undefined;
+                $scope.password = undefined;
+                $scope.verify_password = undefined;
+                $scope.antplanner_username = undefined;
+
+                $scope.isRegistering = null;
+                $scope.result = null;
+
+                $scope.error_message = "Something went wrong. Please try registering again.";
+            }
+
+            function register () {
+                $scope.result = null;
+                $scope.error = false;
+                $scope.isRegistering = true;
+
+                if ($scope.password != $scope.verify_password) {
+                    $scope.result = "error";
+                    $scope.error = true;
+                    $scope.error_message = "Password and verification password did not match please try again."
+                    return;
+                }
+
+                var courseCodes = [];
+
+                AuthService.register($scope.username, $scope.email, $scope.password).then(function (status) {
+                    ctrl.setInitialState();
+                    $scope.result = "success";
+                    // Collapses user menu on mobile when list is set active
+                    var navbarHeader = $(".navbar-header .navbar-toggle");
+                    if (navbarHeader.css("display") != "none") {
+                        navbarHeader.trigger("click");
+                    }
+                }, function (error) {
+                    $scope.result = "error";
+                    $scope.error = true;
+                    $scope.error_message = error.message || "Something went wrong. Please try registering again.";
+                });
+            }
+
+        }
+
         return {
             scope: {},
             templateUrl: 'app/partials/registration-partial.html',
-            controller: ['$scope', 'AuthService', '$http', function ($scope, AuthService, $http) {
-                $scope.authService = AuthService;
-
-                $scope.setInitialState = function () {
-                    $scope.error = false;
-                    $scope.username = undefined;
-                    $scope.email = undefined;
-                    $scope.password = undefined;
-                    $scope.verify_password = undefined;
-                    $scope.antplanner_username = undefined;
-
-                    $scope.isRegistering = null;
-                    $scope.result = null;
-
-                    $scope.error_message = "Something went wrong. Please try registering again.";
-                };
-
-                $scope.registerButtonConfig = {
-                    buttonDefaultText: 'Register',
-                    buttonSubmittingText: 'Registering',
-                    buttonErrorText: 'Whoops',
-                    buttonSuccessText: 'Registered',
-                    buttonDefaultClass: 'btn-primary',
-                    buttonSuccessClass: 'btn-success',
-                    buttonSizeClass: 'form-control',
-                    buttonInitialIcon: 'glyphicon glyphicon-user',
-                    buttonSubmittingIcon: 'glyphicon glyphicon-refresh',
-                    buttonSuccessIcon: 'glyphicon glyphicon-ok'
-                };
-
-                $scope.importAntplannerAccount = function (username) {
-                    return $http({
-                        url: 'php/antplanner.php',
-                        method: "GET",
-                        params: {username: username}
-                    });
-                };
-
-                $scope.register = function () {
-                    $scope.result = null;
-                    $scope.error = false;
-                    $scope.isRegistering = true;
-
-                    if ($scope.password != $scope.verify_password) {
-                        $scope.result = "error";
-                        $scope.error = true;
-                        $scope.error_message = "Password and verification password did not match please try again."
-                        return;
-                    }
-
-                    var courseCodes = [];
-
-                    if ($scope.antplanner_username) {
-                        $scope.importAntplannerAccount($scope.antplanner_username).then(function(response) {
-
-                            if (!response.data.success) {
-                                $scope.result = "error";
-                                $scope.error = true;
-                                $scope.error_message = "The Antplanner username entered was not retrieved. Please try again.";
-                            }
-
-                            var data = JSON.parse(response.data.data);
-
-                            for (var i = 0; i < data.length; i++) {
-                                var courseCode = parseInt(data[i].groupId, 10);
-                                if (courseCodes.indexOf(courseCode) == -1) courseCodes.push(courseCode);
-                            }
-
-
-
-                            $scope.authService.register($scope.username, $scope.email, $scope.password, {title: $scope.antplanner_username, courseCodes: courseCodes}).then(function (status) {
-                                $scope.setInitialState();
-                                $scope.result = "success";
-                                // Collapses user menu on mobile when list is set active
-                                if ($(".navbar-header .navbar-toggle").css("display") != "none") $(".navbar-header .navbar-toggle").trigger("click");
-                            }, function (error) {
-                                $scope.result = "error";
-                                $scope.error = true;
-                                $scope.error_message = error.message !== undefined ? error.message : "Something went wrong. Please try registering again.";
-                            });
-                        });
-                    }
-                    else {
-                        $scope.authService.register($scope.username, $scope.email, $scope.password).then(function (status) {
-                            $scope.setInitialState();
-                            $scope.result = "success";
-                            // Collapses user menu on mobile when list is set active
-                            if ($(".navbar-header .navbar-toggle").css("display") != "none") $(".navbar-header .navbar-toggle").trigger("click");
-                        }, function (error) {
-                            $scope.result = "error";
-                            $scope.error = true;
-                            $scope.error_message = error.message !== undefined ? error.message : "Something went wrong. Please try registering again.";
-                        });
-                    }
-                };
-
-                $scope.setInitialState();
-            }]
+            controller: RegistrationPartialController,
+            controllerAs: 'ctrl'
         };
     }
 

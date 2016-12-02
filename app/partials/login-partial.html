@@ -1,7 +1,7 @@
 <li class="dropdown-header">Already have an account?</li>
 <li class="divider"></li>
 
-<form class="form-signin form-user-management" ng-submit="login($event)" autocomplete="on" ng-show="!resettingPassword">
+<form class="form-signin form-user-management" ng-submit="ctrl.login()" autocomplete="on" ng-show="!resettingPassword">
 
 	<input type="text" class="form-control form-control-username login-username" placeholder="Username" ng-model="username" required autofocus />
 	<input type="password" class="form-control form-control-password login-password" placeholder="Password" ng-model="password" required />
