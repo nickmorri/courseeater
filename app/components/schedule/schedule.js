@@ -144,8 +144,9 @@
 
             var year = monday.getFullYear().toString();
             var month = (monday.getMonth() + 1).toString();
+            var day = monday.getDate().toString();
+
             month = month.length == 2 ? month : "0" + month;
-            var day = monday.getDate()
             day = day.length == 2 ? day : ("0" + day);
 
             $scope.uiConfig.calendar.defaultDate = year + "-" + month + "-" + day;
