@@ -44,6 +44,12 @@
             // Course relevant data
             this.courseCode = courseCode;
             this.term = term;
+            this.quarter = Retriever.get_terms().then(function (terms) {
+                var human_readable = terms.availableTerms[this.term].split(' ');
+                var quarter_first_char = human_readable[1][0];
+                var year_last_two_chars = human_readable[0].substr(2, 2);
+                this.quarter = quarter_first_char + year_last_two_chars;
+            }.bind(this));
 
             // Set to true on first retrieval of remote data
             this.initialized = false;
