@@ -414,7 +414,7 @@
         $scope.isDeleting = null;
 
         $scope.changeTerm = function (term) {
-            list.term = term;
+            $scope.list.term = term;
         };
 
         $scope.createList = function () {
